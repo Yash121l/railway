@@ -1,7 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
-import { CalendarDays, Mail, Ticket } from "lucide-react";
+import {
+  BellRing,
+  CalendarDays,
+  CloudSun,
+  History,
+  Lock,
+  Mail,
+  Ticket,
+  Users,
+} from "lucide-react";
 import { CountUp } from "./CountUp";
+import { LiveActivityMock } from "./LiveActivityMock";
 import { LiveBoard } from "./LiveBoard";
 import { NetworkCanvas } from "./NetworkCanvas";
 import { NotifCard } from "./NotifCard";
@@ -272,12 +282,12 @@ export function NetworkIntel() {
 }
 
 const MORE = [
-  ["Family sharing.", "Share Railly with up to 5 family members at a time."],
-  ["Privacy first.", "Your journeys and history are viewable only by you."],
-  ["Live Activities.", "Your train on the Lock Screen, updating platform to platform."],
-  ["24hr Where's-My-Rake.", "Track your inbound rake a full day before departure."],
-  ["Weather radar.", "Fog, storms and heat waves along your exact route."],
-  ["Calendar sync.", "Every journey lands in your calendar automatically."],
+  [Users, "Family sharing.", "Share Railly with up to 5 family members at a time."],
+  [Lock, "Privacy first.", "Your journeys and history are viewable only by you."],
+  [History, "24hr Where's-My-Rake.", "Track your inbound rake a full day before departure."],
+  [CloudSun, "Weather radar.", "Fog, storms and heat waves along your exact route."],
+  [CalendarDays, "Calendar sync.", "Every journey lands in your calendar automatically."],
+  [BellRing, "Fastest alerts.", "Push arrives before the announcer clears her throat."],
 ] as const;
 
 export function MoreGrid() {
@@ -288,12 +298,19 @@ export function MoreGrid() {
           More reasons you&apos;ll want to take Railly on your next trip.
         </h3>
       </Reveal>
+      {/* bento: the Live Activity runs live in the tall cell, features wrap it */}
       <div className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {MORE.map(([title, body], i) => (
+        <Reveal from="zoom" className="sm:row-span-3 lg:row-span-3">
+          <LiveActivityMock />
+        </Reveal>
+        {MORE.map(([Icon, title, body], i) => (
           <Reveal key={title} delay={i * 60}>
-            <div className="card-lift h-full rounded-2xl bg-linen p-5 ring-1 ring-black/[0.05]">
-              <span className="text-[15px] font-bold text-black">{title}</span>{" "}
-              <span className="text-[15px] text-carbon">{body}</span>
+            <div className="card-lift flex h-full flex-col gap-2.5 rounded-2xl bg-linen p-5 ring-1 ring-black/[0.05]">
+              <Icon size={20} className="text-carbon" strokeWidth={1.8} />
+              <p>
+                <span className="text-[15px] font-bold text-black">{title}</span>{" "}
+                <span className="text-[15px] text-carbon">{body}</span>
+              </p>
             </div>
           </Reveal>
         ))}

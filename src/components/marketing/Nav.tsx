@@ -87,7 +87,7 @@ export function Nav() {
             <a
               key={label}
               href={href}
-              className="rounded-full px-3.5 py-2 text-[15px] font-medium text-black/80 transition-colors hover:text-black"
+              className="rounded-full px-3.5 py-2 text-[15px] font-medium text-black/80 transition-colors hover:bg-black/[0.05] hover:text-black"
             >
               {label}
             </a>
