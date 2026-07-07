@@ -4,24 +4,26 @@
 
 Built with **Next.js 16 · React 19 · Tailwind CSS 4 · MapLibre GL · TypeScript (strict)**. No backend, no API keys — see [how the live network works](#how-the-live-network-works).
 
-|  The departure board  |  The control room  |
-| :---: | :---: |
-| ![Marketing site](docs/screens/landing.png) | ![Live map](docs/screens/live-map.png) |
+![Marketing site](docs/screens/landing.png)
 
 |  My Trips  |  Trip detail  |  Track  |
 | :---: | :---: | :---: |
 | ![My Trips](docs/screens/my-trips.png) | ![Trip detail](docs/screens/trip-detail.png) | ![Track board](docs/screens/track.png) |
 
+|  Logbook  |  Delay report  |
+| :---: | :---: |
+| ![Logbook](docs/screens/logbook.png) | ![Delay report](docs/screens/delay-report.png) |
+
 ## What's inside
 
 **Marketing site (`/`)** — a faithful flighty.com structural clone, re-copywritten for rail: announcement bar, floating pill nav, hero with auto-cycling notification cards orbiting a phone mockup, dark press-quote wall with hover crossfade, alternating feature journey, Friends, Passport teaser, a dark "Network Intelligence" live board, masonry testimonial wall, INR pricing, and the full footer. Scroll reveals respect `prefers-reduced-motion`.
 
-**The app (`/app`)** — Flighty's design language, applied to trains:
+**The app (`/app`)** — the Dec 2025 Flighty design language (studied from 119 real iOS screenshots), applied to trains:
 
-- **My Trips** — one dense departure-board card per journey: big station codes, struck-through late times (green = on time, red = late), tinted status pills, and a live progress bar with the train glyph riding the fill edge. Journeys group into *Live now · date headers · Past*.
-- **Trip detail** (`/app/trip/[id]`) — dark MapLibre map with the flown route solid orange, the remainder dashed and dimmed, and a glowing live marker; then a sheet of cards: status header, departure/arrival blocks (platform is the hero datum), live progress (km covered / speed / time to go), a delay-explanation **Updates feed** ("Held at the outer signal… +9m near Manmad"), full station timeline, 60-day arrival forecast, rake details, booking, and good-to-know.
+- **My Trips** — a live network map (every route as a glowing blue arc, live trains as markers) behind a white sheet: "My Trips ⌄", a working "Search to add trains" field, and one dense row per journey — huge countdown numerals or an ON RAILS badge on the left rail, bold city pairs, and dep/arr time cells whose whole cluster flips green/red with status (`+1` superscripts for next-day arrivals).
+- **Trip detail** (`/app/trip/[id]`) — dark MapLibre map with the flown route solid blue and the remainder dashed, a live speed pill, then the sheet: mint/rose status banner with a plain-English explanation, giant colored times with struck-through scheduled ones, amber platform chips, live-run stats, a delay-explanation **Updates feed**, a Scheduled/Estimated timetable for every halt, 60-day arrival-forecast histogram, a *Where's My Rake?* card, operator contact card, route history, booking tiles, and a floating action bar with the purple **Get Pro** pill.
 - **Track** (`/app/track`) — the whole network as a one-line-per-train live board.
-- **Logbook** (`/app/logbook`) — Passport-style lifetime stats: big-number tiles, top trains, and the annual delay report.
+- **Logbook** (`/app/logbook`) — the Flighty Passport treatment: an indigo-gradient ALL-TIME RAILLY PASSPORT stat card, a maroon delay report with a **CSS split-flap board** and amber dot-matrix worst-delay row, a lavender most-ridden-train card, and the past-trips log.
 
 ## How the live network works
 
@@ -63,7 +65,7 @@ src/
 
 ## Design system
 
-Tokens live in [`src/app/globals.css`](src/app/globals.css), transcribed from a Flighty style reference: a white "departure board" canvas and a `#0d0021` violet "control room", with exactly two chromatic signals (action blue `#007bff`, conversion amber `#f7be00`) plus functional status colors. The app itself runs on Flighty's cockpit palette — cool charcoal surfaces with one warm orange accent — system-ui type, tabular numerals for every time, and uppercase micro-labels.
+Tokens live in [`src/app/globals.css`](src/app/globals.css). The marketing site follows a Flighty style reference: white "departure board" canvas, `#0d0021` violet "control room" sections, exactly two chromatic signals (action blue `#007bff`, conversion amber `#f7be00`). The app follows the Dec 2025 Flighty iOS release: white sheets over a dark map, `#f2f2f5` fills and hairline dividers, status green `#1e9e4a` / red `#d93025` owning entire time clusters, amber `#f6c445` platform chips, iOS blue actions, Pro purple `#7c3aed` — system-ui type, tabular numerals everywhere, uppercase micro-labels.
 
 ---
 

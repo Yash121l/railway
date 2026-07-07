@@ -4,7 +4,7 @@ import { Reveal } from "./Reveal";
 
 function Vignette({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-[260px] items-center justify-center rounded-3xl bg-linen p-8 ring-1 ring-black/[0.05]">
+    <div className="flex min-h-[260px] items-center justify-center rounded-3xl bg-linen p-5 sm:p-8 ring-1 ring-black/[0.05]">
       <div className="space-y-4">{children}</div>
     </div>
   );
@@ -13,7 +13,7 @@ function Vignette({ children }: { children: React.ReactNode }) {
 /** Mini "where's my rake" inbound tracker */
 function InboundRakeCard() {
   return (
-    <div className="w-[300px] rounded-[20px] bg-white p-4 shadow-float" style={{ rotate: "-2deg" }}>
+    <div className="w-full max-w-[300px] rounded-[20px] bg-white p-4 shadow-float" style={{ rotate: "-2deg" }}>
       <div className="text-[11px] font-bold uppercase tracking-[1px] text-steel">
         Where&apos;s my rake
       </div>
@@ -34,7 +34,7 @@ function InboundRakeCard() {
 function PredictionCard() {
   return (
     <div
-      className="w-[300px] rounded-[20px] border-l-[3px] border-l-sun bg-white p-4 shadow-float"
+      className="w-full max-w-[300px] rounded-[20px] border-l-[3px] border-l-sun bg-white p-4 shadow-float"
       style={{ rotate: "2deg" }}
     >
       <div className="flex items-center gap-2 text-[15px] font-semibold text-black">
@@ -52,7 +52,7 @@ function PredictionCard() {
 function AdvisoryCard() {
   return (
     <div
-      className="w-[310px] rounded-[20px] border-l-[3px] border-l-crit bg-white p-4 shadow-float"
+      className="w-full max-w-[310px] rounded-[20px] border-l-[3px] border-l-crit bg-white p-4 shadow-float"
       style={{ rotate: "-1.5deg" }}
     >
       <div className="text-[11px] font-bold uppercase tracking-[1px] text-crit">
@@ -78,7 +78,7 @@ function ProDataCard() {
     ["Exit", "Gate 2"],
   ];
   return (
-    <div className="w-[300px] rounded-[20px] bg-white p-4 shadow-float" style={{ rotate: "1.5deg" }}>
+    <div className="w-full max-w-[300px] rounded-[20px] bg-white p-4 shadow-float" style={{ rotate: "1.5deg" }}>
       <div className="grid grid-cols-2 gap-3">
         {cells.map(([label, value]) => (
           <div key={label}>

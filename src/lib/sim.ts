@@ -118,21 +118,35 @@ function buildRun(train: Train, runDate: string): Run {
   };
 }
 
-/** The run a viewer cares about right now: in progress if any, else the next scheduled one, else the last completed. */
-function resolveRun(train: Train, now: Date): Run {
+/** All runs currently inside their live window (boarding → post-arrival linger), newest first. Long overnight trains legitimately have two at once. */
+function runsInWindow(train: Train, now: Date): Run[] {
   const today = istDateISO(now);
-
-  // A run still in progress (or lingering just after arrival)?
+  const out: Run[] = [];
   for (let offset = 0; offset >= -MAX_LOOKBACK_DAYS; offset--) {
     const runDate = addDaysISO(today, offset);
     if (!train.days.includes(istWeekday(runDate))) continue;
     const run = buildRun(train, runDate);
     const from = run.departs.getTime() - BOARDING_MIN * 60_000;
     const to = run.arrivesEst.getTime() + LINGER_MIN * 60_000;
-    if (now.getTime() >= from && now.getTime() <= to) return run;
+    if (now.getTime() >= from && now.getTime() <= to) out.push(run);
+  }
+  return out;
+}
+
+/** The run a viewer cares about right now: an underway run beats one merely boarding, else the next scheduled one, else the last completed. */
+function resolveRun(train: Train, now: Date): Run {
+  const inWindow = runsInWindow(train, now);
+  if (inWindow.length > 0) {
+    const enroute = inWindow.find(
+      (r) =>
+        now.getTime() >= r.departsEst.getTime() &&
+        now.getTime() < r.arrivesEst.getTime(),
+    );
+    return enroute ?? inWindow[0];
   }
 
   // Next scheduled run within a week.
+  const today = istDateISO(now);
   for (let offset = 0; offset <= 7; offset++) {
     const runDate = addDaysISO(today, offset);
     if (!train.days.includes(istWeekday(runDate))) continue;
@@ -146,6 +160,25 @@ function resolveRun(train: Train, now: Date): Run {
     if (train.days.includes(istWeekday(runDate))) return buildRun(train, runDate);
   }
   return buildRun(train, today); // unreachable with sane data
+}
+
+/** Live pictures of every run currently in its window — so a 38h train's mid-journey run and tonight's boarding run both surface. */
+export function getActiveStatuses(train: Train, now: Date): LiveStatus[] {
+  return runsInWindow(train, now).map((run) => statusForRun(train, run, now));
+}
+
+/** The next run that hasn't entered its boarding window yet. */
+export function getScheduledStatus(train: Train, now: Date): LiveStatus | null {
+  const today = istDateISO(now);
+  for (let offset = 0; offset <= 7; offset++) {
+    const runDate = addDaysISO(today, offset);
+    if (!train.days.includes(istWeekday(runDate))) continue;
+    const run = buildRun(train, runDate);
+    if (run.departs.getTime() - BOARDING_MIN * 60_000 > now.getTime()) {
+      return statusForRun(train, run, now);
+    }
+  }
+  return null;
 }
 
 function statusOf(
@@ -172,26 +205,31 @@ function statusOf(
 
 function eventsForRun(train: Train, run: Run, now: Date): TrainEvent[] {
   const rng = seededRng(`${train.number}:${run.runDate}:events`);
-  const events: TrainEvent[] = [];
   const stops = train.stops;
-  const nowMs = now.getTime();
 
-  if (run.departsEst.getTime() <= nowMs) {
-    events.push({
-      time: run.departsEst,
-      kind: "departed",
-      text: `Departed ${stops[0].name}`,
-      detail: run.delays[0] > 0 ? `${run.delays[0]}m late` : "On time",
-    });
-  }
+  // Every RNG draw happens unconditionally, in a fixed order, so the
+  // timeline is a pure function of the run — a past event must never
+  // change its text just because the viewer's clock moved.
+  const pfStop = rng() < 0.3 ? pickInt(rng, 1, stops.length - 1) : -1;
+  const pfOldFallback = pickInt(rng, 1, 6);
+  const pfNewRaw = pickInt(rng, 1, 8);
+  const reasons = stops.map(() => pickFrom(rng, DELAY_REASONS));
+
+  const events: TrainEvent[] = [];
+
+  events.push({
+    time: run.departsEst,
+    kind: "departed",
+    text: `Departed ${stops[0].name}`,
+    detail: run.delays[0] > 0 ? `${run.delays[0]}m late` : "On time",
+  });
 
   // Seeded platform change at one upcoming-ish stop, announced ~40 min before arrival.
-  const pfStop = rng() < 0.3 ? pickInt(rng, 1, stops.length - 1) : -1;
   if (pfStop > 0) {
     const announceAt = new Date(run.timings[pfStop].arrEst.getTime() - 40 * 60_000);
-    if (announceAt.getTime() <= nowMs && announceAt.getTime() >= run.departs.getTime()) {
-      const oldPf = stops[pfStop].platform ?? String(pickInt(rng, 1, 6));
-      let newPf = String(pickInt(rng, 1, 8));
+    if (announceAt.getTime() >= run.departs.getTime()) {
+      const oldPf = stops[pfStop].platform ?? String(pfOldFallback);
+      let newPf = String(pfNewRaw);
       if (newPf === oldPf) newPf = String(Number(oldPf) + 1);
       events.push({
         time: announceAt,
@@ -208,17 +246,15 @@ function eventsForRun(train: Train, run: Run, now: Date): TrainEvent[] {
 
     // Explain meaningful delay jumps mid-segment, the Flighty signature.
     if (jump >= 8) {
-      const mid = new Date(
-        (run.timings[i - 1].depEst.getTime() + t.arrEst.getTime()) / 2,
-      );
-      if (mid.getTime() <= nowMs)
-        events.push({
-          time: mid,
-          kind: "delay",
-          text: pickFrom(rng, DELAY_REASONS),
-          detail: `+${jump}m near ${stops[i].name}`,
-        });
-    } else if (jump <= -8 && t.arrEst.getTime() <= nowMs) {
+      events.push({
+        time: new Date(
+          (run.timings[i - 1].depEst.getTime() + t.arrEst.getTime()) / 2,
+        ),
+        kind: "delay",
+        text: reasons[i],
+        detail: `+${jump}m near ${stops[i].name}`,
+      });
+    } else if (jump <= -8) {
       events.push({
         time: t.arrEst,
         kind: "recovery",
@@ -227,7 +263,7 @@ function eventsForRun(train: Train, run: Run, now: Date): TrainEvent[] {
       });
     }
 
-    if (i < stops.length - 1 && t.depEst.getTime() <= nowMs) {
+    if (i < stops.length - 1) {
       events.push({
         time: t.depEst,
         kind: "stop",
@@ -238,17 +274,20 @@ function eventsForRun(train: Train, run: Run, now: Date): TrainEvent[] {
   }
 
   const last = run.timings[run.timings.length - 1];
-  if (last.arrEst.getTime() <= nowMs) {
-    const d = run.delays[run.delays.length - 1];
-    events.push({
-      time: last.arrEst,
-      kind: "arrived",
-      text: `Arrived ${stops[stops.length - 1].name}`,
-      detail: d > 5 ? `${d}m late` : "On time",
-    });
-  }
+  events.push({
+    time: last.arrEst,
+    kind: "arrived",
+    text: `Arrived ${stops[stops.length - 1].name}`,
+    detail:
+      run.delays[run.delays.length - 1] > 5
+        ? `${run.delays[run.delays.length - 1]}m late`
+        : "On time",
+  });
 
-  return events.sort((a, b) => b.time.getTime() - a.time.getTime()).slice(0, 14);
+  return events
+    .filter((e) => e.time.getTime() <= now.getTime())
+    .sort((a, b) => b.time.getTime() - a.time.getTime())
+    .slice(0, 14);
 }
 
 /** Full live picture for the run a viewer cares about right now. */

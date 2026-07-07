@@ -1,4 +1,10 @@
-import { getLiveStatus, getLiveStatusForRun, lastCompletedRunDate } from "./sim";
+import {
+  getActiveStatuses,
+  getLiveStatus,
+  getLiveStatusForRun,
+  getScheduledStatus,
+  lastCompletedRunDate,
+} from "./sim";
 import { pickFrom, pickInt, seededRng } from "./rng";
 import { TRAINS } from "./trains";
 import type { LiveStatus, Train, Trip } from "./types";
@@ -38,7 +44,8 @@ export function bookingFor(id: string): { coach: string; seat: string; pnr: stri
     seat: chairCar
       ? `${pickInt(rng, 1, 78)}${pickFrom(rng, ["A", "B", "C", "D", "E"] as const)}`
       : `${pickInt(rng, 1, 72)} ${pickFrom(rng, BERTHS)}`,
-    pnr: String(2000000000 + Math.floor(rng() * 899999999) * 10 + pickInt(rng, 0, 9)),
+    // IR PNRs are exactly 10 digits — keep the middle term below 8e8.
+    pnr: String(2_000_000_000 + Math.floor(rng() * 800_000_000) * 10 + pickInt(rng, 0, 9)),
   };
 }
 
@@ -54,24 +61,28 @@ export interface MyTrips {
 }
 
 export function getMyTrips(now: Date): MyTrips {
-  const statuses = TRAINS.map((t) => ({ train: t, live: getLiveStatus(t, now) }));
-
-  const live = statuses
-    .filter((s) => s.live.phase === "enroute" || s.live.phase === "boarding")
+  // Collect EVERY run in its live window — a 38h overnight train can have a
+  // mid-journey run and tonight's boarding run at once, and both must show.
+  const live = TRAINS.flatMap((train) =>
+    getActiveStatuses(train, now)
+      .filter((s) => s.phase === "enroute" || s.phase === "boarding")
+      .map((s) => toHeldTrip(train, s)),
+  )
     .sort((a, b) => {
       if (a.live.phase !== b.live.phase) return a.live.phase === "enroute" ? -1 : 1;
       return b.live.progress - a.live.progress;
     })
-    .slice(0, 3)
-    .map((s) => toHeldTrip(s.train, s.live));
+    .slice(0, 4);
 
-  const liveNumbers = new Set(live.map((t) => t.trainNumber));
+  const liveIds = new Set(live.map((t) => t.id));
 
-  const upcoming = statuses
-    .filter((s) => !liveNumbers.has(s.train.number) && s.live.phase === "scheduled")
+  const upcoming = TRAINS.map((train) => {
+    const next = getScheduledStatus(train, now);
+    return next ? toHeldTrip(train, next) : null;
+  })
+    .filter((t): t is HeldTrip => t !== null && !liveIds.has(t.id))
     .sort((a, b) => a.live.departsAt.getTime() - b.live.departsAt.getTime())
-    .slice(0, 3)
-    .map((s) => toHeldTrip(s.train, s.live));
+    .slice(0, 3);
 
   const past = TRAINS.map((train) => {
     const runDate = lastCompletedRunDate(train, now);
@@ -84,6 +95,11 @@ export function getMyTrips(now: Date): MyTrips {
     .slice(0, 4);
 
   return { live, upcoming, past };
+}
+
+/** Wrap any train's current run as a trip — used by search and Track. */
+export function liveTripFor(train: Train, now: Date): HeldTrip {
+  return toHeldTrip(train, getLiveStatus(train, now));
 }
 
 /** Resolve one trip by id — used by the trip detail screen. */

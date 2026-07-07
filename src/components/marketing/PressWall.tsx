@@ -21,23 +21,25 @@ const PRESS = [
   },
 ];
 
-/** Dark press strip — logos crossfade to their quotes on hover. */
+/** Dark press strip — logos crossfade to their quotes on hover, focus, or tap. */
 export function PressWall() {
   return (
     <section className="bg-midnight px-4 py-16">
       <div className="mx-auto grid max-w-6xl grid-cols-2 gap-3 md:grid-cols-5">
         {PRESS.map(({ outlet, quote }) => (
-          <div
+          <button
+            type="button"
             key={outlet}
-            className="group relative flex min-h-[120px] items-center justify-center rounded-2xl bg-white/[0.05] p-5 ring-1 ring-white/[0.08]"
+            aria-label={`${outlet}: ${quote}`}
+            className="group relative flex min-h-[120px] items-center justify-center rounded-2xl bg-white/[0.05] p-5 ring-1 ring-white/[0.08] focus-visible:ring-2 focus-visible:ring-signal"
           >
-            <span className="text-center text-[15px] font-bold tracking-tight text-white/60 transition-opacity duration-200 group-hover:opacity-0">
+            <span className="text-center text-[15px] font-bold tracking-tight text-white/60 transition-opacity duration-200 group-hover:opacity-0 group-focus:opacity-0">
               {outlet}
             </span>
-            <span className="absolute inset-0 flex items-center justify-center p-4 text-center text-[12px] leading-snug text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+            <span className="absolute inset-0 flex items-center justify-center p-4 text-center text-[12px] leading-snug text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus:opacity-100">
               “{quote}”
             </span>
-          </div>
+          </button>
         ))}
       </div>
     </section>

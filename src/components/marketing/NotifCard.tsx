@@ -36,7 +36,7 @@ export function NotifCard({
 
   return (
     <div
-      className={`w-[290px] rounded-[20px] bg-white p-4 shadow-float ${accentClass} ${
+      className={`w-full max-w-[290px] rounded-[20px] bg-white p-4 shadow-float ${accentClass} ${
         drift ? "animate-drift motion-reduce:animate-none" : ""
       } ${className}`}
       style={{ "--tilt": `${tilt}deg`, rotate: drift ? undefined : `${tilt}deg` } as React.CSSProperties}

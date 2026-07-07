@@ -32,13 +32,26 @@
   --color-panel: #12142e; /* card floating on ink */
   --color-raise: #1b1e40; /* elevated card / pressed state */
 
-  /* App cockpit — the phone app is cool charcoal with one warm accent */
-  --color-void: #0b0f14; /* app background */
-  --color-cabin: #161b22; /* card surface */
-  --color-cabin2: #1c2128; /* elevated surface */
-  --color-flame: #ff8a3d; /* the app's single loud color */
+  /* App cockpit — legacy dark tokens still used by marketing vignettes */
+  --color-void: #0b0f14;
+  --color-cabin: #161b22;
+  --color-cabin2: #1c2128;
+  --color-flame: #ff8a3d;
   --color-flame-deep: #f97316;
-  --color-late: #ff453a; /* iOS-red late times inside the app */
+  --color-late: #ff453a;
+
+  /* App v2 — Dec 2025 Flighty: white sheets over a dark map */
+  --color-fill: #f2f2f5; /* secondary fill: search fields, chips, circles */
+  --color-hairline: #e5e7eb;
+  --color-inkline: #111318; /* primary text on sheets */
+  --color-sub: #6b7280; /* secondary text */
+  --color-faded: #9ca3af; /* tertiary text, unit labels */
+  --color-ontime: #1e9e4a; /* the single most consistent rule: time clusters go green */
+  --color-latered: #d93025; /* …or red when late */
+  --color-gate: #f6c445; /* amber platform chips */
+  --color-pro: #7c3aed; /* Pro purple */
+  --color-action: #0a84ff; /* iOS-blue primary actions */
+  --color-arc: #4d9fff; /* route arcs on the dark map */
 
   /* Type scale — announcement-board voice */
   --text-display: 3.5rem;
@@ -140,11 +153,49 @@
     width: 14px;
     height: 14px;
     border-radius: 9999px;
-    background: #ff8a3d;
-    border: 2.5px solid #ffffff;
+    background: #ffffff;
+    border: 3px solid #4d9fff;
     box-shadow:
-      0 0 0 4px rgba(255, 138, 61, 0.25),
-      0 0 18px rgba(255, 138, 61, 0.9);
+      0 0 0 4px rgba(77, 159, 255, 0.28),
+      0 0 18px rgba(77, 159, 255, 0.95);
+  }
+
+  .railly-train-marker--small {
+    width: 11px;
+    height: 11px;
+    border-width: 2.5px;
+  }
+
+  /* Split-flap tile — the Delay Report signature */
+  .split-flap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: linear-gradient(180deg, #3a0f08 0%, #2b0a05 48%, #200704 52%, #2e0b06 100%);
+    border: 1px solid rgba(0, 0, 0, 0.55);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  }
+  .split-flap::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 1.5px;
+    background: rgba(0, 0, 0, 0.65);
+  }
+
+  /* Amber dot-matrix LED board */
+  .led-board {
+    background: #1e0602;
+    border: 1px solid rgba(0, 0, 0, 0.6);
+    box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.8);
+    color: #ffb020;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    letter-spacing: 0.14em;
+    text-shadow: 0 0 6px rgba(255, 176, 32, 0.65);
   }
 
   /* Atmospheric gradient — light from a screen, not a visible pattern */

@@ -110,18 +110,25 @@ export function LiveMap({
           source: "route-rest",
           layout: { "line-cap": "round" },
           paint: {
-            "line-color": "#ff8a3d",
-            "line-opacity": 0.35,
+            "line-color": "#7eb6f6",
+            "line-opacity": 0.5,
             "line-width": 2.5,
             "line-dasharray": [0.1, 2],
           },
+        });
+        map.addLayer({
+          id: "route-done-glow",
+          type: "line",
+          source: "route-done",
+          layout: { "line-cap": "round", "line-join": "round" },
+          paint: { "line-color": "#4d9fff", "line-opacity": 0.3, "line-width": 8 },
         });
         map.addLayer({
           id: "route-done",
           type: "line",
           source: "route-done",
           layout: { "line-cap": "round", "line-join": "round" },
-          paint: { "line-color": "#ff8a3d", "line-width": 3 },
+          paint: { "line-color": "#4d9fff", "line-width": 3 },
         });
         map.addLayer({
           id: "stations",
