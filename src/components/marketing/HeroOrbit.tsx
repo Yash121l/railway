@@ -37,50 +37,81 @@ const NOTIFS = [
   },
   {
     title: "Delay expected · +40m",
-    body: "Your inbound rake is running late. Predicted 5h before the railway said anything.",
+    body: "Inbound rake is running late. Predicted 5h before the railway said anything.",
     time: "11:55",
     accent: "sun" as const,
   },
 ];
 
-/** Positions orbiting the phone — slight tilts, never gridded. */
-const SLOTS = [
-  { className: "left-0 top-6 hidden lg:block", tilt: -3 },
-  { className: "left-6 bottom-16 hidden lg:block", tilt: 2 },
-  { className: "right-0 top-16 hidden lg:block", tilt: 3 },
-  { className: "right-4 bottom-6 hidden lg:block", tilt: -2 },
+/**
+ * Straight notification columns flanking the device, outer cards ghosted —
+ * the real site scatters opacity, not rotation.
+ */
+const LEFT = [
+  { idx: 0, ghost: false },
+  { idx: 1, ghost: true },
+  { idx: 2, ghost: false },
 ];
+const RIGHT = [
+  { idx: 3, ghost: false },
+  { idx: 4, ghost: true },
+  { idx: 5, ghost: false },
+];
+
+function Column({
+  slots,
+  head,
+  align,
+}: {
+  slots: { idx: number; ghost: boolean }[];
+  head: number;
+  align: "left" | "right";
+}) {
+  return (
+    <div
+      className={`hidden w-[300px] flex-col gap-6 lg:flex ${
+        align === "left" ? "items-start" : "items-end"
+      }`}
+    >
+      {slots.map(({ idx, ghost }) => {
+        const notif = NOTIFS[(head + idx) % NOTIFS.length];
+        return (
+          <div
+            key={idx}
+            className={ghost ? "opacity-35" : "opacity-100"}
+          >
+            <div key={head} className="animate-rise">
+              <NotifCard {...notif} />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 export function HeroOrbit() {
   const [head, setHead] = useState(0);
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const id = setInterval(() => setHead((h) => h + 1), 3200);
+    const id = setInterval(() => setHead((h) => h + 1), 3600);
     return () => clearInterval(id);
   }, []);
 
   return (
-    <div className="relative mx-auto mt-14 max-w-5xl">
-      {SLOTS.map((slot, i) => {
-        const notif = NOTIFS[(head + i) % NOTIFS.length];
-        return (
-          <div key={i} className={`absolute z-10 ${slot.className}`}>
-            <div key={head} className="animate-rise">
-              <NotifCard {...notif} tilt={slot.tilt} />
-            </div>
+    <div className="relative mx-auto mt-16 flex max-w-6xl items-center justify-center gap-8">
+      <Column slots={LEFT} head={head} align="left" />
+      <div className="shrink-0">
+        <PhoneMock />
+        {/* single cycling card on small screens */}
+        <div className="mx-auto -mt-10 w-[290px] lg:hidden">
+          <div key={head} className="animate-rise">
+            <NotifCard {...NOTIFS[head % NOTIFS.length]} />
           </div>
-        );
-      })}
-
-      <PhoneMock />
-
-      {/* single scattered card on small screens so the signature survives mobile */}
-      <div className="absolute -bottom-5 left-1/2 z-10 w-[290px] -translate-x-1/2 lg:hidden">
-        <div key={head} className="animate-rise">
-          <NotifCard {...NOTIFS[head % NOTIFS.length]} tilt={-2} />
         </div>
       </div>
+      <Column slots={RIGHT} head={head} align="right" />
     </div>
   );
 }

@@ -4,87 +4,106 @@ import Link from "next/link";
 import { useState } from "react";
 import { ArrowRight, Menu, Smartphone, TrainFront, X } from "lucide-react";
 
+/** flighty.com's announcement strip is royal blue, dismissible. */
 export function AnnouncementBar() {
+  const [hidden, setHidden] = useState(false);
+  if (hidden) return null;
   return (
-    <div className="flex items-center justify-center gap-2 bg-midnight px-4 py-2 text-[13px] font-medium text-white">
-      <span className="rounded-full bg-signal px-1.5 py-0.5 text-[10px] font-bold uppercase">
-        New
-      </span>
-      <span className="text-white/85">Network Intelligence</span>
+    <div className="relative flex items-center justify-center gap-2 bg-[#2c39b8] px-10 py-2.5 text-[14px] font-medium text-white">
+      <TrainFront size={14} className="shrink-0" />
+      <span className="font-semibold">NEW! Network Intelligence</span>
+      <span className="text-white/50">|</span>
       <Link
         href="/app/track"
-        className="inline-flex items-center gap-1 text-white underline-offset-2 hover:underline"
+        className="inline-flex items-center gap-1 font-semibold text-white underline-offset-2 hover:underline"
       >
-        View Live <ArrowRight size={13} />
+        View Live <ArrowRight size={14} />
       </Link>
+      <button
+        aria-label="Dismiss"
+        onClick={() => setHidden(true)}
+        className="absolute right-4 top-1/2 -translate-y-1/2 text-white/80 hover:text-white"
+      >
+        <X size={16} />
+      </button>
     </div>
   );
 }
 
 const LINKS = [
-  ["Features", "#features"],
-  ["Friends", "#friends"],
-  ["Passport", "#passport"],
   ["Pricing", "#pricing"],
-  ["Reviews", "#reviews"],
+  ["Gift Cards", "#pricing"],
+  ["Passport", "#passport"],
+  ["Stations", "#features"],
+  ["Help Center", "#reviews"],
 ] as const;
 
-/** Floating pill nav — sits on the page like a control device, not a bar. */
+/** Plain full-width nav row, like the real site — logo, quiet links, "Get the app". */
 export function Nav() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="sticky top-4 z-50 flex flex-col items-center px-4">
-      <nav className="flex items-center gap-1 rounded-full bg-white/90 py-2 pl-4 pr-2 shadow-pill ring-1 ring-black/[0.06] backdrop-blur-xl">
-        <Link href="/" className="mr-2 flex items-center gap-2">
-          <span className="flex h-7 w-7 items-center justify-center rounded-[9px] bg-midnight">
-            <TrainFront size={15} className="text-white" />
+    <div className="sticky top-0 z-50 bg-white/90 backdrop-blur-xl">
+      <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
+        <Link href="/" className="flex items-center gap-2.5">
+          <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-black">
+            <TrainFront size={17} className="text-white" />
           </span>
-          <span className="text-[17px] font-bold tracking-tight text-black">
+          <span className="text-[19px] font-bold tracking-tight text-black">
             Railly
           </span>
         </Link>
-        <div className="hidden items-center md:flex">
+
+        <div className="hidden items-center gap-1 md:flex">
           {LINKS.map(([label, href]) => (
             <a
-              key={href}
+              key={label}
               href={href}
-              className="rounded-full px-3 py-1.5 text-[15px] font-medium text-black transition-colors hover:bg-black/[0.05]"
+              className="rounded-full px-3.5 py-2 text-[15px] font-medium text-black/80 transition-colors hover:text-black"
             >
               {label}
             </a>
           ))}
         </div>
-        <button
-          aria-label={open ? "Close menu" : "Open menu"}
-          aria-expanded={open}
-          onClick={() => setOpen((o) => !o)}
-          className="flex h-9 w-9 items-center justify-center rounded-full text-black md:hidden"
-        >
-          {open ? <X size={19} /> : <Menu size={19} />}
-        </button>
-        <Link
-          href="/app"
-          className="ml-1 inline-flex items-center gap-1.5 rounded-full border border-black/50 px-4 py-2 text-[14px] font-semibold text-black transition-colors hover:bg-black hover:text-white"
-        >
-          <Smartphone size={14} />
-          <span className="hidden sm:inline">Open the app</span>
-          <span className="sm:hidden">App</span>
-        </Link>
+
+        <div className="flex items-center gap-2">
+          <Link
+            href="/app"
+            className="hidden items-center gap-1.5 text-[15px] font-semibold text-black hover:opacity-70 sm:inline-flex"
+          >
+            Get the app
+            <Smartphone size={15} />
+          </Link>
+          <button
+            aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open}
+            onClick={() => setOpen((o) => !o)}
+            className="flex h-9 w-9 items-center justify-center rounded-full text-black md:hidden"
+          >
+            {open ? <X size={19} /> : <Menu size={19} />}
+          </button>
+        </div>
       </nav>
 
       {open && (
-        <div className="mt-2 flex w-full max-w-xs flex-col rounded-3xl bg-white p-2 shadow-pill ring-1 ring-black/[0.06] md:hidden">
+        <div className="mx-auto flex max-w-6xl flex-col border-t border-black/[0.06] px-6 py-3 md:hidden">
           {LINKS.map(([label, href]) => (
             <a
-              key={href}
+              key={label}
               href={href}
               onClick={() => setOpen(false)}
-              className="rounded-2xl px-4 py-3 text-[16px] font-medium text-black hover:bg-black/[0.05]"
+              className="rounded-xl px-2 py-3 text-[16px] font-medium text-black"
             >
               {label}
             </a>
           ))}
+          <Link
+            href="/app"
+            onClick={() => setOpen(false)}
+            className="rounded-xl px-2 py-3 text-[16px] font-semibold text-black"
+          >
+            Get the app →
+          </Link>
         </div>
       )}
     </div>
