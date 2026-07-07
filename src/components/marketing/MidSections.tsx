@@ -19,7 +19,7 @@ import { ScrollScrub } from "./ScrollStrip";
 import { Starfield } from "./Starfield";
 
 /** A slim device frame around a real app screenshot. */
-function MiniPhone({
+export function MiniPhone({
   src,
   alt,
   className = "",

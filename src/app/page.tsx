@@ -156,13 +156,14 @@ export default function Home() {
       <div className="relative">
         <Hero />
         <PressWall />
-        <NetworkPulse />
         <FeatureJourney />
         <JourneyBar />
       </div>
       <ImportStrip />
       <Friends />
       <PassportTeaser />
+      {/* the live strip tees up the Network Intelligence section */}
+      <NetworkPulse />
       <NetworkIntel />
       <MoreGrid />
       <Testimonials />

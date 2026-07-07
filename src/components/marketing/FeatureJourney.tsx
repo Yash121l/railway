@@ -1,5 +1,6 @@
 import React from "react";
 import { CloudFog, TrainFront } from "lucide-react";
+import { MiniPhone } from "./MidSections";
 import { NotifCard } from "./NotifCard";
 import { Reveal } from "./Reveal";
 import { Starfield } from "./Starfield";
@@ -104,6 +105,49 @@ function GantrySilhouette() {
       <circle cx="217" cy="68" r="6" fill="#0b0620" />
       <circle cx="217" cy="84" r="6" fill="#f6c445" opacity="0.95" />
     </svg>
+  );
+}
+
+/**
+ * flighty opens its feature run with a huge dark card: copy on the left,
+ * the real product cropped at the card edge on the right. Same here —
+ * the screenshot is our actual trip-detail screen, with the live
+ * inbound-rake card floating over it.
+ */
+function DarkIntroCard() {
+  return (
+    <Reveal from="zoom">
+      <div
+        id="before-you-board"
+        className="relative scroll-mt-28 overflow-hidden rounded-3xl bg-gradient-to-b from-[#161028] to-[#0b081a] ring-1 ring-white/[0.06]"
+      >
+        <Starfield className="opacity-40" />
+        <div className="relative grid items-center md:grid-cols-2">
+          <div className="p-8 md:p-12">
+            <h3 className="text-[26px] font-bold leading-tight tracking-tight text-white md:text-[30px]">
+              See why you&apos;re delayed. Finally!
+            </h3>
+            <p className="mt-4 max-w-md text-[15px] leading-relaxed text-white/65">
+              Railways often keep delay information under wraps until the last
+              minute. Railly doesn&apos;t. We track your inbound rake 24 hours
+              before departure, so we can predict a new time long before the
+              announcement crackles over the PA.
+            </p>
+          </div>
+          <div className="relative h-[340px] md:h-[430px]">
+            <div className="absolute left-1/2 top-10 -translate-x-1/2 rotate-[4deg] md:left-auto md:right-14 md:translate-x-0">
+              <MiniPhone
+                src="/screens/trip-detail.png"
+                alt="Railly trip detail with delay prediction and live map"
+              />
+            </div>
+            <div className="absolute bottom-8 left-4 w-[300px] md:left-10" style={{ rotate: "-3deg" }}>
+              <InboundRakeCard />
+            </div>
+          </div>
+        </div>
+      </div>
+    </Reveal>
   );
 }
 
@@ -224,24 +268,12 @@ function DarkFeaturePair() {
   );
 }
 
-const BLOCKS = [
-  {
-    id: "before-you-board",
-    title: "See why you're delayed. Finally!",
-    body: "Railways often keep delay information under wraps until the last minute. Railly doesn't. We track your inbound rake 24 hours before departure, so we can predict a new time long before the announcement crackles over the PA.",
-    vignette: (
-      <>
-        <InboundRakeCard />
-        <NotifCard
-          title="12951 · new departure 17:22"
-          body="Was 17:00 · inbound rake running late from Ahmedabad."
-          time="12:40"
-          accent="sun"
-          tilt={1.5}
-        />
-      </>
-    ),
-  },
+const BLOCKS: {
+  id?: string;
+  title: string;
+  body: string;
+  vignette: React.ReactNode;
+}[] = [
   {
     title: "First to know. First to go.",
     body: "Hear about delays and platform changes before anyone else, even the announcer. Railly's alerts are instant, clear, and unfiltered, giving you the earliest heads-up to replan and skip the scrum on the footbridge.",
@@ -302,37 +334,40 @@ export function FeatureJourney() {
         </div>
       </Reveal>
 
-      <div className="mt-20 space-y-24">
+      <div className="mt-20 space-y-6">
+        {/* flighty's dark-card cluster: the big intro card + the pair */}
+        <DarkIntroCard />
+        <DarkFeaturePair />
+      </div>
+
+      <div className="mt-24 space-y-24">
         {BLOCKS.map((block, i) => {
           const flip = i % 2 === 1;
           return (
-            <React.Fragment key={block.title}>
-              <div
-                id={block.id}
-                className="grid scroll-mt-28 items-center gap-10 overflow-x-clip md:grid-cols-2 md:gap-16"
+            <div
+              key={block.title}
+              id={block.id}
+              className="grid scroll-mt-28 items-center gap-10 overflow-x-clip md:grid-cols-2 md:gap-16"
+            >
+              <Reveal
+                from={flip ? "right" : "left"}
+                className={flip ? "md:order-2" : ""}
               >
-                <Reveal
-                  from={flip ? "right" : "left"}
-                  className={flip ? "md:order-2" : ""}
-                >
-                  <h3 className="text-[28px] font-bold leading-tight tracking-tight text-black md:text-[32px]">
-                    {block.title}
-                  </h3>
-                  <p className="mt-4 text-[17px] leading-relaxed text-carbon">
-                    {block.body}
-                  </p>
-                </Reveal>
-                <Reveal
-                  from={flip ? "left" : "right"}
-                  delay={90}
-                  className={flip ? "md:order-1" : ""}
-                >
-                  <Vignette>{block.vignette}</Vignette>
-                </Reveal>
-              </div>
-              {/* the flighty graphic pair sits after the opening feature */}
-              {i === 0 && <DarkFeaturePair />}
-            </React.Fragment>
+                <h3 className="text-[28px] font-bold leading-tight tracking-tight text-black md:text-[32px]">
+                  {block.title}
+                </h3>
+                <p className="mt-4 text-[17px] leading-relaxed text-carbon">
+                  {block.body}
+                </p>
+              </Reveal>
+              <Reveal
+                from={flip ? "left" : "right"}
+                delay={90}
+                className={flip ? "md:order-1" : ""}
+              >
+                <Vignette>{block.vignette}</Vignette>
+              </Reveal>
+            </div>
           );
         })}
       </div>
