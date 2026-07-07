@@ -1,10 +1,12 @@
+import Image from "next/image";
 import { Star } from "lucide-react";
 import { Reveal } from "./Reveal";
 
 type Tweet = { kind: "tweet"; name: string; handle: string; body: string; date: string };
 type Review = { kind: "review"; title: string; body: string; byline: string };
+type Story = { kind: "story" };
 
-const CARDS: (Tweet | Review)[] = [
+const CARDS: (Tweet | Review | Story)[] = [
   {
     kind: "tweet",
     name: "Pooja Iyer",
@@ -31,6 +33,7 @@ const CARDS: (Tweet | Review)[] = [
     body: "Rescheduled my cab twice off Railly's prediction while everyone else stood staring at the board. It was right both times.",
     byline: "dailyMMCTcommuter · Jun 2026",
   },
+  { kind: "story" },
   {
     kind: "tweet",
     name: "Rahul Menon",
@@ -87,6 +90,31 @@ export function Testimonials() {
       <div className="mx-auto mt-12 max-w-6xl columns-1 gap-4 md:columns-3">
         {CARDS.map((card, i) => (
           <Reveal key={i} delay={(i % 3) * 80} className="mb-4 break-inside-avoid">
+            {card.kind === "story" ? (
+              /* the share-to-Stories cell flighty drops into its wall */
+              <div className="card-lift relative overflow-hidden rounded-2xl shadow-float">
+                <Image
+                  src="/screens/logbook.png"
+                  alt="Railly Passport logbook screen shared as a story"
+                  width={430}
+                  height={932}
+                  className="block h-auto w-full"
+                />
+                <div className="absolute inset-x-0 top-0 bg-gradient-to-b from-black/55 to-transparent px-4 pb-8 pt-3">
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-[11px] font-bold text-black">
+                      Y
+                    </span>
+                    <span className="text-[12px] font-semibold text-white">
+                      yash.onrails · Shared from Railly
+                    </span>
+                  </div>
+                </div>
+                <div className="led-board absolute left-1/2 top-16 -translate-x-1/2 whitespace-nowrap rounded px-3 py-1.5 text-[12px] font-bold">
+                  👋 BYE MUMBAI · NEXT: DELHI
+                </div>
+              </div>
+            ) : (
             <div className="card-lift rounded-2xl bg-white p-5 shadow-float">
               {card.kind === "tweet" ? (
                 <>
@@ -119,6 +147,7 @@ export function Testimonials() {
                 </>
               )}
             </div>
+            )}
           </Reveal>
         ))}
       </div>

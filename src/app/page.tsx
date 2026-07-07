@@ -38,7 +38,7 @@ function Laurel({
 
 function Hero() {
   return (
-    <header className="overflow-x-clip px-4 pb-10 pt-14 text-center md:pt-20">
+    <header className="px-4 pt-14 text-center md:pt-20">
       <h1
         className="hero-rise mx-auto max-w-4xl text-[44px] font-bold leading-[1.02] tracking-[-1.8px] text-black md:text-[74px]"
         style={{ "--stagger": "0ms" } as React.CSSProperties}
@@ -77,8 +77,10 @@ function Hero() {
         />
       </div>
 
+      {/* the phone bridges into the dark press wall below — flighty's
+          white-to-midnight handoff happens behind the device */}
       <div
-        className="hero-rise"
+        className="hero-rise relative z-10 -mb-24 md:-mb-32"
         style={{ "--stagger": "330ms" } as React.CSSProperties}
       >
         <HeroOrbit />

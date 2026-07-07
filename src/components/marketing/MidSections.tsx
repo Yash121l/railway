@@ -1,10 +1,34 @@
+import Image from "next/image";
 import Link from "next/link";
 import { CalendarDays, Mail, Ticket } from "lucide-react";
 import { CountUp } from "./CountUp";
 import { LiveBoard } from "./LiveBoard";
+import { NetworkCanvas } from "./NetworkCanvas";
 import { NotifCard } from "./NotifCard";
 import { Reveal } from "./Reveal";
+import { ScrollScrub } from "./ScrollStrip";
 import { Starfield } from "./Starfield";
+
+/** A slim device frame around a real app screenshot. */
+function MiniPhone({
+  src,
+  alt,
+  className = "",
+}: {
+  src: string;
+  alt: string;
+  className?: string;
+}) {
+  return (
+    <div
+      className={`w-[228px] rounded-[36px] bg-[#0c0d10] p-[7px] shadow-deep ring-1 ring-black/60 md:w-[250px] ${className}`}
+    >
+      <div className="overflow-hidden rounded-[29px] bg-black">
+        <Image src={src} alt={alt} width={430} height={932} className="block h-auto w-full" />
+      </div>
+    </div>
+  );
+}
 
 export function ImportStrip() {
   return (
@@ -52,6 +76,36 @@ export function Friends() {
           a PNR again.
         </p>
       </Reveal>
+
+      {/* flighty's tilted-device collage — real screenshots, slight scroll
+          parallax in opposite directions */}
+      <Reveal delay={80} from="zoom">
+        <ScrollScrub
+          amplitude={54}
+          className="relative mt-14 h-[380px] overflow-hidden rounded-3xl bg-linen ring-1 ring-black/[0.05] md:h-[440px]"
+        >
+          <div
+            data-scrub-row
+            className="absolute left-1/2 top-10 -translate-x-[104%] rotate-[-7deg] will-change-transform"
+          >
+            <MiniPhone
+              src="/screens/my-trips.png"
+              alt="Railly My Trips screen with the live network map"
+            />
+          </div>
+          <div
+            data-scrub-row
+            className="absolute left-1/2 top-20 -translate-x-[4%] rotate-[6deg] will-change-transform"
+          >
+            <MiniPhone
+              src="/screens/trip-detail.png"
+              alt="Railly trip detail screen with the live route map"
+            />
+          </div>
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-linen to-transparent" />
+        </ScrollScrub>
+      </Reveal>
+
       <Reveal delay={120}>
         <div className="mt-14 grid items-center gap-10 md:grid-cols-3">
           <div className="space-y-3">
@@ -185,7 +239,23 @@ export function NetworkIntel() {
             cattle on the track.
           </p>
         </Reveal>
-        <Reveal delay={120} from="zoom">
+        <Reveal delay={100} from="zoom">
+          {/* the actual simulation, live on canvas — every dot is a train
+              the app is tracking at this exact second */}
+          <div className="mx-auto mt-12 max-w-4xl overflow-hidden rounded-3xl bg-ink/80 ring-1 ring-white/[0.08]">
+            <div className="flex items-center justify-between px-5 pt-4">
+              <span className="text-[13px] font-bold uppercase tracking-[1px] text-white/60">
+                The network · this second
+              </span>
+              <span className="flex items-center gap-1.5 text-[12px] font-semibold text-arc">
+                <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-arc" />
+                Live positions
+              </span>
+            </div>
+            <NetworkCanvas className="h-[300px] w-full md:h-[380px]" />
+          </div>
+        </Reveal>
+        <Reveal delay={140} from="zoom">
           <LiveBoard />
           <div className="mt-8 text-center">
             <Link

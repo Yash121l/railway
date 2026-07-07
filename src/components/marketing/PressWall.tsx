@@ -26,7 +26,7 @@ import { Starfield } from "./Starfield";
 /** Dark press strip — logos crossfade to their quotes on hover, focus, or tap. */
 export function PressWall() {
   return (
-    <section className="relative overflow-hidden bg-midnight px-4 py-16">
+    <section className="relative overflow-hidden bg-midnight px-4 pb-16 pt-36 md:pt-44">
       <Starfield className="opacity-50" />
       <div className="relative mx-auto grid max-w-6xl grid-cols-2 gap-3 md:grid-cols-5">
         {PRESS.map(({ outlet, quote }) => (

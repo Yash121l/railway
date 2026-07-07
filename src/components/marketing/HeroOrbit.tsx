@@ -68,9 +68,10 @@ const NOTIFS = [
 ];
 
 /**
- * Straight notification columns flanking the device, outer cards ghosted.
- * One slot at a time swaps to the next bulletin, springing in from its own
- * side of the phone — the way flighty.com's hero cards slide in from ±200px.
+ * The flighty.com hero, faithfully: on load the notification cards fly in
+ * from ±200px on a spring, one per beat; while you scroll away, the two
+ * columns part around the phone and the phone lags behind the page — the
+ * scroll-scrubbed choreography their Framer runtime drives.
  */
 const GHOST_SLOTS = new Set([1, 4]);
 const SWAP_ORDER = [0, 3, 1, 4, 2, 5]; // alternate sides so both columns feel alive
@@ -84,7 +85,8 @@ function Column({
 }) {
   return (
     <div
-      className={`hidden w-[300px] flex-col gap-6 lg:flex ${
+      data-hero-col={side}
+      className={`hidden w-[300px] flex-col gap-6 will-change-transform lg:flex ${
         side === "left" ? "items-start" : "items-end"
       }`}
     >
@@ -101,10 +103,17 @@ function Column({
               key={ver}
               className={
                 ver === 0
-                  ? ""
+                  ? side === "left"
+                    ? "fly-in-left"
+                    : "fly-in-right"
                   : side === "left"
                     ? "animate-slide-left motion-reduce:animate-none"
                     : "animate-slide-right motion-reduce:animate-none"
+              }
+              style={
+                ver === 0
+                  ? ({ "--stagger": `${380 + slotIndex * 130}ms` } as React.CSSProperties)
+                  : undefined
               }
             >
               <NotifCard {...NOTIFS[notif % NOTIFS.length]} />
@@ -123,6 +132,7 @@ export function HeroOrbit() {
   const [mobileHead, setMobileHead] = useState(0);
   const pool = useRef(6);
   const turn = useRef(0);
+  const stage = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -141,15 +151,46 @@ export function HeroOrbit() {
     return () => clearInterval(id);
   }, []);
 
+  // Scroll scrub: columns part outward, the phone trails the page slightly.
+  useEffect(() => {
+    const el = stage.current;
+    if (!el) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const left = el.querySelector<HTMLElement>("[data-hero-col=left]");
+    const right = el.querySelector<HTMLElement>("[data-hero-col=right]");
+    const phone = el.querySelector<HTMLElement>("[data-hero-phone]");
+    let ticking = false;
+
+    const apply = () => {
+      ticking = false;
+      const top = el.getBoundingClientRect().top;
+      const p = Math.min(1, Math.max(0, -top / 520));
+      if (left) left.style.transform = `translate3d(${(-130 * p).toFixed(1)}px,0,0)`;
+      if (right) right.style.transform = `translate3d(${(130 * p).toFixed(1)}px,0,0)`;
+      if (phone) phone.style.transform = `translate3d(0,${(70 * p).toFixed(1)}px,0)`;
+    };
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(apply);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    apply();
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <div className="relative mx-auto mt-16 flex max-w-6xl items-center justify-center gap-8">
+    <div
+      ref={stage}
+      className="relative mx-auto mt-16 flex max-w-6xl items-center justify-center gap-8"
+    >
       {/* soft screen-glow so the floating phone reads as lit, not pasted */}
       <div
         aria-hidden
         className="absolute left-1/2 top-1/2 h-[420px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-signal/[0.07] blur-3xl"
       />
       <Column slots={slots.slice(0, 3)} side="left" />
-      <div className="relative shrink-0">
+      <div data-hero-phone className="relative shrink-0 will-change-transform">
         <div className="animate-levitate motion-reduce:animate-none">
           <PhoneMock />
         </div>
