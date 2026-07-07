@@ -58,7 +58,7 @@ export function Pricing() {
         {PLANS.map((plan, i) => (
           <Reveal key={plan.name} delay={i * 70}>
             <div
-              className={`relative flex h-full flex-col rounded-3xl p-6 ${
+              className={`card-lift relative flex h-full flex-col rounded-3xl p-6 ${
                 plan.popular
                   ? "bg-midnight text-white ring-2 ring-signal"
                   : "bg-white shadow-float"
@@ -93,7 +93,7 @@ export function Pricing() {
               </p>
               <Link
                 href="/app"
-                className={`mt-6 rounded-full py-2.5 text-center text-[14px] font-semibold transition-transform hover:scale-[1.03] ${
+                className={`mt-6 rounded-full py-2.5 text-center text-[14px] font-semibold transition-transform hover:scale-[1.03] active:scale-95 ${
                   plan.popular
                     ? "bg-signal text-white"
                     : "border border-black/40 text-black hover:bg-black hover:text-white"

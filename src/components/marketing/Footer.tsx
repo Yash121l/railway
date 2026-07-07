@@ -15,7 +15,7 @@ export function ClosingCta() {
         </p>
         <Link
           href="/app"
-          className="mt-8 inline-block rounded-full bg-sun px-8 py-4 text-[16px] font-semibold text-black transition-transform hover:scale-[1.03]"
+          className="mt-8 inline-block rounded-full bg-sun px-8 py-4 text-[16px] font-semibold text-black transition-transform hover:scale-[1.03] active:scale-95"
         >
           Get Railly
         </Link>

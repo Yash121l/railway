@@ -9,13 +9,23 @@ type Phase = "ssr" | "hidden" | "shown";
  * no-JS safe); after hydration, only elements still below the fold are
  * hidden and then revealed as they enter the viewport.
  */
+const HIDDEN: Record<string, string> = {
+  up: "translate-y-6 opacity-0",
+  left: "-translate-x-10 opacity-0",
+  right: "translate-x-10 opacity-0",
+  zoom: "scale-[0.94] opacity-0",
+};
+
 export function Reveal({
   children,
   delay = 0,
+  from = "up",
   className = "",
 }: {
   children: React.ReactNode;
   delay?: number;
+  /** which direction the element arrives from (flighty mixes all four) */
+  from?: "up" | "left" | "right" | "zoom";
   className?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -49,9 +59,9 @@ export function Reveal({
 
   const motion =
     phase === "hidden"
-      ? "translate-y-5 opacity-0"
+      ? HIDDEN[from]
       : phase === "shown"
-        ? "translate-y-0 opacity-100 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
+        ? "translate-x-0 translate-y-0 scale-100 opacity-100 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
         : "";
 
   return (

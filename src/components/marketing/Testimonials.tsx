@@ -87,7 +87,7 @@ export function Testimonials() {
       <div className="mx-auto mt-12 max-w-6xl columns-1 gap-4 md:columns-3">
         {CARDS.map((card, i) => (
           <Reveal key={i} delay={(i % 3) * 80} className="mb-4 break-inside-avoid">
-            <div className="rounded-2xl bg-white p-5 shadow-float">
+            <div className="card-lift rounded-2xl bg-white p-5 shadow-float">
               {card.kind === "tweet" ? (
                 <>
                   <div className="flex items-center gap-2.5">
@@ -122,9 +122,28 @@ export function Testimonials() {
           </Reveal>
         ))}
       </div>
-      <p className="mt-10 text-center text-[15px] font-semibold text-carbon">
-        +3 million riders enjoy Railly
-      </p>
+      {/* flighty.com floats this over the wall while you read the reviews */}
+      <div className="pointer-events-none sticky bottom-6 z-30 mt-10 flex justify-center">
+        <div className="pointer-events-auto flex items-center gap-3 rounded-full bg-[#111318]/95 py-2 pl-2.5 pr-5 shadow-[0_10px_36px_rgba(0,0,0,0.35)] backdrop-blur">
+          <span className="flex -space-x-2">
+            {[
+              ["P", "bg-signal"],
+              ["A", "bg-pro"],
+              ["S", "bg-go"],
+            ].map(([initial, tone]) => (
+              <span
+                key={initial}
+                className={`flex h-7 w-7 items-center justify-center rounded-full ${tone} text-[11px] font-bold text-white ring-2 ring-[#111318]`}
+              >
+                {initial}
+              </span>
+            ))}
+          </span>
+          <span className="text-[14px] font-semibold text-white">
+            +3 million riders enjoy Railly
+          </span>
+        </div>
+      </div>
     </section>
   );
 }

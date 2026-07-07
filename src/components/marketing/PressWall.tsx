@@ -21,17 +21,20 @@ const PRESS = [
   },
 ];
 
+import { Starfield } from "./Starfield";
+
 /** Dark press strip — logos crossfade to their quotes on hover, focus, or tap. */
 export function PressWall() {
   return (
-    <section className="bg-midnight px-4 py-16">
-      <div className="mx-auto grid max-w-6xl grid-cols-2 gap-3 md:grid-cols-5">
+    <section className="relative overflow-hidden bg-midnight px-4 py-16">
+      <Starfield className="opacity-50" />
+      <div className="relative mx-auto grid max-w-6xl grid-cols-2 gap-3 md:grid-cols-5">
         {PRESS.map(({ outlet, quote }) => (
           <button
             type="button"
             key={outlet}
             aria-label={`${outlet}: ${quote}`}
-            className="group relative flex min-h-[120px] items-center justify-center rounded-2xl bg-white/[0.05] p-5 ring-1 ring-white/[0.08] focus-visible:ring-2 focus-visible:ring-signal"
+            className="group relative flex min-h-[120px] items-center justify-center rounded-2xl bg-white/[0.05] p-5 ring-1 ring-white/[0.08] transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/[0.08] hover:ring-white/[0.16] focus-visible:ring-2 focus-visible:ring-signal"
           >
             <span className="text-center text-[15px] font-bold tracking-tight text-white/60 transition-opacity duration-200 group-hover:opacity-0 group-focus:opacity-0">
               {outlet}

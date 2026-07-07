@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowRight, Menu, Smartphone, TrainFront, X } from "lucide-react";
 
 /** flighty.com's announcement strip is royal blue, dismissible. */
@@ -38,18 +38,46 @@ const LINKS = [
   ["Help Center", "#reviews"],
 ] as const;
 
-/** Plain full-width nav row, like the real site — logo, quiet links, "Get the app". */
+/**
+ * Starts as the real site's plain full-width row; once you scroll, it
+ * detaches into flighty.com's floating white pill — shadow, tucked-in
+ * width, and the "Get the app" link hardens into a black button.
+ */
 export function Nav() {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 48);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const pill = scrolled && !open;
 
   return (
-    <div className="sticky top-0 z-50 bg-white/90 backdrop-blur-xl">
-      <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
-        <Link href="/" className="flex items-center gap-2.5">
+    <div
+      className={`sticky top-0 z-50 transition-[background-color] duration-500 ${
+        pill ? "bg-transparent" : "bg-white/90 backdrop-blur-xl"
+      }`}
+    >
+      <nav
+        className={`mx-auto flex items-center justify-between transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          pill
+            ? "mt-3 max-w-3xl rounded-full bg-white/95 py-2 pl-4 pr-2 shadow-[0_10px_36px_rgba(0,0,0,0.13)] ring-1 ring-black/[0.05] backdrop-blur-xl"
+            : "max-w-6xl px-6 py-5"
+        }`}
+      >
+        <Link href="/" aria-label="Railly home" className="flex items-center gap-2.5">
           <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-black">
             <TrainFront size={17} className="text-white" />
           </span>
-          <span className="text-[19px] font-bold tracking-tight text-black">
+          <span
+            className={`text-[19px] font-bold tracking-tight text-black ${
+              pill ? "hidden" : ""
+            }`}
+          >
             Railly
           </span>
         </Link>
@@ -69,7 +97,11 @@ export function Nav() {
         <div className="flex items-center gap-2">
           <Link
             href="/app"
-            className="hidden items-center gap-1.5 text-[15px] font-semibold text-black hover:opacity-70 sm:inline-flex"
+            className={`hidden items-center gap-1.5 text-[15px] font-semibold transition-all duration-500 sm:inline-flex ${
+              pill
+                ? "rounded-full bg-black px-4 py-2 text-white hover:bg-black/85"
+                : "text-black hover:opacity-70"
+            }`}
           >
             Get the app
             <Smartphone size={15} />
@@ -86,7 +118,7 @@ export function Nav() {
       </nav>
 
       {open && (
-        <div className="mx-auto flex max-w-6xl flex-col border-t border-black/[0.06] px-6 py-3 md:hidden">
+        <div className="mx-auto flex max-w-6xl flex-col border-t border-black/[0.06] bg-white px-6 py-3 md:hidden">
           {LINKS.map(([label, href]) => (
             <a
               key={label}

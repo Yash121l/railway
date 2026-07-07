@@ -10,7 +10,7 @@ function Vignette({ children }: { children: React.ReactNode }) {
   );
 }
 
-/** Mini "where's my rake" inbound tracker */
+/** Mini "where's my rake" inbound tracker — the bar creeps closer, live */
 function InboundRakeCard() {
   return (
     <div className="w-full max-w-[300px] rounded-[20px] bg-white p-4 shadow-float" style={{ rotate: "-2deg" }}>
@@ -22,7 +22,7 @@ function InboundRakeCard() {
         Arriving from Ahmedabad
       </div>
       <div className="relative mt-3 h-[3px] w-full rounded-full bg-black/10">
-        <div className="h-full w-[78%] rounded-full bg-signal" />
+        <div className="h-full animate-creep rounded-full bg-signal motion-reduce:w-[78%] motion-reduce:animate-none" />
       </div>
       <p className="mt-2 text-[13px] text-steel">
         Running 12m late · your departure impact: <b className="text-black">+9m</b>
@@ -194,26 +194,35 @@ export function FeatureJourney() {
       </Reveal>
 
       <div className="mt-20 space-y-24">
-        {BLOCKS.map((block, i) => (
-          <Reveal key={block.title}>
+        {BLOCKS.map((block, i) => {
+          const flip = i % 2 === 1;
+          return (
             <div
+              key={block.title}
               id={block.id}
-              className="grid scroll-mt-28 items-center gap-10 md:grid-cols-2 md:gap-16"
+              className="grid scroll-mt-28 items-center gap-10 overflow-x-clip md:grid-cols-2 md:gap-16"
             >
-              <div className={i % 2 === 1 ? "md:order-2" : ""}>
+              <Reveal
+                from={flip ? "right" : "left"}
+                className={flip ? "md:order-2" : ""}
+              >
                 <h3 className="text-[28px] font-bold leading-tight tracking-tight text-black md:text-[32px]">
                   {block.title}
                 </h3>
                 <p className="mt-4 text-[17px] leading-relaxed text-carbon">
                   {block.body}
                 </p>
-              </div>
-              <div className={i % 2 === 1 ? "md:order-1" : ""}>
+              </Reveal>
+              <Reveal
+                from={flip ? "left" : "right"}
+                delay={90}
+                className={flip ? "md:order-1" : ""}
+              >
                 <Vignette>{block.vignette}</Vignette>
-              </div>
+              </Reveal>
             </div>
-          </Reveal>
-        ))}
+          );
+        })}
       </div>
     </section>
   );

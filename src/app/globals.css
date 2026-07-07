@@ -81,6 +81,12 @@
   --animate-pulse-dot: pulse-dot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   --animate-drift: drift 7s ease-in-out infinite;
   --animate-rise: rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-levitate: levitate 6s ease-in-out infinite;
+  --animate-radar: radar 16s linear infinite;
+  --animate-creep: creep 7s ease-in-out infinite;
+  --animate-flap-in: flap-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-slide-left: slide-in-left 0.8s cubic-bezier(0.22, 1.4, 0.36, 1) both;
+  --animate-slide-right: slide-in-right 0.8s cubic-bezier(0.22, 1.4, 0.36, 1) both;
 }
 
 @keyframes pulse-dot {
@@ -116,6 +122,72 @@
   }
 }
 
+/* Hero cards swap in from outside the phone, with a spring overshoot */
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-56px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(56px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+/* The hero phone breathes — barely */
+@keyframes levitate {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* Control-room radar sweep (conic gradient rotated by transform) */
+@keyframes radar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Inbound-rake progress bar slowly creeps, then resets */
+@keyframes creep {
+  0% {
+    width: 46%;
+  }
+  85% {
+    width: 82%;
+  }
+  100% {
+    width: 82%;
+  }
+}
+
+/* Departure-board value change: bottom-hinged flap, like a split-flap tile */
+@keyframes flap-in {
+  from {
+    opacity: 0;
+    transform: perspective(400px) rotateX(-72deg);
+  }
+  to {
+    opacity: 1;
+    transform: perspective(400px) rotateX(0deg);
+  }
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
@@ -138,6 +210,41 @@
   /* Timetable digits must not jitter as they tick */
   .tnum {
     font-variant-numeric: tabular-nums;
+  }
+
+  /* One-time load-in for above-the-fold hero content (Reveal only handles
+   * below-fold). SSR paints the frames' start state, then springs up. */
+  .hero-rise {
+    animation: rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: var(--stagger, 0ms);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-rise {
+      animation: none;
+    }
+  }
+
+  /* Shared hover treatment: cards float up a touch and the shadow deepens */
+  .card-lift {
+    transition:
+      translate 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .card-lift:hover {
+    translate: 0 -4px;
+    box-shadow:
+      0px 0px 0px 1px rgba(0, 0, 0, 0.04),
+      0px 2px 2px -1px rgba(0, 0, 0, 0.03),
+      0px 6px 6px -3px rgba(0, 0, 0, 0.04),
+      0px 14px 14px -7px rgba(0, 0, 0, 0.05),
+      0px 28px 28px -14px rgba(0, 0, 0, 0.07);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .card-lift,
+    .card-lift:hover {
+      transition: none;
+      translate: 0 0;
+    }
   }
 
   .no-scrollbar {

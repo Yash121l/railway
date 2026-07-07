@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { CalendarDays, Mail, Ticket } from "lucide-react";
+import { CountUp } from "./CountUp";
+import { LiveBoard } from "./LiveBoard";
 import { NotifCard } from "./NotifCard";
 import { Reveal } from "./Reveal";
+import { Starfield } from "./Starfield";
 
 export function ImportStrip() {
   return (
@@ -19,7 +22,7 @@ export function ImportStrip() {
           {[Ticket, CalendarDays, Mail].map((Icon, i) => (
             <span
               key={i}
-              className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white shadow-float"
+              className="card-lift flex h-11 w-11 items-center justify-center rounded-2xl bg-white shadow-float"
             >
               <Icon size={19} className="text-carbon" />
             </span>
@@ -27,7 +30,7 @@ export function ImportStrip() {
         </div>
         <Link
           href="/app"
-          className="mt-8 inline-block rounded-full bg-signal px-7 py-3.5 text-[15px] font-semibold text-white transition-transform hover:scale-[1.03]"
+          className="mt-8 inline-block rounded-full bg-signal px-7 py-3.5 text-[15px] font-semibold text-white transition-transform hover:scale-[1.03] active:scale-95"
         >
           Give Railly a try
         </Link>
@@ -93,16 +96,16 @@ export function Friends() {
 }
 
 export function PassportTeaser() {
-  const stats = [
-    ["28,412", "kilometres"],
-    ["47", "trips"],
-    ["214h", "on rails"],
+  const stats: [React.ReactNode, string][] = [
+    [<CountUp key="km" value={28412} />, "kilometres"],
+    [<CountUp key="trips" value={47} />, "trips"],
+    [<CountUp key="hours" value={214} suffix="h" />, "on rails"],
     ["+2h 05m", "worst delay"],
   ];
   return (
     <section id="passport" className="bg-linen px-4 py-24 md:py-32">
       <div className="mx-auto grid max-w-6xl items-center gap-12 md:grid-cols-2">
-        <Reveal>
+        <Reveal from="left">
           <h2 className="text-headline text-black md:text-[44px] md:leading-[1.05]">
             Look back on your travels, near and far.
           </h2>
@@ -113,30 +116,33 @@ export function PassportTeaser() {
           </p>
           <Link
             href="/app/logbook"
-            className="mt-7 inline-block rounded-full bg-signal px-7 py-3.5 text-[15px] font-semibold text-white transition-transform hover:scale-[1.03]"
+            className="mt-7 inline-block rounded-full bg-signal px-7 py-3.5 text-[15px] font-semibold text-white transition-transform hover:scale-[1.03] active:scale-95"
           >
             Open your Logbook
           </Link>
         </Reveal>
-        <Reveal delay={120}>
-          <div className="glow-violet rounded-3xl p-7 ring-1 ring-black/10">
-            <div className="text-[11px] font-bold uppercase tracking-[2px] text-sun">
-              Railly Passport
-            </div>
-            <div className="mt-5 grid grid-cols-2 gap-5">
-              {stats.map(([value, label]) => (
-                <div key={label}>
-                  <div className="tnum text-[30px] font-extrabold tracking-tight text-white">
-                    {value}
+        <Reveal delay={120} from="right">
+          <div className="glow-violet relative overflow-hidden rounded-3xl p-7 ring-1 ring-black/10">
+            <Starfield className="opacity-70" />
+            <div className="relative">
+              <div className="text-[11px] font-bold uppercase tracking-[2px] text-sun">
+                Railly Passport
+              </div>
+              <div className="mt-5 grid grid-cols-2 gap-5">
+                {stats.map(([value, label]) => (
+                  <div key={label}>
+                    <div className="tnum text-[30px] font-extrabold tracking-tight text-white">
+                      {value}
+                    </div>
+                    <div className="mt-1 text-[11px] font-bold uppercase tracking-[1px] text-white/50">
+                      {label}
+                    </div>
                   </div>
-                  <div className="mt-1 text-[11px] font-bold uppercase tracking-[1px] text-white/50">
-                    {label}
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="mt-6 border-t border-white/15 pt-4 text-[13px] text-white/60">
-              A hall of fame for your riding history.
+                ))}
+              </div>
+              <div className="mt-6 border-t border-white/15 pt-4 text-[13px] text-white/60">
+                A hall of fame for your riding history.
+              </div>
             </div>
           </div>
         </Reveal>
@@ -147,61 +153,50 @@ export function PassportTeaser() {
 
 export function NetworkIntel() {
   return (
-    <section className="bg-midnight px-4 py-24 text-white md:py-32">
-      <Reveal className="mx-auto max-w-3xl text-center">
-        <h2 className="text-headline md:text-[44px] md:leading-[1.05]">
-          Know what&apos;s happening on any line. Right now.
-        </h2>
-        <p className="mt-5 text-[18px] leading-relaxed text-silver">
-          Track the whole network with live runs, delays, and operational
-          performance — all in real time. We synthesize thousands of control-room
-          bulletins per minute: fog, line blocks, crew shortages, taxiway…
-          sorry, <em>yard</em> congestion. Even rare anomalies like cattle on the
-          track.
-        </p>
-      </Reveal>
-      <Reveal delay={120}>
-        <div className="mx-auto mt-12 max-w-3xl overflow-hidden rounded-3xl bg-ink ring-1 ring-white/[0.08]">
-          <div className="flex items-center justify-between border-b border-white/[0.08] px-5 py-3.5">
-            <span className="text-[13px] font-bold uppercase tracking-[1px] text-white/60">
-              Network board · live
-            </span>
-            <span className="flex items-center gap-1.5 text-[12px] font-semibold text-go">
-              <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-go" />
-              8 trains watched
-            </span>
-          </div>
-          {[
-            ["12627", "Bengaluru → New Delhi", "DELAYED +20M", "text-sun bg-sun/15"],
-            ["12841", "Kolkata → Chennai", "ON TIME", "text-go bg-go/15"],
-            ["22436", "New Delhi → Varanasi", "ON TIME", "text-go bg-go/15"],
-            ["12951", "Mumbai → New Delhi", "BOARDING", "text-[#4da3ff] bg-signal/15"],
-          ].map(([no, route, status, cls]) => (
-            <div
-              key={no}
-              className="flex items-center gap-3 border-b border-white/[0.06] px-5 py-3.5 last:border-0"
+    <section className="relative overflow-hidden bg-midnight px-4 py-24 text-white md:py-32">
+      <Starfield className="opacity-60" />
+      {/* control-room radar: a blue sweep slowly circling behind the board */}
+      <div
+        aria-hidden
+        className="absolute left-1/2 top-1/2 h-[880px] w-[880px] -translate-x-1/2 -translate-y-1/2"
+      >
+        <div
+          className="h-full w-full animate-radar rounded-full motion-reduce:animate-none"
+          style={{
+            background:
+              "conic-gradient(from 0deg, rgba(0,123,255,0) 0deg, rgba(0,123,255,0) 300deg, rgba(0,123,255,0.14) 352deg, rgba(77,159,255,0.32) 360deg)",
+            maskImage:
+              "radial-gradient(circle, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.35) 55%, transparent 72%)",
+            WebkitMaskImage:
+              "radial-gradient(circle, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.35) 55%, transparent 72%)",
+          }}
+        />
+      </div>
+      <div className="relative">
+        <Reveal className="mx-auto max-w-3xl text-center">
+          <h2 className="text-headline md:text-[44px] md:leading-[1.05]">
+            Know what&apos;s happening on any line. Right now.
+          </h2>
+          <p className="mt-5 text-[18px] leading-relaxed text-silver">
+            Track the whole network with live runs, delays, and operational
+            performance — all in real time. We synthesize thousands of
+            control-room bulletins per minute: fog, line blocks, crew shortages,
+            taxiway… sorry, <em>yard</em> congestion. Even rare anomalies like
+            cattle on the track.
+          </p>
+        </Reveal>
+        <Reveal delay={120} from="zoom">
+          <LiveBoard />
+          <div className="mt-8 text-center">
+            <Link
+              href="/app/track"
+              className="inline-block rounded-full bg-sun px-7 py-3.5 text-[15px] font-semibold text-black transition-transform hover:scale-[1.03] active:scale-95"
             >
-              <span className="tnum text-[14px] font-bold">{no}</span>
-              <span className="flex-1 truncate text-[14px] text-white/60">
-                {route}
-              </span>
-              <span
-                className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.5px] ${cls}`}
-              >
-                {status}
-              </span>
-            </div>
-          ))}
-        </div>
-        <div className="mt-8 text-center">
-          <Link
-            href="/app/track"
-            className="inline-block rounded-full bg-sun px-7 py-3.5 text-[15px] font-semibold text-black transition-transform hover:scale-[1.03]"
-          >
-            Go Live
-          </Link>
-        </div>
-      </Reveal>
+              Go Live
+            </Link>
+          </div>
+        </Reveal>
+      </div>
     </section>
   );
 }
@@ -226,7 +221,7 @@ export function MoreGrid() {
       <div className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {MORE.map(([title, body], i) => (
           <Reveal key={title} delay={i * 60}>
-            <div className="h-full rounded-2xl bg-linen p-5 ring-1 ring-black/[0.05]">
+            <div className="card-lift h-full rounded-2xl bg-linen p-5 ring-1 ring-black/[0.05]">
               <span className="text-[15px] font-bold text-black">{title}</span>{" "}
               <span className="text-[15px] text-carbon">{body}</span>
             </div>
