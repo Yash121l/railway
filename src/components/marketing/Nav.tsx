@@ -59,7 +59,7 @@ export function Nav() {
   return (
     <div
       className={`sticky top-0 z-50 transition-[background-color,padding] duration-500 ${
-        pill ? "bg-transparent pt-4" : "bg-white/90 backdrop-blur-xl"
+        pill ? "bg-transparent px-3 pt-4" : "bg-white/90 backdrop-blur-xl"
       }`}
     >
       {/* max-width morphs between two concrete values — fit-content would
