@@ -62,20 +62,22 @@ export function Nav() {
         pill ? "bg-transparent pt-4" : "bg-white/90 backdrop-blur-xl"
       }`}
     >
+      {/* max-width morphs between two concrete values — fit-content would
+          snap, and the whole point of the pill is the collapse feeling */}
       <nav
-        className={`mx-auto flex items-center transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        className={`mx-auto flex w-full items-center justify-between transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           pill
-            ? "w-fit gap-3 rounded-full bg-white/95 py-2 pl-3 pr-2 shadow-[0_18px_44px_rgba(0,0,0,0.14),0_2px_8px_rgba(0,0,0,0.06)] ring-1 ring-black/[0.06] backdrop-blur-xl"
-            : "w-full max-w-6xl justify-between px-6 py-5"
+            ? "max-w-[708px] rounded-full bg-white/95 py-2 pl-3 pr-2 shadow-[0_18px_44px_rgba(0,0,0,0.14),0_2px_8px_rgba(0,0,0,0.06)] ring-1 ring-black/[0.06] backdrop-blur-xl"
+            : "max-w-6xl px-6 py-5"
         }`}
       >
-        <Link href="/" aria-label="Railly home" className="flex items-center gap-2.5">
+        <Link href="/" aria-label="Railly home" className="flex items-center">
           <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-black">
             <TrainFront size={17} className="text-white" />
           </span>
           <span
-            className={`text-[19px] font-bold tracking-tight text-black ${
-              pill ? "hidden" : ""
+            className={`inline-block overflow-hidden text-[19px] font-bold tracking-tight text-black transition-all duration-500 ${
+              pill ? "ml-0 max-w-0 opacity-0" : "ml-2.5 max-w-[80px] opacity-100"
             }`}
           >
             Railly
@@ -84,7 +86,9 @@ export function Nav() {
 
         {/* flighty's pill has a hairline between the mark and the links */}
         <span
-          className={`h-5 w-px bg-black/10 ${pill ? "hidden md:block" : "hidden"}`}
+          className={`hidden h-5 w-px bg-black/10 transition-opacity duration-500 md:block ${
+            pill ? "opacity-100" : "opacity-0"
+          }`}
         />
 
         <div className="hidden items-center gap-1 md:flex">
