@@ -61,7 +61,11 @@ export function Reveal({
     phase === "hidden"
       ? HIDDEN[from]
       : phase === "shown"
-        ? "translate-x-0 translate-y-0 scale-100 opacity-100 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
+        ? `translate-x-0 translate-y-0 scale-100 opacity-100 transition-all duration-700 ${
+            from === "zoom"
+              ? "ease-[cubic-bezier(0.3,1.36,0.5,1)]" // cards land with a spring
+              : "ease-[cubic-bezier(0.16,1,0.3,1)]"
+          }`
         : "";
 
   return (

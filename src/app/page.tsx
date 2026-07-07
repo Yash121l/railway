@@ -40,7 +40,7 @@ function Hero() {
   return (
     <header className="px-4 pt-14 text-center md:pt-20">
       <h1
-        className="hero-rise mx-auto max-w-4xl text-[44px] font-bold leading-[1.02] tracking-[-1.8px] text-black md:text-[74px]"
+        className="hero-rise mx-auto max-w-4xl text-[44px] font-bold leading-[1.02] tracking-[-1.8px] text-black [text-wrap:balance] md:text-[72px]"
         style={{ "--stagger": "0ms" } as React.CSSProperties}
       >
         Get the truth when you take the train
@@ -80,7 +80,7 @@ function Hero() {
       {/* the phone bridges into the dark press wall below — flighty's
           white-to-midnight handoff happens behind the device */}
       <div
-        className="hero-rise relative z-10 -mb-24 md:-mb-32"
+        className="hero-rise relative z-10 -mb-32 md:-mb-44"
         style={{ "--stagger": "330ms" } as React.CSSProperties}
       >
         <HeroOrbit />

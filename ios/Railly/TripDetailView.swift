@@ -69,7 +69,11 @@ private struct StatusBanner: View {
     let now: Date
 
     var body: some View {
-        let late = live.delayMin > 5
+        // en route, what matters is the delay at the DESTINATION —
+        // the current interpolated delay can read "on time" while the
+        // forecast still loses 40 minutes crossing Madhya Pradesh
+        let arrDelay = live.stopTimings[live.stopTimings.count - 1].delayMin
+        let late = live.phase == .enroute ? arrDelay > 5 : live.delayMin > 5
         let destCity = cityFor(live.train.destination.code, live.train.destination.name)
 
         VStack(alignment: .leading, spacing: 3) {
@@ -78,7 +82,7 @@ private struct StatusBanner: View {
                 let remaining = max(0, live.arrivesEst.timeIntervalSince(now) / 60)
                 headline("Arriving in ", fmtDuration(remaining), late: late)
                 detail(late
-                    ? "\(live.events.first(where: { $0.kind == .delay })?.text ?? "Running behind schedule") — reaches \(destCity) \(live.delayMin)m late ›"
+                    ? "\(live.events.first(where: { $0.kind == .delay })?.text ?? "Running behind schedule") — reaches \(destCity) \(arrDelay)m late ›"
                     : "Running on time — reaches \(destCity) at \(fmtTime(live.arrivesEst)) ›")
             case .boarding, .scheduled:
                 let toDep = max(0, live.stopTimings[0].depEst.timeIntervalSince(now) / 60)

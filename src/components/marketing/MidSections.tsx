@@ -86,74 +86,107 @@ export function Friends() {
         </p>
       </Reveal>
 
-      {/* flighty's tilted-device collage — real screenshots, slight scroll
-          parallax in opposite directions */}
+      {/* flighty's Friends card: the headline lives INSIDE the big panel,
+          tilted devices on the right, slight scroll parallax */}
       <Reveal delay={80} from="zoom">
         <ScrollScrub
           amplitude={54}
-          className="relative mt-14 h-[380px] overflow-hidden rounded-3xl bg-linen ring-1 ring-black/[0.05] md:h-[440px]"
+          className="relative mt-14 overflow-hidden rounded-3xl bg-linen ring-1 ring-black/[0.05]"
         >
-          <div
-            data-scrub-row
-            className="absolute left-1/2 top-10 -translate-x-[104%] rotate-[-7deg] will-change-transform"
-          >
-            <MiniPhone
-              src="/screens/my-trips.png"
-              alt="Railly My Trips screen with the live network map"
-            />
+          <div className="grid md:grid-cols-2">
+            <div className="flex flex-col justify-between p-8 md:min-h-[460px] md:p-10">
+              <h3 className="max-w-[300px] text-[26px] font-bold leading-tight tracking-tight text-black md:text-[30px]">
+                Never hear, &ldquo;send me your train info?&rdquo; ever again.
+              </h3>
+              <p className="mt-6 max-w-[320px] text-[15px] leading-relaxed text-carbon md:mt-0">
+                Choose who you want to share your journeys with. They can then
+                customize the notifications they get about your trip — boarding,
+                delays, arrival, and more.
+              </p>
+            </div>
+            <div className="relative h-[360px] md:h-auto">
+              <div
+                data-scrub-row
+                className="absolute left-1/2 top-8 -translate-x-[96%] rotate-[-7deg] will-change-transform"
+              >
+                <MiniPhone
+                  src="/screens/my-trips.png"
+                  alt="Railly My Trips screen with the live network map"
+                />
+              </div>
+              <div
+                data-scrub-row
+                className="absolute left-1/2 top-20 translate-x-[2%] rotate-[6deg] will-change-transform"
+              >
+                <MiniPhone
+                  src="/screens/trip-detail.png"
+                  alt="Railly trip detail screen with the live route map"
+                />
+              </div>
+            </div>
           </div>
-          <div
-            data-scrub-row
-            className="absolute left-1/2 top-20 -translate-x-[4%] rotate-[6deg] will-change-transform"
-          >
-            <MiniPhone
-              src="/screens/trip-detail.png"
-              alt="Railly trip detail screen with the live route map"
-            />
-          </div>
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-linen to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-linen to-transparent" />
         </ScrollScrub>
       </Reveal>
 
-      <Reveal delay={120}>
-        <div className="mt-14 grid items-center gap-10 md:grid-cols-3">
-          <div className="space-y-3">
-            <h3 className="text-[20px] font-bold tracking-tight text-black">
-              Never hear, &ldquo;send me your train info?&rdquo; ever again.
+      {/* the two follow-up cards get flighty's green section headings */}
+      <div className="mt-4 grid gap-4 md:grid-cols-2">
+        <Reveal delay={60}>
+          <div className="flex h-full flex-col rounded-3xl bg-linen p-8 ring-1 ring-black/[0.05] md:p-10">
+            <h3 className="max-w-[340px] text-[19px] font-bold leading-snug tracking-tight text-ontime">
+              Get perfectly-timed notifications about your loved ones&apos;
+              journeys.
             </h3>
-            <p className="text-[15px] leading-relaxed text-carbon">
-              Choose who you share your journeys with. They pick the
-              notifications they want — boarding, delays, arrival.
-            </p>
+            <div className="mt-8 flex flex-1 flex-col items-center justify-center gap-4">
+              <NotifCard
+                title="Dad is on rails today"
+                body="12951 to New Delhi departs in 4h — on time so far."
+                time="13:00"
+                emoji="👨🏻‍🦳"
+                tilt={-2}
+                drift
+              />
+              <NotifCard
+                title="Dad left Mumbai Central"
+                body="Arrives tomorrow 09:32 — 5m early."
+                time="17:05"
+                accent="go"
+                emoji="👨🏻‍🦳"
+                tilt={2}
+                drift
+              />
+            </div>
           </div>
-          <div className="flex flex-col items-center gap-4">
-            <NotifCard
-              title="12951 to New Delhi departs in 4h"
-              body="Dad's Rajdhani is on time so far."
-              time="13:00"
-              tilt={-2}
-              drift
-            />
-            <NotifCard
-              title="Dad left Mumbai Central"
-              body="Arrives tomorrow 09:32 — 5m early."
-              time="17:05"
-              accent="go"
-              tilt={2}
-              drift
-            />
-          </div>
-          <div className="space-y-3 md:text-right">
-            <h3 className="text-[20px] font-bold tracking-tight text-black">
-              Perfectly-timed notifications.
+        </Reveal>
+        <Reveal delay={120}>
+          <div className="flex h-full flex-col rounded-3xl bg-linen p-8 ring-1 ring-black/[0.05] md:p-10">
+            <h3 className="max-w-[340px] text-[19px] font-bold leading-snug tracking-tight text-ontime">
+              Know when to leave for the station — to the minute.
             </h3>
-            <p className="text-[15px] leading-relaxed text-carbon">
-              Know when to leave for the station, when they crossed the last
-              junction, and exactly which exit gate to wait at.
-            </p>
+            <div className="mt-8 flex flex-1 flex-col items-center justify-center gap-4">
+              <NotifCard
+                title="Leave by 15:40 for MMCT"
+                body="22 min to the station in current traffic. PF 2, near the stairs."
+                time="15:12"
+                accent="signal"
+                mark="C4"
+                markColor="#111318"
+                tilt={2}
+                drift
+              />
+              <NotifCard
+                title="Crossed the last junction"
+                body="Dad reaches in 18 min. Exit Gate 1 for pickup."
+                time="09:14"
+                accent="go"
+                emoji="🚗"
+                tilt={-2}
+                drift
+              />
+            </div>
           </div>
-        </div>
-      </Reveal>
+        </Reveal>
+      </div>
     </section>
   );
 }

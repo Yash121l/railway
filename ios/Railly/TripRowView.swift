@@ -109,10 +109,12 @@ private struct StatusText: View {
         let late = live.delayMin > 5
         switch live.phase {
         case .enroute:
+            // color by the destination forecast, same rule as the detail banner
+            let arrLate = live.stopTimings[live.stopTimings.count - 1].delayMin > 5
             let remaining = fmtDuration(max(0, live.arrivesEst.timeIntervalSince(now) / 60))
             Text("Arriving in \(remaining)")
                 .font(.system(size: 14, weight: .bold))
-                .foregroundStyle(late ? Color.lateRed : Color.onTime)
+                .foregroundStyle(arrLate ? Color.lateRed : Color.onTime)
                 .rollingNumbers(value: remaining)
         case .arrived:
             Text(fmtDay(live.arrivesEst))
