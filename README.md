@@ -2,7 +2,7 @@
 
 **Get the truth when you take the train.** Railly reimagines [Flighty](https://flighty.com/) — the Apple Design Award-winning flight tracker — for Indian Railways: live train tracking, delay predictions before the railway announces them, platform-change alerts, and a Passport-style logbook. One codebase ships both the flighty.com-style marketing site and the app itself.
 
-Built with **Next.js 16 · React 19 · Tailwind CSS 4 · MapLibre GL · TypeScript (strict)**. No backend, no API keys — see [how the live network works](#how-the-live-network-works).
+Built with **Next.js 16 · React 19 · Tailwind CSS 4 · MapLibre GL · TypeScript (strict)**, plus a **native iOS app (SwiftUI + MapKit)** in [`ios/`](ios/) whose engine is a bit-exact port of the web simulation. No backend, no API keys — see [how the live network works](#how-the-live-network-works).
 
 ![Marketing site](docs/screens/landing.png)
 
@@ -32,6 +32,8 @@ There is no backend. Eight real Indian Railways services (Mumbai & Howrah Rajdha
 The simulation ([`src/lib/sim.ts`](src/lib/sim.ts)) makes the network a **pure function of (train, date, time)**: per-run delays are a seeded random walk over the timetable (with occasional incident jolts and recoveries), positions interpolate along the route between stops, and the event feed — departures, delay explanations, platform changes — derives from the same seed. Every client on Earth renders the identical "live" network, it evolves in real time, and premium trains are measurably more punctual than the humble Superfast, just like real life.
 
 Departures are staggered 06:00–19:20 IST across 6–38 h journeys, so something is always running.
+
+**Native iOS app ([`ios/`](ios/))** — SwiftUI + MapKit, iOS 17+. The simulation engine is a bit-exact Swift port (same seeded PRNG, same IST math): at any instant the iPhone app and the web app show the identical live network. `open ios/Railly.xcodeproj` in Xcode 16+ and run. Details in [`ios/README.md`](ios/README.md).
 
 ## Getting started
 
