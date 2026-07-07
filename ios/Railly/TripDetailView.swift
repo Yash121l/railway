@@ -161,13 +161,17 @@ private struct EndBlock: View {
             }
             Spacer()
             VStack(alignment: .trailing, spacing: 5) {
-                Text(stop.platform.map { "PF \($0)" } ?? "PF --")
-                    .font(.system(size: 17, weight: .bold))
-                    .foregroundStyle(.black)
-                    .padding(.horizontal, 11)
-                    .padding(.vertical, 6)
-                    .background(Color.gateAmber, in: RoundedRectangle(cornerRadius: 9))
-                Text(isDeparture ? "Coach \(trip.coach)" : "Platform")
+                HStack(spacing: 4) {
+                    Image(systemName: isDeparture ? "arrow.up.right" : "arrow.down.right")
+                        .font(.system(size: 12, weight: .black))
+                    Text(stop.platform.map { "PF\($0)" } ?? "--")
+                        .font(.system(size: 18, weight: .bold))
+                }
+                .foregroundStyle(.black)
+                .padding(.horizontal, 11)
+                .padding(.vertical, 7)
+                .background(Color.gateAmber, in: RoundedRectangle(cornerRadius: 10))
+                Text(stop.platform.map { "Platform \($0)" } ?? "Platform TBA")
                     .font(.system(size: 12))
                     .foregroundStyle(Color.subGray)
             }
@@ -234,19 +238,28 @@ struct TripDetailView: View {
 
         return ScrollView {
             VStack(spacing: 0) {
-                ZStack(alignment: .topLeading) {
+                ZStack(alignment: .top) {
                     TripMapView(live: live)
                         .frame(height: 300)
+                    // flighty's in-flight telemetry capsule, top-center
                     if live.phase == .enroute {
-                        Text("\(live.speedKmh) KM/H · \(live.delayMin > 5 ? "+\(live.delayMin)M" : "ON TIME")")
-                            .font(.system(size: 11, weight: .bold))
-                            .kerning(0.8)
-                            .rollingNumbers(value: "\(live.speedKmh)")
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 13)
-                            .padding(.vertical, 7)
-                            .background(Color(hex: 0x1C1E22).opacity(0.9), in: Capsule())
-                            .padding(14)
+                        HStack(spacing: 8) {
+                            Image(systemName: "gauge.with.needle")
+                                .font(.system(size: 12, weight: .semibold))
+                            Text("\(live.speedKmh) KM/H")
+                                .rollingNumbers(value: "\(live.speedKmh)")
+                            Rectangle().fill(.white.opacity(0.25)).frame(width: 1, height: 14)
+                            Image(systemName: "tram.fill")
+                                .font(.system(size: 11, weight: .semibold))
+                            Text("NEXT \(live.train.stops[live.nextStopIdx].code)")
+                        }
+                        .font(.system(size: 13, weight: .semibold))
+                        .kerning(0.4)
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
+                        .background(Color(hex: 0x1C1E22).opacity(0.88), in: Capsule())
+                        .padding(.top, 104)
                     }
                 }
 
@@ -314,11 +327,33 @@ struct TripDetailView: View {
         .scrollIndicators(.hidden)
         .background(Color.black)
         .ignoresSafeArea(edges: .top)
-        .mapDetailBar(title: "\(train.number) · \(train.origin.code)–\(train.destination.code)")
+        .mapDetailBar(title: "")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 ShareLink(item: shareSummary(trip)) {
                     Image(systemName: "square.and.arrow.up")
+                }
+            }
+            ToolbarItem(placement: .primaryAction) {
+                Menu {
+                    ShareLink(item: shareSummary(trip)) {
+                        Label("Share Trip", systemImage: "square.and.arrow.up")
+                    }
+                    Button {} label: {
+                        Label("Alternate Trains", systemImage: "arrow.triangle.branch")
+                    }
+                    Button {} label: {
+                        Label("Live Activity — On", systemImage: "bolt.fill")
+                    }
+                    Divider()
+                    Button {} label: {
+                        Label("Report Data Issue", systemImage: "exclamationmark.bubble")
+                    }
+                    Button(role: .destructive) {} label: {
+                        Label("Delete Trip", systemImage: "trash")
+                    }
+                } label: {
+                    Image(systemName: "ellipsis")
                 }
             }
         }
@@ -459,12 +494,53 @@ struct TripDetailView: View {
     }
 
     private func booking(_ trip: HeldTrip) -> some View {
-        SectionCard(title: "My Booking") {
-            HStack {
-                stat(trip.pnr, "PNR")
-                Spacer()
-                stat("\(trip.coach) · \(trip.seat)", "Coach · Seat")
+        HStack(spacing: 12) {
+            bookingCard(icon: "ticket", value: trip.pnr, caption: "PNR") {
+                #if os(iOS)
+                UIPasteboard.general.string = trip.pnr
+                #endif
             }
+            bookingCard(icon: "bed.double", value: "\(trip.coach) · \(trip.seat)",
+                        caption: "Coach · Berth", copyAction: nil)
         }
+    }
+
+    /// flighty's booking-code card: outline, icon, value, and a blue COPY chip.
+    private func bookingCard(icon: String, value: String, caption: String,
+                             copyAction: (() -> Void)?) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            HStack(alignment: .top) {
+                Image(systemName: icon)
+                    .font(.system(size: 19))
+                    .foregroundStyle(Color.inkline)
+                Spacer()
+                if let copyAction {
+                    Button(action: copyAction) {
+                        Text("COPY")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundStyle(Color(hex: 0x1D6FF2))
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 5)
+                            .background(Color(hex: 0xE7F0FF), in: Capsule())
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            Text(value)
+                .font(.system(size: 19, weight: .semibold))
+                .foregroundStyle(Color.inkline)
+                .monospacedDigit()
+                .padding(.top, 8)
+            Text(caption)
+                .font(.system(size: 13))
+                .foregroundStyle(Color.subGray)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(14)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(.white)
+                .stroke(Color(hex: 0xE5E5EA), lineWidth: 1)
+        )
     }
 }

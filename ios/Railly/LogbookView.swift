@@ -21,7 +21,7 @@ private struct SplitFlap: View {
                         .frame(height: 1.5)
                     Text(String(ch))
                         .font(.system(size: 34, weight: .bold))
-                        .foregroundStyle(Color(hex: 0xFDF3E7).opacity(ghost ? 0.3 : 1))
+                        .foregroundStyle(ghost ? Color.white.opacity(0.32) : Color(hex: 0xFDF3E7))
                 }
                 .frame(width: 44, height: 62)
             }
@@ -60,20 +60,20 @@ private struct PassportCard: View {
             Text("PASSPORT • PASS • पासपोर्ट")
                 .font(.system(size: 11, weight: .semibold))
                 .kerning(1.4)
-                .foregroundStyle(Color(hex: 0x8B7BC4))
+                .foregroundStyle(Color(hex: 0xA9A3E8))
                 .padding(.top, 3)
 
             Text("DISTANCE")
                 .font(.system(size: 11, weight: .bold)).kerning(1)
-                .foregroundStyle(Color(hex: 0xA79BD6))
+                .foregroundStyle(Color(hex: 0xA9A3E8))
                 .padding(.top, 22)
             (Text("28,412 ").font(.system(size: 38, weight: .heavy))
                 + Text("km").font(.system(size: 24, weight: .semibold))
-                .foregroundStyle(Color(hex: 0xA79BD6)))
+                .foregroundStyle(Color(hex: 0xA9A3E8)))
                 .foregroundStyle(.white)
             Text("0.71x around the world")
                 .font(.system(size: 13))
-                .foregroundStyle(Color(hex: 0xA79BD6))
+                .foregroundStyle(Color(hex: 0xA9A3E8))
 
             HStack(spacing: 34) {
                 passportStat("TRIPS", "47", sub: "12 overnight")
@@ -86,6 +86,21 @@ private struct PassportCard: View {
             }
             .padding(.top, 14)
 
+            // machine-readable zone, like the real passport page
+            VStack(alignment: .leading, spacing: 2) {
+                Rectangle()
+                    .fill(Color(hex: 0xA9A3E8).opacity(0.35))
+                    .frame(height: 1)
+                    .padding(.bottom, 8)
+                Text("ALLTIME<<YASH<L<<MEMBER<<RAILLY<<<<<<<<<<<")
+                Text("0707202647TRIPS28412KM<<<<214H<<38STN<<8TRN")
+            }
+            .font(.system(size: 11, weight: .medium, design: .monospaced))
+            .foregroundStyle(.white.opacity(0.55))
+            .kerning(1.2)
+            .lineLimit(1)
+            .padding(.top, 18)
+
             StatsButton(label: "All Trip Stats")
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -93,7 +108,7 @@ private struct PassportCard: View {
         .background(
             RoundedRectangle(cornerRadius: 24)
                 .fill(LinearGradient(
-                    colors: [Color(hex: 0x2A1052), Color(hex: 0x1B2E7A)],
+                    colors: [Color(hex: 0x14104B), Color(hex: 0x5A3FD6)],
                     startPoint: .topLeading, endPoint: .bottomTrailing
                 ))
         )
@@ -103,12 +118,12 @@ private struct PassportCard: View {
         VStack(alignment: .leading, spacing: 2) {
             Text(label)
                 .font(.system(size: 11, weight: .bold)).kerning(1)
-                .foregroundStyle(Color(hex: 0xA79BD6))
+                .foregroundStyle(Color(hex: 0xA9A3E8))
             Text(value)
                 .font(.system(size: 25, weight: .bold))
                 .foregroundStyle(.white)
             if let sub {
-                Text(sub).font(.system(size: 12)).foregroundStyle(Color(hex: 0xA79BD6))
+                Text(sub).font(.system(size: 12)).foregroundStyle(Color(hex: 0xA9A3E8))
             }
         }
     }
@@ -226,7 +241,7 @@ struct LogbookView: View {
                     }
                     .padding(.horizontal, 20)
                     .padding(.top, 16)
-                    .padding(.bottom, 40)
+                    .padding(.bottom, 120)
                 }
                 .background(Color.white)
             }

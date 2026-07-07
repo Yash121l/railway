@@ -54,7 +54,7 @@ struct TrackView: View {
                     }
                     .padding(.horizontal, 20)
                     .padding(.top, 16)
-                    .padding(.bottom, 40)
+                    .padding(.bottom, 120)
                 }
                 .scrollIndicators(.hidden)
                 .refreshable {

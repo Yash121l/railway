@@ -145,7 +145,7 @@ struct MyTripsView: View {
             }
         }
         .padding(.horizontal, 20)
-        .padding(.bottom, 40)
+        .padding(.bottom, 120)
     }
 
     @ViewBuilder

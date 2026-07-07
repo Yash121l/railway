@@ -2,19 +2,38 @@ import SwiftUI
 
 /// One journey, one dense line — the Dec 2025 Flighty row anatomy.
 
+/// Flighty's rule: ONE status color per trip, not per endpoint. Green when
+/// running on time, red when late (or completed rows, muted), and neutral
+/// gray circles with plain dark times for far-future scheduled trips.
 private enum Tone {
-    case ontime, late, muted
+    case neutral, ontime, late, muted
 
-    var color: Color {
+    var circleFill: Color {
         switch self {
+        case .neutral: return Color(hex: 0xD8D8DC)
         case .ontime: return .onTime
         case .late: return .lateRed
         case .muted: return .fadedGray
         }
     }
+
+    var codeColor: Color {
+        switch self {
+        case .neutral: return Color(hex: 0x8E8E93)
+        case .muted: return Color.fadedGray.opacity(0.8)
+        default: return circleFill.opacity(0.8)
+        }
+    }
+
+    var timeColor: Color {
+        switch self {
+        case .neutral: return .inkline
+        default: return circleFill
+        }
+    }
 }
 
-/// The colored dep/arr cell — the whole cluster inherits status color.
+/// The dep/arr cell — the whole cluster inherits the trip's status color.
 private struct TimeCell: View {
     let isDeparture: Bool
     let code: String
@@ -28,15 +47,15 @@ private struct TimeCell: View {
                 .font(.system(size: 9, weight: .black))
                 .foregroundStyle(.white)
                 .frame(width: 18, height: 18)
-                .background(tone.color, in: Circle())
+                .background(tone.circleFill, in: Circle())
             Text(code)
                 .font(.system(size: 15, weight: .semibold))
-                .foregroundStyle(tone.color.opacity(0.8))
+                .foregroundStyle(tone.codeColor)
             (Text(fmtTime(time)).font(.system(size: 16, weight: .bold))
                 + Text(nextDay ? "+1" : "")
                 .font(.system(size: 10, weight: .bold))
                 .baselineOffset(6))
-                .foregroundStyle(tone.color)
+                .foregroundStyle(tone.timeColor)
                 .monospacedDigit()
         }
     }
@@ -109,27 +128,29 @@ private struct StatusText: View {
         let late = live.delayMin > 5
         switch live.phase {
         case .enroute:
-            // color by the destination forecast, same rule as the detail banner
+            // gray regular label + colored semibold value, flighty-style
             let arrLate = live.stopTimings[live.stopTimings.count - 1].delayMin > 5
             let remaining = fmtDuration(max(0, live.arrivesEst.timeIntervalSince(now) / 60))
-            Text("Arriving in \(remaining)")
-                .font(.system(size: 14, weight: .bold))
+            (Text("Arriving in ").foregroundStyle(Color.subGray)
+                + Text(remaining)
                 .foregroundStyle(arrLate ? Color.lateRed : Color.onTime)
+                .fontWeight(.semibold))
+                .font(.system(size: 14))
                 .rollingNumbers(value: remaining)
         case .arrived:
             Text(fmtDay(live.arrivesEst))
                 .font(.system(size: 14))
                 .foregroundStyle(Color.fadedGray)
         case .boarding, .scheduled:
-            if live.departsAt.timeIntervalSince(now) > 36 * 3600 {
+            if live.departsAt.timeIntervalSince(now) > 24 * 3600 {
                 Text(fmtDay(live.departsAt))
                     .font(.system(size: 14))
-                    .foregroundStyle(Color.fadedGray)
+                    .foregroundStyle(Color.subGray)
             } else {
                 (Text("Departs ").foregroundStyle(Color.subGray)
                     + Text(late ? "\(live.delayMin)m late" : "On Time")
                     .foregroundStyle(late ? Color.lateRed : Color.onTime)
-                    .fontWeight(.bold))
+                    .fontWeight(.semibold))
                     .font(.system(size: 14))
             }
         }
@@ -146,8 +167,15 @@ struct TripRowView: View {
         let depT = trip.live.stopTimings[0]
         let arrT = trip.live.stopTimings[train.stops.count - 1]
         let isPast = trip.live.phase == .arrived
-        let depTone: Tone = isPast ? .muted : depT.delayMin > 5 ? .late : .ontime
-        let arrTone: Tone = isPast ? .muted : arrT.delayMin > 5 ? .late : .ontime
+        // one tone for the whole row: muted past, neutral far-future,
+        // otherwise green/red by the destination forecast
+        let farFuture = trip.live.departsAt.timeIntervalSince(now) > 24 * 3600
+            && trip.live.phase == .scheduled
+        let tone: Tone = isPast ? .muted
+            : farFuture ? .neutral
+            : arrT.delayMin > 5 ? .late : .ontime
+        let depTone = tone
+        let arrTone = tone
 
         HStack(alignment: .top, spacing: 8) {
             Rail(trip: trip, now: now)
