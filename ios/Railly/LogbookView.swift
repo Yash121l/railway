@@ -215,7 +215,7 @@ struct LogbookView: View {
                             NavigationLink(value: trip.id) {
                                 pastRow(trip)
                             }
-                            .buttonStyle(.plain)
+                            .buttonStyle(.pressableRow)
                         }
 
                         Text("Lifetime stats are illustrative in this demo.")

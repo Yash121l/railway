@@ -101,6 +101,7 @@ private struct StatusBanner: View {
         (Text(prefix).foregroundStyle(Color.inkline)
             + Text(value).foregroundStyle(late ? Color.lateRed : Color.onTime).fontWeight(.bold))
             .font(.system(size: 18, weight: .semibold))
+            .rollingNumbers(value: value)
     }
 
     private func detail(_ s: String) -> some View {
@@ -216,6 +217,13 @@ struct TripDetailView: View {
         .background(Color.white)
     }
 
+    private func shareSummary(_ trip: HeldTrip) -> String {
+        let live = trip.live
+        let route = "\(cityFor(trip.train.origin.code, trip.train.origin.name)) to \(cityFor(trip.train.destination.code, trip.train.destination.name))"
+        let status = live.delayMin > 5 ? "running \(live.delayMin)m late" : "on time"
+        return "\(trip.train.number) \(trip.train.name) — \(route), \(status). Arrives \(fmtTime(live.arrivesEst)). Tracked with Railly."
+    }
+
     private func detail(trip: HeldTrip, now: Date) -> some View {
         let live = trip.live
         let train = trip.train
@@ -229,6 +237,7 @@ struct TripDetailView: View {
                         Text("\(live.speedKmh) KM/H · \(live.delayMin > 5 ? "+\(live.delayMin)M" : "ON TIME")")
                             .font(.system(size: 11, weight: .bold))
                             .kerning(0.8)
+                            .rollingNumbers(value: "\(live.speedKmh)")
                             .foregroundStyle(.white)
                             .padding(.horizontal, 13)
                             .padding(.vertical, 7)
@@ -298,8 +307,17 @@ struct TripDetailView: View {
                 .offset(y: -26)
             }
         }
+        .scrollIndicators(.hidden)
         .background(Color.black)
         .ignoresSafeArea(edges: .top)
+        .mapDetailBar(title: "\(train.number) · \(train.origin.code)–\(train.destination.code)")
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                ShareLink(item: shareSummary(trip)) {
+                    Image(systemName: "square.and.arrow.up")
+                }
+            }
+        }
     }
 
     private func liveRun(live: LiveStatus, now: Date) -> some View {
@@ -310,6 +328,7 @@ struct TripDetailView: View {
                     Capsule().fill(Color.fillGray)
                     Capsule().fill(Color.arcBlue)
                         .frame(width: max(6, geo.size.width * live.progress))
+                        .animation(.linear(duration: 1), value: live.progress)
                 }
             }
             .frame(height: 7)

@@ -44,6 +44,7 @@ struct NetworkMapView: View {
 
 struct MyTripsView: View {
     @State private var query = ""
+    @State private var onRailsOnly = false
 
     var body: some View {
         NavigationStack {
@@ -67,6 +68,11 @@ struct MyTripsView: View {
                     }
                 }
             }
+            .scrollIndicators(.hidden)
+            .refreshable {
+                // the network is simulated locally; the gesture is the point
+                try? await Task.sleep(nanoseconds: 500_000_000)
+            }
             .background(Color.black)
             .ignoresSafeArea(edges: .top)
             .navigationDestination(for: String.self) { id in
@@ -78,14 +84,22 @@ struct MyTripsView: View {
     private func sheet(now: Date) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
-                HStack(spacing: 6) {
-                    Text("My Trips")
-                        .font(.system(size: 30, weight: .heavy))
-                        .foregroundStyle(Color.inkline)
-                    Image(systemName: "chevron.down")
-                        .font(.system(size: 15, weight: .black))
-                        .foregroundStyle(Color.inkline)
+                Menu {
+                    Picker("Show", selection: $onRailsOnly) {
+                        Text("All trips").tag(false)
+                        Text("On rails now").tag(true)
+                    }
+                } label: {
+                    HStack(spacing: 6) {
+                        Text(onRailsOnly ? "On Rails" : "My Trips")
+                            .font(.system(size: 30, weight: .heavy))
+                            .foregroundStyle(Color.inkline)
+                        Image(systemName: "chevron.down")
+                            .font(.system(size: 15, weight: .black))
+                            .foregroundStyle(Color.inkline)
+                    }
                 }
+                .buttonStyle(.plain)
                 Spacer()
                 Text("Y")
                     .font(.system(size: 15, weight: .bold))
@@ -100,6 +114,16 @@ struct MyTripsView: View {
                     .foregroundStyle(Color.fadedGray)
                 TextField("Search to add trains", text: $query)
                     .font(.system(size: 17))
+                    .searchFieldStyle()
+                if !query.isEmpty {
+                    Button {
+                        query = ""
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(Color.fadedGray)
+                    }
+                    .buttonStyle(.plain)
+                }
             }
             .padding(.horizontal, 14)
             .frame(height: 52)
@@ -120,16 +144,25 @@ struct MyTripsView: View {
     @ViewBuilder
     private func sections(now: Date) -> some View {
         let trips = getMyTrips(now)
-        let current = trips.live + trips.upcoming
+        let current = (trips.live + trips.upcoming).filter {
+            !onRailsOnly || $0.live.phase == .enroute
+        }
 
+        if current.isEmpty {
+            Text("Nothing on rails right now.")
+                .font(.system(size: 16))
+                .foregroundStyle(Color.fadedGray)
+                .frame(maxWidth: .infinity)
+                .padding(.top, 40)
+        }
         ForEach(Array(current.enumerated()), id: \.element.id) { i, trip in
             NavigationLink(value: trip.id) {
                 TripRowView(trip: trip, now: now, divider: i < current.count - 1)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.pressableRow)
         }
 
-        if !trips.past.isEmpty {
+        if !trips.past.isEmpty && !onRailsOnly {
             Text("Past Trips")
                 .font(.system(size: 20, weight: .bold))
                 .foregroundStyle(Color.inkline)
@@ -138,7 +171,7 @@ struct MyTripsView: View {
                 NavigationLink(value: trip.id) {
                     TripRowView(trip: trip, now: now, divider: i < trips.past.count - 1)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.pressableRow)
             }
         }
     }
@@ -164,7 +197,7 @@ struct MyTripsView: View {
                 NavigationLink(value: trip.id) {
                     TripRowView(trip: trip, now: now, divider: i < matches.count - 1)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.pressableRow)
             }
         }
     }

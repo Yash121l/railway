@@ -86,6 +86,8 @@ private struct Rail: View {
         Text(s)
             .font(.system(size: 30, weight: .heavy))
             .foregroundStyle(Color.inkline)
+            .monospacedDigit()
+            .rollingNumbers(value: s)
     }
 
     private func caption(_ s: String) -> some View {
@@ -107,10 +109,11 @@ private struct StatusText: View {
         let late = live.delayMin > 5
         switch live.phase {
         case .enroute:
-            let remaining = max(0, live.arrivesEst.timeIntervalSince(now) / 60)
-            Text("Arriving in \(fmtDuration(remaining))")
+            let remaining = fmtDuration(max(0, live.arrivesEst.timeIntervalSince(now) / 60))
+            Text("Arriving in \(remaining)")
                 .font(.system(size: 14, weight: .bold))
                 .foregroundStyle(late ? Color.lateRed : Color.onTime)
+                .rollingNumbers(value: remaining)
         case .arrived:
             Text(fmtDay(live.arrivesEst))
                 .font(.system(size: 14))

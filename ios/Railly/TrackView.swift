@@ -37,6 +37,7 @@ struct TrackView: View {
                                 Text("\(running) running")
                                     .font(.system(size: 13, weight: .bold))
                                     .foregroundStyle(Color.onTime)
+                                    .rollingNumbers(value: "\(running)")
                             }
                         }
                         Text("Every train Railly is watching right now.")
@@ -48,12 +49,16 @@ struct TrackView: View {
                             NavigationLink(value: trip.id) {
                                 TripRowView(trip: trip, now: now, divider: i < trips.count - 1)
                             }
-                            .buttonStyle(.plain)
+                            .buttonStyle(.pressableRow)
                         }
                     }
                     .padding(.horizontal, 20)
                     .padding(.top, 16)
                     .padding(.bottom, 40)
+                }
+                .scrollIndicators(.hidden)
+                .refreshable {
+                    try? await Task.sleep(nanoseconds: 500_000_000)
                 }
                 .background(Color.white)
             }
