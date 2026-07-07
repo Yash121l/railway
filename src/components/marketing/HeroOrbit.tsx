@@ -6,8 +6,8 @@ import { PhoneMock } from "./PhoneMock";
 
 const NOTIFS = [
   {
-    title: "Good morning! Your train today is on time.",
-    body: "12951 Mumbai Rajdhani · departs 17:00 from PF 2.",
+    title: "MMCT → NDLS · On Time",
+    body: "Good morning! Your Rajdhani departs 17:00 from PF 2.",
     time: "9:02",
     accent: "go" as const,
   },

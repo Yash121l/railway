@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Flag, LayoutGrid, Ticket, TrainFront } from "lucide-react";
 
@@ -56,13 +55,13 @@ export function JourneyBar() {
           );
         })}
         <span className="mx-1 h-5 w-px shrink-0 bg-white/20" />
-        <Link
-          href="/app"
+        <a
+          href="#pricing"
           className="flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-[14px] font-semibold text-white transition-transform active:scale-95"
         >
           <LayoutGrid size={14} />
-          Open App
-        </Link>
+          Download
+        </a>
       </div>
     </div>
   );

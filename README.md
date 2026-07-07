@@ -1,8 +1,8 @@
 # Railly — the Flighty of train travel 🚆
 
-**Get the truth when you take the train.** Railly reimagines [Flighty](https://flighty.com/) — the Apple Design Award-winning flight tracker — for Indian Railways: live train tracking, delay predictions before the railway announces them, platform-change alerts, and a Passport-style logbook. One codebase ships both the flighty.com-style marketing site and the app itself.
+**Get the truth when you take the train.** Railly reimagines [Flighty](https://flighty.com/) — the Apple Design Award-winning flight tracker — for Indian Railways: live train tracking, delay predictions before the railway announces them, platform-change alerts, and a Passport-style logbook. One codebase ships the flighty.com-style marketing site and a native iOS app whose live network is computed, not fetched.
 
-Built with **Next.js 16 · React 19 · Tailwind CSS 4 · MapLibre GL · TypeScript (strict)**, plus a **native iOS app (SwiftUI + MapKit)** in [`ios/`](ios/) whose engine is a bit-exact port of the web simulation. No backend, no API keys — see [how the live network works](#how-the-live-network-works).
+Built with **Next.js 16 · React 19 · Tailwind CSS 4 · TypeScript (strict)**, plus a **native iOS app (SwiftUI + MapKit)** in [`ios/`](ios/) whose engine is a bit-exact port of the web simulation. No backend, no API keys — see [how the live network works](#how-the-live-network-works).
 
 ![Marketing site](docs/screens/landing.png)
 
@@ -18,12 +18,7 @@ Built with **Next.js 16 · React 19 · Tailwind CSS 4 · MapLibre GL · TypeScri
 
 **Marketing site (`/`)** — a faithful flighty.com structural clone, re-copywritten for rail: announcement bar, floating pill nav, hero with auto-cycling notification cards orbiting a phone mockup, dark press-quote wall with hover crossfade, alternating feature journey, Friends, Passport teaser, a dark "Network Intelligence" live board, masonry testimonial wall, INR pricing, and the full footer. Scroll reveals respect `prefers-reduced-motion`.
 
-**The app (`/app`)** — the Dec 2025 Flighty design language (studied from 119 real iOS screenshots), applied to trains:
-
-- **My Trips** — a live network map (every route as a glowing blue arc, live trains as markers) behind a white sheet: "My Trips ⌄", a working "Search to add trains" field, and one dense row per journey — huge countdown numerals or an ON RAILS badge on the left rail, bold city pairs, and dep/arr time cells whose whole cluster flips green/red with status (`+1` superscripts for next-day arrivals).
-- **Trip detail** (`/app/trip/[id]`) — dark MapLibre map with the flown route solid blue and the remainder dashed, a live speed pill, then the sheet: mint/rose status banner with a plain-English explanation, giant colored times with struck-through scheduled ones, amber platform chips, live-run stats, a delay-explanation **Updates feed**, a Scheduled/Estimated timetable for every halt, 60-day arrival-forecast histogram, a *Where's My Rake?* card, operator contact card, route history, booking tiles, and a floating action bar with the purple **Get Pro** pill.
-- **Track** (`/app/track`) — the whole network as a one-line-per-train live board.
-- **Logbook** (`/app/logbook`) — the Flighty Passport treatment: an indigo-gradient ALL-TIME RAILLY PASSPORT stat card, a maroon delay report with a **CSS split-flap board** and amber dot-matrix worst-delay row, a lavender most-ridden-train card, and the past-trips log.
+**The app** is the native iOS app in [`ios/`](ios/) — the Dec 2025 Flighty design language (studied from 119 real iOS screenshots), applied to trains: My Trips over a live network map, trip detail with the flown route solid and the rest dashed, a one-line-per-train Track board, and a Passport-style Logbook with a CSS split-flap delay board. The web app that used to live at `/app` was removed — the site is the marketing page; the product is the iOS app.
 
 ## How the live network works
 
@@ -39,7 +34,7 @@ Departures are staggered 06:00–19:20 IST across 6–38 h journeys, so somethin
 
 ```bash
 npm install
-npm run dev     # http://localhost:3000  (site) · /app (the app)
+npm run dev     # http://localhost:3000
 ```
 
 `npm run build` produces the production build; `npx eslint .` lints (Next 16 removed `next lint`).
@@ -50,22 +45,12 @@ npm run dev     # http://localhost:3000  (site) · /app (the app)
 src/
   app/
     page.tsx              marketing landing page
-    app/                  the Railly app (dark, phone-column shell)
-      page.tsx            My Trips
-      trip/[id]/          live trip detail + map
-      track/              network board
-      logbook/            Passport-style stats
   components/
-    marketing/            hero orbit, press wall, feature journey, pricing…
-    app/                  trip cards, live map, status pills, tab bar…
+    marketing/            hero orbit, press wall, live network canvas, pricing…
   lib/
-    trains.ts             researched timetables + coordinates
-    sim.ts                deterministic live-network engine
-    trips.ts              the demo persona's tickets, derived live
-    geo.ts · rng.ts · time.ts · format.ts · types.ts
+    trains.ts sim.ts      the deterministic live-network simulation
+ios/                      the native SwiftUI app (see ios/README.md)
 ```
-
-## Design system
 
 Tokens live in [`src/app/globals.css`](src/app/globals.css). The marketing site follows a Flighty style reference: white "departure board" canvas, `#0d0021` violet "control room" sections, exactly two chromatic signals (action blue `#007bff`, conversion amber `#f7be00`). The app follows the Dec 2025 Flighty iOS release: white sheets over a dark map, `#f2f2f5` fills and hairline dividers, status green `#1e9e4a` / red `#d93025` owning entire time clusters, amber `#f6c445` platform chips, iOS blue actions, Pro purple `#7c3aed` — system-ui type, tabular numerals everywhere, uppercase micro-labels.
 

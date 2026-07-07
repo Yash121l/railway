@@ -13,12 +13,12 @@ export function ClosingCta() {
           We&apos;ll handle the details. You just enjoy the ride. Works in any
           browser, on any device. Free to start.
         </p>
-        <Link
-          href="/app"
+        <a
+          href="#pricing"
           className="mt-8 inline-block rounded-full bg-sun px-8 py-4 text-[16px] font-semibold text-black transition-transform hover:scale-[1.03] active:scale-95"
         >
           Get Railly
-        </Link>
+        </a>
       </Reveal>
     </section>
   );
@@ -28,11 +28,11 @@ const COLUMNS: [string, [string, string][]][] = [
   [
     "Product",
     [
-      ["My Trips", "/app"],
-      ["Track", "/app/track"],
-      ["Logbook", "/app/logbook"],
+      ["Features", "#features"],
+      ["Friends", "#friends"],
+      ["Passport", "#passport"],
+      ["Network Intelligence", "#network"],
       ["Pricing", "#pricing"],
-      ["Railly Insiders", "#"],
     ],
   ],
   [

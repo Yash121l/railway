@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Link from "next/link";
 import {
   BellRing,
   CalendarDays,
@@ -62,12 +61,12 @@ export function ImportStrip() {
             </span>
           ))}
         </div>
-        <Link
-          href="/app"
+        <a
+          href="#pricing"
           className="mt-8 inline-block rounded-full bg-signal px-7 py-3.5 text-[15px] font-semibold text-white transition-transform hover:scale-[1.03] active:scale-95"
         >
           Give Railly a try
-        </Link>
+        </a>
       </Reveal>
     </section>
   );
@@ -178,12 +177,12 @@ export function PassportTeaser() {
             crossed the country? What was your worst delay? What&apos;s your
             most-ridden train? Your Railly Passport keeps the whole story.
           </p>
-          <Link
-            href="/app/logbook"
+          <a
+            href="#pricing"
             className="mt-7 inline-block rounded-full bg-signal px-7 py-3.5 text-[15px] font-semibold text-white transition-transform hover:scale-[1.03] active:scale-95"
           >
-            Open your Logbook
-          </Link>
+            Get your Passport
+          </a>
         </Reveal>
         <Reveal delay={120} from="right">
           <div className="glow-violet relative overflow-hidden rounded-3xl p-7 ring-1 ring-black/10">
@@ -217,7 +216,7 @@ export function PassportTeaser() {
 
 export function NetworkIntel() {
   return (
-    <section className="relative overflow-hidden bg-midnight px-4 py-24 text-white md:py-32">
+    <section id="network" className="relative scroll-mt-16 overflow-hidden bg-midnight px-4 py-24 text-white md:py-32">
       <Starfield className="opacity-60" />
       {/* control-room radar: a blue sweep slowly circling behind the board */}
       <div
@@ -268,12 +267,12 @@ export function NetworkIntel() {
         <Reveal delay={140} from="zoom">
           <LiveBoard />
           <div className="mt-8 text-center">
-            <Link
-              href="/app/track"
+            <a
+              href="#pricing"
               className="inline-block rounded-full bg-sun px-7 py-3.5 text-[15px] font-semibold text-black transition-transform hover:scale-[1.03] active:scale-95"
             >
-              Go Live
-            </Link>
+              Get Railly
+            </a>
           </div>
         </Reveal>
       </div>

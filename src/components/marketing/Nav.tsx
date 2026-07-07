@@ -13,12 +13,12 @@ export function AnnouncementBar() {
       <TrainFront size={14} className="shrink-0" />
       <span className="font-semibold">NEW! Network Intelligence</span>
       <span className="text-white/50">|</span>
-      <Link
-        href="/app/track"
+      <a
+        href="#network"
         className="inline-flex items-center gap-1 font-semibold text-white underline-offset-2 hover:underline"
       >
         View Live <ArrowRight size={14} />
-      </Link>
+      </a>
       <button
         aria-label="Dismiss"
         onClick={() => setHidden(true)}
@@ -58,15 +58,15 @@ export function Nav() {
 
   return (
     <div
-      className={`sticky top-0 z-50 transition-[background-color] duration-500 ${
-        pill ? "bg-transparent" : "bg-white/90 backdrop-blur-xl"
+      className={`sticky top-0 z-50 transition-[background-color,padding] duration-500 ${
+        pill ? "bg-transparent pt-4" : "bg-white/90 backdrop-blur-xl"
       }`}
     >
       <nav
-        className={`mx-auto flex items-center justify-between transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        className={`mx-auto flex items-center transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           pill
-            ? "mt-3 max-w-3xl rounded-full bg-white/95 py-2 pl-4 pr-2 shadow-[0_10px_36px_rgba(0,0,0,0.13)] ring-1 ring-black/[0.05] backdrop-blur-xl"
-            : "max-w-6xl px-6 py-5"
+            ? "w-fit gap-3 rounded-full bg-white/95 py-2 pl-3 pr-2 shadow-[0_18px_44px_rgba(0,0,0,0.14),0_2px_8px_rgba(0,0,0,0.06)] ring-1 ring-black/[0.06] backdrop-blur-xl"
+            : "w-full max-w-6xl justify-between px-6 py-5"
         }`}
       >
         <Link href="/" aria-label="Railly home" className="flex items-center gap-2.5">
@@ -82,6 +82,11 @@ export function Nav() {
           </span>
         </Link>
 
+        {/* flighty's pill has a hairline between the mark and the links */}
+        <span
+          className={`h-5 w-px bg-black/10 ${pill ? "hidden md:block" : "hidden"}`}
+        />
+
         <div className="hidden items-center gap-1 md:flex">
           {LINKS.map(([label, href]) => (
             <a
@@ -95,8 +100,8 @@ export function Nav() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Link
-            href="/app"
+          <a
+            href="#pricing"
             className={`hidden items-center gap-1.5 text-[15px] font-semibold transition-all duration-500 sm:inline-flex ${
               pill
                 ? "rounded-full bg-black px-4 py-2 text-white hover:bg-black/85"
@@ -105,7 +110,7 @@ export function Nav() {
           >
             Get the app
             <Smartphone size={15} />
-          </Link>
+          </a>
           <button
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
@@ -129,13 +134,13 @@ export function Nav() {
               {label}
             </a>
           ))}
-          <Link
-            href="/app"
+          <a
+            href="#pricing"
             onClick={() => setOpen(false)}
             className="rounded-xl px-2 py-3 text-[16px] font-semibold text-black"
           >
             Get the app →
-          </Link>
+          </a>
         </div>
       )}
     </div>

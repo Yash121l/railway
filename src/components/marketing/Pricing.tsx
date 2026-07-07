@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Check } from "lucide-react";
 import { Reveal } from "./Reveal";
 
@@ -91,8 +90,8 @@ export function Pricing() {
               >
                 {plan.note}
               </p>
-              <Link
-                href="/app"
+              <a
+                href="#pricing"
                 className={`mt-6 rounded-full py-2.5 text-center text-[14px] font-semibold transition-transform hover:scale-[1.03] active:scale-95 ${
                   plan.popular
                     ? "bg-signal text-white"
@@ -100,7 +99,7 @@ export function Pricing() {
                 }`}
               >
                 {plan.popular ? "Get Railly Pro" : "Choose"}
-              </Link>
+              </a>
             </div>
           </Reveal>
         ))}
