@@ -26,11 +26,19 @@
   --color-silver: #cfcfcf;
   --color-linen: #faf8f7;
 
-  /* Dark surfaces — the control room */
+  /* Dark surfaces — the control room (marketing dark sections) */
   --color-midnight: #0d0021; /* dark section canvas */
-  --color-ink: #05010d; /* deepest layer, app background */
+  --color-ink: #05010d; /* deepest layer */
   --color-panel: #12142e; /* card floating on ink */
   --color-raise: #1b1e40; /* elevated card / pressed state */
+
+  /* App cockpit — the phone app is cool charcoal with one warm accent */
+  --color-void: #0b0f14; /* app background */
+  --color-cabin: #161b22; /* card surface */
+  --color-cabin2: #1c2128; /* elevated surface */
+  --color-flame: #ff8a3d; /* the app's single loud color */
+  --color-flame-deep: #f97316;
+  --color-late: #ff453a; /* iOS-red late times inside the app */
 
   /* Type scale — announcement-board voice */
   --text-display: 3.5rem;
@@ -125,6 +133,18 @@
   }
   .no-scrollbar::-webkit-scrollbar {
     display: none;
+  }
+
+  /* Live train position on the dark map */
+  .railly-train-marker {
+    width: 14px;
+    height: 14px;
+    border-radius: 9999px;
+    background: #ff8a3d;
+    border: 2.5px solid #ffffff;
+    box-shadow:
+      0 0 0 4px rgba(255, 138, 61, 0.25),
+      0 0 18px rgba(255, 138, 61, 0.9);
   }
 
   /* Atmospheric gradient — light from a screen, not a visible pattern */
