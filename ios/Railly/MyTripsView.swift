@@ -44,7 +44,8 @@ struct NetworkMapView: View {
 
 struct MyTripsView: View {
     @State private var query = ""
-    @State private var onRailsOnly = false
+    // seeded by the -railly.onrails snapshot arg; false in normal launches
+    @State private var onRailsOnly = UserDefaults.standard.bool(forKey: "railly.onrails")
 
     var body: some View {
         NavigationStack {
@@ -56,16 +57,14 @@ struct MyTripsView: View {
                             .frame(height: 320)
                     }
 
-                    TimelineView(.periodic(from: .now, by: 1)) { ctx in
-                        sheet(now: ctx.date)
-                            .background(
-                                UnevenRoundedRectangle(
-                                    topLeadingRadius: 36, topTrailingRadius: 36
-                                )
-                                .fill(.white)
+                    sheet
+                        .background(
+                            UnevenRoundedRectangle(
+                                topLeadingRadius: 36, topTrailingRadius: 36
                             )
-                            .offset(y: -28)
-                    }
+                            .fill(.white)
+                        )
+                        .offset(y: -28)
                 }
             }
             .scrollIndicators(.hidden)
@@ -81,7 +80,10 @@ struct MyTripsView: View {
         }
     }
 
-    private func sheet(now: Date) -> some View {
+    /// The header menu and search field must live OUTSIDE the per-second
+    /// TimelineView: rebuilding an open Menu's anchor every tick dismisses
+    /// the menu before a selection can land. Only the rows tick.
+    private var sheet: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
                 Menu {
@@ -130,11 +132,16 @@ struct MyTripsView: View {
             .background(Color.fillGray, in: RoundedRectangle(cornerRadius: 16))
             .padding(.top, 14)
 
-            let q = query.trimmingCharacters(in: .whitespaces).lowercased()
-            if q.isEmpty {
-                sections(now: now)
-            } else {
-                searchResults(q, now: now)
+            TimelineView(.periodic(from: .now, by: 1)) { ctx in
+                let q = query.trimmingCharacters(in: .whitespaces).lowercased()
+                Group {
+                    if q.isEmpty {
+                        sections(now: ctx.date)
+                    } else {
+                        searchResults(q, now: ctx.date)
+                    }
+                }
+                .animation(.snappy(duration: 0.35), value: onRailsOnly)
             }
         }
         .padding(.horizontal, 20)
