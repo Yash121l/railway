@@ -55,4 +55,19 @@ extension View {
         contentTransition(.numericText())
             .animation(.snappy(duration: 0.4), value: value)
     }
+
+    /// A dark-to-clear scrim across the top map band. preferredColorScheme(.light)
+    /// paints the status bar with dark glyphs, which vanish over the always-dark
+    /// map that bleeds up under the notch — this keeps them legible.
+    func topMapScrim() -> some View {
+        overlay(alignment: .top) {
+            LinearGradient(
+                colors: [.black.opacity(0.35), .clear],
+                startPoint: .top, endPoint: .bottom
+            )
+            .frame(height: 120)
+            .allowsHitTesting(false)
+            .ignoresSafeArea(edges: .top)
+        }
+    }
 }

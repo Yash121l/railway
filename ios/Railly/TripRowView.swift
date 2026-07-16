@@ -19,7 +19,7 @@ private enum Tone {
 
     var codeColor: Color {
         switch self {
-        case .neutral: return Color(hex: 0x8E8E93)
+        case .neutral: return .subGray
         case .muted: return Color.fadedGray.opacity(0.8)
         default: return circleFill.opacity(0.8)
         }
@@ -31,6 +31,17 @@ private enum Tone {
         default: return circleFill
         }
     }
+
+    /// Status copy below 16pt — the darker green passes AA where the fill green
+    /// wouldn't. Fills and large numerals keep `circleFill`.
+    var textColor: Color {
+        switch self {
+        case .neutral: return .inkline
+        case .ontime: return .textGreen
+        case .late: return .lateRed
+        case .muted: return .fadedGray
+        }
+    }
 }
 
 /// The dep/arr cell — the whole cluster inherits the trip's status color.
@@ -40,6 +51,15 @@ private struct TimeCell: View {
     let time: Date
     let tone: Tone
     var nextDay = false
+
+    private var statusWord: String {
+        switch tone {
+        case .ontime: return "on time"
+        case .late: return "running late"
+        case .neutral: return "scheduled"
+        case .muted: return "completed"
+        }
+    }
 
     var body: some View {
         HStack(spacing: 5) {
@@ -58,6 +78,8 @@ private struct TimeCell: View {
                 .foregroundStyle(tone.timeColor)
                 .monospacedDigit()
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(isDeparture ? "Departs" : "Arrives") \(code), \(fmtTime(time))\(nextDay ? " next day" : ""), \(statusWord)")
     }
 }
 
@@ -113,7 +135,7 @@ private struct Rail: View {
         Text(s)
             .font(.system(size: 9, weight: .bold))
             .kerning(0.8)
-            .foregroundStyle(Color.fadedGray)
+            .foregroundStyle(Color.subGray)
             .lineLimit(1)
             .minimumScaleFactor(0.7)
     }
@@ -122,34 +144,42 @@ private struct Rail: View {
 private struct StatusText: View {
     let trip: HeldTrip
     let now: Date
+    let tone: Tone
 
     var body: some View {
         let live = trip.live
-        let late = live.delayMin > 5
+        let arrDelay = live.stopTimings[live.stopTimings.count - 1].delayMin
+        let arrLate = arrDelay > 5
         switch live.phase {
         case .enroute:
-            // gray regular label + colored semibold value, flighty-style
-            let arrLate = live.stopTimings[live.stopTimings.count - 1].delayMin > 5
+            // gray regular label, value in the row's one status color
             let remaining = fmtDuration(max(0, live.arrivesEst.timeIntervalSince(now) / 60))
             (Text("Arriving in ").foregroundStyle(Color.subGray)
                 + Text(remaining)
-                .foregroundStyle(arrLate ? Color.lateRed : Color.onTime)
+                .foregroundStyle(tone.textColor)
                 .fontWeight(.semibold))
                 .font(.system(size: 14))
                 .rollingNumbers(value: remaining)
         case .arrived:
             Text(fmtDay(live.arrivesEst))
                 .font(.system(size: 14))
-                .foregroundStyle(Color.fadedGray)
+                .foregroundStyle(Color.subGray)
         case .boarding, .scheduled:
             if live.departsAt.timeIntervalSince(now) > 24 * 3600 {
                 Text(fmtDay(live.departsAt))
                     .font(.system(size: 14))
                     .foregroundStyle(Color.subGray)
+            } else if arrLate {
+                // the destination forecast owns the copy once arrival slips
+                (Text("Arrives ").foregroundStyle(Color.subGray)
+                    + Text("\(arrDelay)m late")
+                    .foregroundStyle(tone.textColor)
+                    .fontWeight(.semibold))
+                    .font(.system(size: 14))
             } else {
                 (Text("Departs ").foregroundStyle(Color.subGray)
-                    + Text(late ? "\(live.delayMin)m late" : "On Time")
-                    .foregroundStyle(late ? Color.lateRed : Color.onTime)
+                    + Text("On Time")
+                    .foregroundStyle(tone.textColor)
                     .fontWeight(.semibold))
                     .font(.system(size: 14))
             }
@@ -176,6 +206,7 @@ struct TripRowView: View {
             : arrT.delayMin > 5 ? .late : .ontime
         let depTone = tone
         let arrTone = tone
+        let nextDay = istDateISO(arrT.arrEst) != istDateISO(depT.depEst)
 
         HStack(alignment: .top, spacing: 8) {
             Rail(trip: trip, now: now)
@@ -183,25 +214,27 @@ struct TripRowView: View {
                 HStack(spacing: 7) {
                     TrainMark(category: train.category)
                     Text(train.number)
-                        .font(.system(size: 14))
+                        .font(.system(.subheadline))
                         .foregroundStyle(Color.subGray)
                         .monospacedDigit()
+                        .lineLimit(1)
                     Spacer()
-                    StatusText(trip: trip, now: now)
+                    StatusText(trip: trip, now: now, tone: tone)
                 }
                 (Text(cityFor(train.origin.code, train.origin.name)).fontWeight(.bold)
                     + Text(" to ").foregroundStyle(Color.subGray)
                     + Text(cityFor(train.destination.code, train.destination.name)).fontWeight(.bold))
-                    .font(.system(size: 20))
+                    .font(.system(.title3))
                     .foregroundStyle(Color.inkline)
                     .lineLimit(1)
+                    .minimumScaleFactor(0.7)
                 HStack {
                     TimeCell(isDeparture: true, code: train.origin.code,
                              time: depT.depEst, tone: depTone)
                     Spacer()
                     TimeCell(isDeparture: false, code: train.destination.code,
                              time: arrT.arrEst, tone: arrTone,
-                             nextDay: istDateISO(arrT.arrEst) != istDateISO(depT.depEst))
+                             nextDay: nextDay)
                 }
                 if divider {
                     Rectangle().fill(Color.hairline).frame(height: 1).padding(.top, 8)
@@ -210,5 +243,19 @@ struct TripRowView: View {
         }
         .padding(.top, 12)
         .opacity(isPast ? 0.6 : 1)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(rowLabel(train: train, depT: depT, arrT: arrT, nextDay: nextDay))
+    }
+
+    private func rowLabel(train: Train, depT: StopTiming, arrT: StopTiming,
+                          nextDay: Bool) -> String {
+        func phrase(_ delay: Int) -> String {
+            delay > 5 ? "\(delay) minutes late" : "on time"
+        }
+        return "\(train.category.label) \(train.number), "
+            + "\(cityFor(train.origin.code, train.origin.name)) to "
+            + "\(cityFor(train.destination.code, train.destination.name)), "
+            + "departs \(fmtTime(depT.depEst)) \(phrase(depT.delayMin)), "
+            + "arrives \(fmtTime(arrT.arrEst))\(nextDay ? " next day" : ""), \(phrase(arrT.delayMin))"
     }
 }

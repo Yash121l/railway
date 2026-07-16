@@ -1,71 +1,58 @@
 import Image from "next/image";
-import { Star } from "lucide-react";
+import { Star, TrainFront } from "lucide-react";
 import { Reveal } from "./Reveal";
 
-type Tweet = { kind: "tweet"; name: string; handle: string; body: string; date: string };
-type Review = { kind: "review"; title: string; body: string; byline: string };
+type Tweet = { kind: "tweet"; name: string; body: string };
+type Review = { kind: "review"; title: string; body: string };
 type Story = { kind: "story" };
 
+/* Illustrative usage scenarios — not real reviews. See the caption above. */
 const CARDS: (Tweet | Review | Story)[] = [
   {
     kind: "tweet",
-    name: "Pooja Iyer",
-    handle: "@poojaonrails",
-    body: "Ever since the old tracker apps died on me, I've searched for the ultimate train-tracking app. Now I've found it: @Railly. Beautiful, clear, useful info (even tracks the INBOUND rake for your train). Often tells me about delays before the railway does!",
-    date: "Mar 2026",
+    name: "The everyday commuter",
+    body: "Ever since the old tracker apps died on me, I've searched for the ultimate train-tracking app. Now I've found it: Railly. Beautiful, clear, useful info (even tracks the INBOUND rake for your train). Often flags delays before the railway does.",
   },
   {
     kind: "review",
     title: "Favourite app on my phone",
     body: "It's like the old motto: it just works. Boarded 30+ trains with it this year. Literal perfection. No notes.",
-    byline: "meetusatplatform4 · Apr 2026",
   },
   {
     kind: "tweet",
-    name: "Arjun Kelkar",
-    handle: "@ak_millionmiler",
-    body: "The best train tracking app I have experienced in 15 years and 650k km of business travel. Railly alerts me before the platform announcer knows of a change.",
-    date: "Jan 2026",
+    name: "The million-miler",
+    body: "The kind of train-tracking app I've wanted for 15 years and 650k km of business travel. Railly flags a platform change before the announcer knows of it.",
   },
   {
     kind: "review",
-    title: "Saved me HOURS of time! 6 stars!",
+    title: "Saved me HOURS of time",
     body: "Rescheduled my cab twice off Railly's prediction while everyone else stood staring at the board. It was right both times.",
-    byline: "dailyMMCTcommuter · Jun 2026",
   },
   { kind: "story" },
   {
     kind: "tweet",
-    name: "Rahul Menon",
-    handle: "@rahul_onrails",
-    body: "@Railly just saved Diwali! Mom's train got rescheduled and the 'bong bong bong' alerted me before the SMS from the railway did. Picked her up without a minute in the parking lot.",
-    date: "Nov 2025",
+    name: "The family trip-watcher",
+    body: "Railly saved Diwali! Mom's train got rescheduled and the 'bong bong bong' alerted me before the SMS from the railway did. Picked her up without a minute in the parking lot.",
   },
   {
     kind: "review",
     title: "Clearly built with care",
     body: "The green time means my train was on time or early! Tiny detail, but it's how the whole app feels. Sleek and genuinely useful.",
-    byline: "windowseat32A · Feb 2026",
   },
   {
     kind: "tweet",
-    name: "Sneha Deshpande",
-    handle: "@sd_travels",
+    name: "The first-timer",
     body: "First-time train traveller with my toddler and Railly told me the platform, where coach C4 stops, and the exit gate at the other end. Zero stress.",
-    date: "May 2026",
   },
   {
     kind: "review",
     title: "The Flighty of trains",
     body: "Everything I loved about tracking flights, for the 12951. The live map with the little glowing train is art.",
-    byline: "vandebharatfan · Jun 2026",
   },
   {
     kind: "tweet",
-    name: "Kabir Shah",
-    handle: "@kabirsh",
-    body: "Railly explained WHY we were held outside Ratlam before the TTE knew. I showed him the app. He downloaded it.",
-    date: "Apr 2026",
+    name: "The Vande Bharat regular",
+    body: "Railly explained WHY we were held outside Ratlam before the TTE knew. I showed him the app. He wanted it too.",
   },
 ];
 
@@ -83,9 +70,12 @@ export function Testimonials() {
   return (
     <section id="reviews" className="bg-linen px-4 py-24 md:py-32">
       <Reveal className="mx-auto max-w-3xl text-center">
-        <h3 className="text-[28px] font-bold tracking-tight text-black md:text-[36px]">
-          From first-time riders to million-milers, people love Railly.
-        </h3>
+        <h2 className="text-[28px] font-bold tracking-tight text-black md:text-[36px]">
+          From first-time riders to million-milers.
+        </h2>
+        <p className="mx-auto mt-4 inline-flex items-center gap-1.5 rounded-full bg-black/[0.05] px-3 py-1 text-[12px] font-semibold text-steel">
+          Illustrative — Railly is in early access
+        </p>
       </Reveal>
       <div className="mx-auto mt-12 max-w-6xl columns-1 gap-4 md:columns-3">
         {CARDS.map((card, i) => (
@@ -120,19 +110,15 @@ export function Testimonials() {
                 <>
                   <div className="flex items-center gap-2.5">
                     <span className="flex h-9 w-9 items-center justify-center rounded-full bg-midnight text-[13px] font-bold text-white">
-                      {card.name[0]}
+                      {card.name.replace(/^The /, "")[0].toUpperCase()}
                     </span>
-                    <div>
-                      <div className="text-[14px] font-bold text-black">
-                        {card.name}
-                      </div>
-                      <div className="text-[12px] text-steel">{card.handle}</div>
+                    <div className="text-[14px] font-bold text-black">
+                      {card.name}
                     </div>
                   </div>
                   <p className="mt-3 text-[14px] leading-relaxed text-carbon">
                     {card.body}
                   </p>
-                  <div className="mt-3 text-[12px] text-fog">{card.date}</div>
                 </>
               ) : (
                 <>
@@ -143,7 +129,6 @@ export function Testimonials() {
                   <p className="mt-1.5 text-[14px] leading-relaxed text-carbon">
                     {card.body}
                   </p>
-                  <div className="mt-3 text-[12px] text-fog">{card.byline}</div>
                 </>
               )}
             </div>
@@ -151,25 +136,14 @@ export function Testimonials() {
           </Reveal>
         ))}
       </div>
-      {/* flighty.com floats this over the wall while you read the reviews */}
+      {/* flighty.com floats a stat over the wall as you scroll */}
       <div className="pointer-events-none sticky bottom-6 z-30 mt-10 flex justify-center">
-        <div className="pointer-events-auto flex items-center gap-3 rounded-full bg-[#111318]/95 py-2 pl-2.5 pr-5 shadow-[0_10px_36px_rgba(0,0,0,0.35)] backdrop-blur">
-          <span className="flex -space-x-2">
-            {[
-              ["P", "bg-signal"],
-              ["A", "bg-pro"],
-              ["S", "bg-go"],
-            ].map(([initial, tone]) => (
-              <span
-                key={initial}
-                className={`flex h-7 w-7 items-center justify-center rounded-full ${tone} text-[11px] font-bold text-white ring-2 ring-[#111318]`}
-              >
-                {initial}
-              </span>
-            ))}
+        <div className="pointer-events-auto flex items-center gap-2.5 rounded-full bg-[#111318]/95 py-2 pl-2.5 pr-5 shadow-[0_10px_36px_rgba(0,0,0,0.35)] backdrop-blur">
+          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-signal ring-2 ring-[#111318]">
+            <TrainFront size={14} className="text-white" />
           </span>
-          <span className="text-[14px] font-semibold text-white">
-            +3 million riders enjoy Railly
+          <span className="tnum text-[14px] font-semibold text-white">
+            4,022 trains · 9,161 stations tracked
           </span>
         </div>
       </div>

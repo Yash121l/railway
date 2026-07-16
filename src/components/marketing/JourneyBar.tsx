@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Flag, LayoutGrid, Ticket, TrainFront } from "lucide-react";
+import { Armchair, Flag, LayoutGrid, Ticket, TrainFront } from "lucide-react";
+import { APP_CTA_HREF, APP_CTA_LABEL } from "@/lib/cta";
 
 const STOPS = [
+  ["before-you-book", "Before you book", Armchair],
   ["before-you-board", "Before you board", Ticket],
   ["on-the-platform", "On the platform", TrainFront],
-  ["after-arrival", "After arrival", Flag],
+  ["passport", "After arrival", Flag],
 ] as const;
 
 /**
@@ -56,11 +58,11 @@ export function JourneyBar() {
         })}
         <span className="mx-1 h-5 w-px shrink-0 bg-white/20" />
         <a
-          href="#pricing"
+          href={APP_CTA_HREF}
           className="flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-[14px] font-semibold text-white transition-transform active:scale-95"
         >
           <LayoutGrid size={14} />
-          Download
+          {APP_CTA_LABEL}
         </a>
       </div>
     </div>

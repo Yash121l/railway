@@ -16,10 +16,20 @@ extension Color {
     static let fillGray = Color(hex: 0xF2F2F5)
     static let hairline = Color(hex: 0xE5E7EB)
     static let onTime = Color(hex: 0x1E9E4A)
+    /// Green text below 16pt — the fill green fails AA at caption sizes.
+    static let textGreen = Color(hex: 0x157A39)
     static let lateRed = Color(hex: 0xD93025)
     static let gateAmber = Color(hex: 0xF6C445)
     static let proPurple = Color(hex: 0x7C3AED)
     static let arcBlue = Color(hex: 0x4D9FFF)
+    static let chipBlue = Color(hex: 0x1D6FF2)
+    static let racAmber = Color(hex: 0xB58900)
+    /// The shared card outline.
+    static let cardStroke = Color(hex: 0xE5E5EA)
+    /// Status-banner washes, keyed to the status color they sit behind.
+    static let lateTint = Color(hex: 0xFBF0EE)
+    static let onTimeTint = Color(hex: 0xF2F8F4)
+    static let amberTint = Color(hex: 0xFBF6E8)
 }
 
 extension TrainCategory {
@@ -59,6 +69,7 @@ struct TrainMark: View {
             .foregroundStyle(.white)
             .frame(width: size, height: size)
             .background(category.liveryColor, in: Circle())
+            .accessibilityLabel(category.label)
     }
 }
 

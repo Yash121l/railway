@@ -31,8 +31,7 @@ export function NetworkCanvas({ className = "" }: { className?: string }) {
 
     let w = 0;
     let h = 0;
-    let raf = 0;
-    let running = false;
+    let timer: ReturnType<typeof setInterval> | null = null;
 
     const px = (lng: number) => ((lng - minLng) / (maxLng - minLng)) * w;
     const py = (lat: number) => ((maxLat - lat) / (maxLat - minLat)) * h;
@@ -87,9 +86,11 @@ export function NetworkCanvas({ className = "" }: { className?: string }) {
       }
     };
 
-    const loop = () => {
-      draw();
-      if (running && !still) raf = requestAnimationFrame(loop);
+    const stop = () => {
+      if (timer !== null) {
+        clearInterval(timer);
+        timer = null;
+      }
     };
 
     const resize = () => {
@@ -100,26 +101,27 @@ export function NetworkCanvas({ className = "" }: { className?: string }) {
       canvas.width = Math.round(w * dpr);
       canvas.height = Math.round(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      if (!running) draw();
+      draw();
     };
 
     const ro = new ResizeObserver(resize);
     ro.observe(canvas);
 
+    // the trains crawl; a ~4fps redraw is plenty and spares the main thread
     const io = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting && !running) {
-        running = true;
-        raf = requestAnimationFrame(loop);
-      } else if (!entry.isIntersecting) {
-        running = false;
-        cancelAnimationFrame(raf);
+      if (entry.isIntersecting && !still) {
+        if (timer === null) {
+          draw();
+          timer = setInterval(draw, 250);
+        }
+      } else {
+        stop();
       }
     });
     io.observe(canvas);
 
     return () => {
-      running = false;
-      cancelAnimationFrame(raf);
+      stop();
       ro.disconnect();
       io.disconnect();
     };

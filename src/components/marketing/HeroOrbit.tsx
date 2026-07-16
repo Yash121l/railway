@@ -150,7 +150,10 @@ export function HeroOrbit() {
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const id = setInterval(() => {
+    const el = stage.current;
+    if (!el) return;
+    let id: ReturnType<typeof setInterval> | null = null;
+    const tick = () => {
       const slot = SWAP_ORDER[turn.current % SWAP_ORDER.length];
       turn.current += 1;
       const nextNotif = pool.current;
@@ -161,8 +164,21 @@ export function HeroOrbit() {
         ),
       );
       setMobileHead((h) => h + 1);
-    }, 2400);
-    return () => clearInterval(id);
+    };
+    // only swap while the hero is on screen — no work for an idle backgrounded tab
+    const io = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        if (id === null) id = setInterval(tick, 2400);
+      } else if (id !== null) {
+        clearInterval(id);
+        id = null;
+      }
+    });
+    io.observe(el);
+    return () => {
+      if (id !== null) clearInterval(id);
+      io.disconnect();
+    };
   }, []);
 
   // Scroll scrub: columns part outward, the phone trails the page slightly.

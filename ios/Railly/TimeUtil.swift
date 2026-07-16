@@ -54,10 +54,19 @@ func parseHM(_ hm: String) -> Int {
     return parts[0] * 60 + parts[1]
 }
 
-private let timeFormatter: DateFormatter = {
+private let timeFormatter24: DateFormatter = {
     let f = DateFormatter()
     f.dateFormat = "HH:mm"
     f.timeZone = TimeZone(identifier: "Asia/Kolkata")
+    return f
+}()
+
+// compact "2:58PM", the Flighty treatment — also survives narrow row cells
+private let timeFormatter12: DateFormatter = {
+    let f = DateFormatter()
+    f.dateFormat = "h:mma"
+    f.timeZone = TimeZone(identifier: "Asia/Kolkata")
+    f.locale = Locale(identifier: "en_US_POSIX")
     return f
 }()
 
@@ -69,8 +78,20 @@ private let dayFormatter: DateFormatter = {
     return f
 }()
 
-/// "17:05" in IST
-func fmtTime(_ date: Date) -> String { timeFormatter.string(from: date) }
+/// "17:05" in IST — or "5:05 pm" when Settings › Units picks 12-hour.
+func fmtTime(_ date: Date) -> String {
+    UserDefaults.standard.bool(forKey: "railly.time12")
+        ? timeFormatter12.string(from: date)
+        : timeFormatter24.string(from: date)
+}
+
+/// Speed honoring Settings › Units. `caps` picks "KM/H" vs "km/h".
+func fmtSpeed(_ kmh: Int, caps: Bool = false) -> String {
+    if UserDefaults.standard.bool(forKey: "railly.speedMph") {
+        return "\(Int((Double(kmh) * 0.621371).rounded())) \(caps ? "MPH" : "mph")"
+    }
+    return "\(kmh) \(caps ? "KM/H" : "km/h")"
+}
 
 /// "Mon 7 Jul" in IST
 func fmtDay(_ date: Date) -> String { dayFormatter.string(from: date) }

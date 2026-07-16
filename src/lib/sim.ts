@@ -1,4 +1,5 @@
 import { bearingDeg, cumulativeKm, lerp } from "./geo";
+import { liveFeed } from "./livefeed";
 import { hashSeed, pickFrom, pickInt, seededRng } from "./rng";
 import { addDaysISO, istDateISO, istDateTime, istWeekday, parseHM } from "./time";
 import { TRAINS } from "./trains";
@@ -59,8 +60,15 @@ const DELAY_REASONS = [
 
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 
-/** Arrival delay (minutes) at every stop for a given run — deterministic. */
+/**
+ * Arrival delay (minutes) at every stop for a given run. Real running data
+ * from the live feed wins when present (see livefeed.ts); otherwise a
+ * deterministic seeded walk stands in so the app works offline.
+ */
 function delaysForRun(train: Train, runDate: string): number[] {
+  const real = liveFeed.alignedDelays(train.number, runDate, train.stops);
+  if (real) return real;
+
   const rng = seededRng(`${train.number}:${runDate}`);
   const profile = DELAY_PROFILE[train.category];
   const n = train.stops.length;

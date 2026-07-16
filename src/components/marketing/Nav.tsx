@@ -3,25 +3,39 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ArrowRight, Menu, Smartphone, TrainFront, X } from "lucide-react";
+import { APP_CTA_HREF, APP_CTA_LABEL } from "@/lib/cta";
+
+const ANNOUNCEMENT_KEY = "railly-announcement-dismissed";
 
 /** flighty.com's announcement strip is royal blue, dismissible. */
 export function AnnouncementBar() {
   const [hidden, setHidden] = useState(false);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- SSR-safe: start hidden=false on both server and client, hide post-mount to avoid a hydration mismatch
+    if (window.localStorage.getItem(ANNOUNCEMENT_KEY) === "1") setHidden(true);
+  }, []);
+  const dismiss = () => {
+    setHidden(true);
+    window.localStorage.setItem(ANNOUNCEMENT_KEY, "1");
+  };
   if (hidden) return null;
   return (
-    <div className="relative flex items-center justify-center gap-2 bg-[#2c39b8] px-10 py-2.5 text-[14px] font-medium text-white">
+    <div
+      className="relative flex items-center justify-center gap-2 px-10 py-2.5 text-[14px] font-medium text-white"
+      style={{ background: "linear-gradient(171deg, #616170 -45%, #12128c 69%)" }}
+    >
       <TrainFront size={14} className="shrink-0" />
       <span className="font-semibold">NEW! Network Intelligence</span>
       <span className="text-white/50">|</span>
-      <a
-        href="#network"
+      <Link
+        href="/#network"
         className="inline-flex items-center gap-1 font-semibold text-white underline-offset-2 hover:underline"
       >
         View Live <ArrowRight size={14} />
-      </a>
+      </Link>
       <button
         aria-label="Dismiss"
-        onClick={() => setHidden(true)}
+        onClick={dismiss}
         className="absolute right-4 top-1/2 -translate-y-1/2 text-white/80 hover:text-white"
       >
         <X size={16} />
@@ -31,11 +45,12 @@ export function AnnouncementBar() {
 }
 
 const LINKS = [
-  ["Pricing", "#pricing"],
-  ["Gift Cards", "#pricing"],
-  ["Passport", "#passport"],
-  ["Stations", "#features"],
-  ["Help Center", "#reviews"],
+  ["Pricing", "/pricing"],
+  ["Compare", "/compare"],
+  ["Stations", "/stations"],
+  ["Passport", "/passport"],
+  ["Gift Cards", "/gift-cards"],
+  ["Help Center", "/help"],
 ] as const;
 
 /**
@@ -93,26 +108,26 @@ export function Nav() {
 
         <div className="hidden items-center gap-1 md:flex">
           {LINKS.map(([label, href]) => (
-            <a
+            <Link
               key={label}
               href={href}
               className="rounded-full px-3.5 py-2 text-[15px] font-medium text-black/80 transition-colors hover:bg-black/[0.05] hover:text-black"
             >
               {label}
-            </a>
+            </Link>
           ))}
         </div>
 
         <div className="flex items-center gap-2">
           <a
-            href="#pricing"
+            href={APP_CTA_HREF}
             className={`hidden items-center gap-1.5 text-[15px] font-semibold transition-all duration-500 sm:inline-flex ${
               pill
                 ? "rounded-full bg-black px-4 py-2 text-white hover:bg-black/85"
                 : "text-black hover:opacity-70"
             }`}
           >
-            Get the app
+            {APP_CTA_LABEL}
             <Smartphone size={15} />
           </a>
           <button
@@ -129,21 +144,21 @@ export function Nav() {
       {open && (
         <div className="mx-auto flex max-w-6xl flex-col border-t border-black/[0.06] bg-white px-6 py-3 md:hidden">
           {LINKS.map(([label, href]) => (
-            <a
+            <Link
               key={label}
               href={href}
               onClick={() => setOpen(false)}
               className="rounded-xl px-2 py-3 text-[16px] font-medium text-black"
             >
               {label}
-            </a>
+            </Link>
           ))}
           <a
-            href="#pricing"
+            href={APP_CTA_HREF}
             onClick={() => setOpen(false)}
             className="rounded-xl px-2 py-3 text-[16px] font-semibold text-black"
           >
-            Get the app →
+            {APP_CTA_LABEL} →
           </a>
         </div>
       )}

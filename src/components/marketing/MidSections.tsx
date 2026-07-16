@@ -1,14 +1,13 @@
 import Image from "next/image";
 import {
+  AlarmClock,
+  Armchair,
   BellRing,
-  CalendarDays,
-  CloudSun,
   History,
   Lock,
-  Mail,
-  Ticket,
   Users,
 } from "lucide-react";
+import { APP_CTA_HREF, APP_CTA_LABEL } from "@/lib/cta";
 import { CountUp } from "./CountUp";
 import { LiveActivityMock } from "./LiveActivityMock";
 import { LiveBoard } from "./LiveBoard";
@@ -39,50 +38,20 @@ export function MiniPhone({
   );
 }
 
-export function ImportStrip() {
-  return (
-    <section className="bg-linen px-4 py-24">
-      <Reveal className="mx-auto max-w-2xl text-center">
-        <h3 className="text-[28px] font-bold tracking-tight text-black md:text-[32px]">
-          Add your trips in seconds.
-        </h3>
-        <p className="mt-4 text-[17px] leading-relaxed text-carbon">
-          You can magically (read: extremely quickly) make your journeys appear on
-          Railly from your PNR, calendar, or email. Get up &amp; running faster
-          than you can say, &ldquo;have a nice journey&rdquo;.
-        </p>
-        <div className="mt-6 flex items-center justify-center gap-3">
-          {[Ticket, CalendarDays, Mail].map((Icon, i) => (
-            <span
-              key={i}
-              className="card-lift flex h-11 w-11 items-center justify-center rounded-2xl bg-white shadow-float"
-            >
-              <Icon size={19} className="text-carbon" />
-            </span>
-          ))}
-        </div>
-        <a
-          href="#pricing"
-          className="mt-8 inline-block rounded-full bg-signal px-7 py-3.5 text-[15px] font-semibold text-white transition-transform hover:scale-[1.03] active:scale-95"
-        >
-          Give Railly a try
-        </a>
-      </Reveal>
-    </section>
-  );
-}
-
 export function Friends() {
   return (
     <section id="friends" className="mx-auto max-w-6xl scroll-mt-24 px-4 py-24 md:py-32">
       <Reveal className="mx-auto max-w-3xl text-center">
-        <h2 className="text-headline text-black md:text-[44px] md:leading-[1.05]">
+        <h2 className="text-headline text-black md:text-[52px] md:leading-[1.03] md:tracking-[-0.5px]">
           Share your journeys with friends and family.
         </h2>
         <p className="mt-5 text-[18px] leading-relaxed text-carbon">
           Railly Friends lets you instantly share your travels with your loved
           ones. Add them just once, and you&apos;ll never have to manually forward
           a PNR again.
+        </p>
+        <p className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-black/[0.05] px-3 py-1 text-[12px] font-semibold text-steel">
+          Friends is on the roadmap — here&apos;s how it will work.
         </p>
       </Reveal>
 
@@ -202,7 +171,7 @@ export function PassportTeaser() {
     <section id="passport" className="bg-linen px-4 py-24 md:py-32">
       <div className="mx-auto grid max-w-6xl items-center gap-12 md:grid-cols-2">
         <Reveal from="left">
-          <h2 className="text-headline text-black md:text-[44px] md:leading-[1.05]">
+          <h2 className="text-headline text-black md:text-[52px] md:leading-[1.03] md:tracking-[-0.5px]">
             Look back on your travels, near and far.
           </h2>
           <p className="mt-5 text-[18px] leading-relaxed text-carbon">
@@ -211,10 +180,10 @@ export function PassportTeaser() {
             most-ridden train? Your Railly Passport keeps the whole story.
           </p>
           <a
-            href="#pricing"
+            href={APP_CTA_HREF}
             className="mt-7 inline-block rounded-full bg-signal px-7 py-3.5 text-[15px] font-semibold text-white transition-transform hover:scale-[1.03] active:scale-95"
           >
-            Get your Passport
+            {APP_CTA_LABEL}
           </a>
         </Reveal>
         <Reveal delay={120} from="right">
@@ -247,6 +216,104 @@ export function PassportTeaser() {
   );
 }
 
+/**
+ * flighty's Airport Intelligence pills, translated to stations: every code
+ * color-coded by current operations — green flowing, amber strained, red
+ * melting down. A static, deterministic sample so SSR stays stable.
+ */
+const STATION_STATUS: [string, "go" | "sun" | "crit"][] = [
+  ["NDLS", "sun"], ["MMCT", "go"], ["HWH", "go"], ["SBC", "go"],
+  ["MAS", "go"], ["CSMT", "go"], ["ADI", "go"], ["BSB", "sun"],
+  ["PUNE", "go"], ["JP", "go"], ["LKO", "crit"], ["PNBE", "sun"],
+  ["BPL", "go"], ["NGP", "go"], ["SC", "go"], ["TVC", "go"],
+  ["GHY", "sun"], ["CDG", "go"], ["RTM", "crit"], ["KOTA", "go"],
+];
+
+const STATUS_DOT = { go: "bg-go", sun: "bg-sun", crit: "bg-crit" } as const;
+const STATUS_RING = {
+  go: "ring-go/30 text-go",
+  sun: "ring-sun/30 text-sun",
+  crit: "ring-crit/40 text-[#ff8d7f]",
+} as const;
+
+function StationPills() {
+  return (
+    <div className="mx-auto mt-12 max-w-4xl">
+      <div className="flex flex-wrap justify-center gap-2.5">
+        {STATION_STATUS.map(([code, status]) => (
+          <span
+            key={code}
+            className={`flex items-center gap-2 rounded-full bg-white/[0.04] py-2 pl-3 pr-4 text-[14px] font-bold tracking-[0.03em] ring-1 ${STATUS_RING[status]}`}
+          >
+            <span className={`h-2 w-2 rounded-full ${STATUS_DOT[status]} ${status !== "go" ? "animate-pulse-dot" : ""}`} />
+            {code}
+          </span>
+        ))}
+      </div>
+      <div className="mt-6 grid gap-4 text-center sm:grid-cols-3">
+        {[
+          ["Live station conditions", "Arrivals, departures, delays and why — for every major junction."],
+          ["What could disrupt you", "Fog banks, rake shortages, yard congestion. Even cattle on the track."],
+          ["Platform Regulars", "Railly ranks you and your friends by station activity, so you can flex — or ask which stall has the best chai."],
+        ].map(([title, body]) => (
+          <div key={title}>
+            <div className="text-[15px] font-bold text-white">{title}</div>
+            <p className="mt-1 text-[13px] leading-relaxed text-white/55">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** flighty's TV Mode teaser: broadcast the meltdown — marked coming soon. */
+function TvModeTeaser() {
+  return (
+    <div className="mx-auto mt-14 max-w-4xl overflow-hidden rounded-3xl bg-ink/80 ring-1 ring-white/[0.08]">
+      <div className="grid items-center md:grid-cols-[1fr_auto]">
+        <div className="p-7 md:p-9">
+          <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[2px] text-sun">
+            <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-crit" />
+            TV Mode · Coming soon
+          </div>
+          <h3 className="mt-3 text-[24px] font-bold leading-tight tracking-tight text-white md:text-[28px]">
+            Broadcast any station meltdown live.
+          </h3>
+          <p className="mt-3 max-w-md text-[15px] leading-relaxed text-white/60">
+            The plan: stream the live status of the whole network — or just your
+            home station — on any screen. Perfect for the office, the waiting
+            room, or dramatic effect.
+          </p>
+          <span className="mt-6 inline-block rounded-full bg-white/[0.08] px-6 py-3 text-[14px] font-semibold text-white/70 ring-1 ring-white/[0.12]">
+            Coming soon
+          </span>
+        </div>
+        {/* a mini "broadcast" board */}
+        <div className="hidden p-9 md:block">
+          <div className="w-[290px] rounded-2xl bg-black/60 p-4 ring-1 ring-white/[0.1]">
+            <div className="flex items-center justify-between text-[10px] font-bold tracking-[1.5px] text-white/50">
+              <span>NEW DELHI · NDLS</span>
+              <span className="flex items-center gap-1 text-[#ff8d7f]">
+                <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-crit" />
+                ON AIR
+              </span>
+            </div>
+            <div className="led-board mt-3 rounded-lg px-3 py-2 text-[11px]">
+              12951 RAJDHANI · ARR 09:14 · PF 3
+            </div>
+            <div className="led-board mt-1.5 rounded-lg px-3 py-2 text-[11px]">
+              22436 V.BHARAT · DEP 06:12 · OT
+            </div>
+            <div className="led-board mt-1.5 rounded-lg px-3 py-2 text-[11px]">
+              12627 KARNATAKA · +42 MIN
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function NetworkIntel() {
   return (
     <section id="network" className="relative scroll-mt-16 overflow-hidden bg-midnight px-4 py-24 text-white md:py-32">
@@ -270,7 +337,7 @@ export function NetworkIntel() {
       </div>
       <div className="relative">
         <Reveal className="mx-auto max-w-3xl text-center">
-          <h2 className="text-headline md:text-[44px] md:leading-[1.05]">
+          <h2 className="text-headline md:text-[52px] md:leading-[1.03] md:tracking-[-0.5px]">
             Know what&apos;s happening on any line. Right now.
           </h2>
           <p className="mt-5 text-[18px] leading-relaxed text-silver">
@@ -287,24 +354,32 @@ export function NetworkIntel() {
           <div className="mx-auto mt-12 max-w-4xl overflow-hidden rounded-3xl bg-ink/80 ring-1 ring-white/[0.08]">
             <div className="flex items-center justify-between px-5 pt-4">
               <span className="text-[13px] font-bold uppercase tracking-[1px] text-white/60">
-                The network · this second
+                The network, simulated
               </span>
               <span className="flex items-center gap-1.5 text-[12px] font-semibold text-arc">
                 <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-arc" />
-                Live positions
+                Live simulation
               </span>
             </div>
             <NetworkCanvas className="h-[300px] w-full md:h-[380px]" />
+            <p className="px-5 pb-4 pt-3 text-[12px] leading-relaxed text-white/60">
+              A living simulation of the network — the app tracks all 4,022
+              trains.
+            </p>
           </div>
+        </Reveal>
+        <Reveal delay={120}>
+          <StationPills />
         </Reveal>
         <Reveal delay={140} from="zoom">
           <LiveBoard />
+          <TvModeTeaser />
           <div className="mt-8 text-center">
             <a
-              href="#pricing"
+              href={APP_CTA_HREF}
               className="inline-block rounded-full bg-sun px-7 py-3.5 text-[15px] font-semibold text-black transition-transform hover:scale-[1.03] active:scale-95"
             >
-              Get Railly
+              {APP_CTA_LABEL}
             </a>
           </div>
         </Reveal>
@@ -317,8 +392,8 @@ const MORE = [
   [Users, "Family sharing.", "Share Railly with up to 5 family members at a time."],
   [Lock, "Privacy first.", "Your journeys and history are viewable only by you."],
   [History, "24hr Where's-My-Rake.", "Track your inbound rake a full day before departure."],
-  [CloudSun, "Weather radar.", "Fog, storms and heat waves along your exact route."],
-  [CalendarDays, "Calendar sync.", "Every journey lands in your calendar automatically."],
+  [Armchair, "Coach position.", "Know where B4 halts — stand where your door arrives."],
+  [AlarmClock, "Tatkal alarm.", "A nudge at 9:55 the day before, so you never miss the window."],
   [BellRing, "Fastest alerts.", "Push arrives before the announcer clears her throat."],
 ] as const;
 
@@ -326,9 +401,9 @@ export function MoreGrid() {
   return (
     <section className="mx-auto max-w-6xl px-4 py-24">
       <Reveal>
-        <h3 className="text-center text-[28px] font-bold tracking-tight text-black md:text-[32px]">
+        <h2 className="text-center text-[28px] font-bold tracking-tight text-black md:text-[32px]">
           More reasons you&apos;ll want to take Railly on your next trip.
-        </h3>
+        </h2>
       </Reveal>
       {/* bento: the Live Activity runs live in the tall cell, features wrap it */}
       <div className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { TrainFront } from "lucide-react";
 import { getLiveStatus } from "@/lib/sim";
 import { fmtTime } from "@/lib/time";
@@ -15,16 +15,31 @@ import { TRAINS } from "@/lib/trains";
 export function LiveActivityMock() {
   // render nothing time-dependent on the server; hydrate, then tick
   const [now, setNow] = useState<Date | null>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const raf = requestAnimationFrame(() => setNow(new Date()));
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       return () => cancelAnimationFrame(raf);
     }
-    const id = setInterval(() => setNow(new Date()), 1000);
+    const el = rootRef.current;
+    if (!el) return () => cancelAnimationFrame(raf);
+    let id: ReturnType<typeof setInterval> | null = null;
+    // only tick the clock while the card is on screen
+    const io = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setNow(new Date());
+        if (id === null) id = setInterval(() => setNow(new Date()), 1000);
+      } else if (id !== null) {
+        clearInterval(id);
+        id = null;
+      }
+    });
+    io.observe(el);
     return () => {
       cancelAnimationFrame(raf);
-      clearInterval(id);
+      if (id !== null) clearInterval(id);
+      io.disconnect();
     };
   }, []);
 
@@ -55,7 +70,10 @@ export function LiveActivityMock() {
   const next = live ? live.train.stops[live.nextStopIdx] : undefined;
 
   return (
-    <div className="relative flex h-full min-h-[420px] flex-col overflow-hidden rounded-2xl bg-gradient-to-b from-[#1a1f3a] via-midnight to-ink p-6 ring-1 ring-black/[0.05]">
+    <div
+      ref={rootRef}
+      className="relative flex h-full min-h-[420px] flex-col overflow-hidden rounded-2xl bg-gradient-to-b from-[#1a1f3a] via-midnight to-ink p-6 ring-1 ring-black/[0.05]"
+    >
       {/* lock-screen clock — real IST */}
       <div className="text-center">
         <div className="text-[13px] font-medium text-white/60">{dateLine || " "}</div>
@@ -128,7 +146,7 @@ export function LiveActivityMock() {
           <div className="h-[92px]" />
         )}
       </div>
-      <div className="mt-3 text-center text-[11px] text-white/40">
+      <div className="mt-3 text-center text-[11px] text-white/60">
         Live Activity · this is the real simulation, right now
       </div>
     </div>

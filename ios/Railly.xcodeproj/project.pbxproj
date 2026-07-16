@@ -6,17 +6,62 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		BB00000000000000000000E1 /* RaillyWidgets.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = BB00000000000000000000E2 /* RaillyWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		BB00000000000000000000E9 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				BB00000000000000000000E1 /* RaillyWidgets.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		AA00000000000000000000A2 /* Railly.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Railly.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BB00000000000000000000E2 /* RaillyWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = RaillyWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		AA00000000000000000000A1 /* Railly */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				BB00000000000000000000E4 /* Exceptions for "Railly" folder in "RaillyWidgets" target */,
+				AA00000000000000000000D1 /* Exceptions for "Railly" folder in "Railly" target */,
+			);
 			path = Railly;
 			sourceTree = "<group>";
 		};
+		BB00000000000000000000E3 /* RaillyWidgets */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = RaillyWidgets;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		BB00000000000000000000E4 /* Exceptions for "Railly" folder in "RaillyWidgets" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				TrainActivityAttributes.swift,
+			);
+			target = BB00000000000000000000E5 /* RaillyWidgets */;
+		};
+		AA00000000000000000000D1 /* Exceptions for "Railly" folder in "Railly" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = AA00000000000000000000A6 /* Railly */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		AA00000000000000000000A3 /* Frameworks */ = {
@@ -33,6 +78,7 @@
 			isa = PBXGroup;
 			children = (
 				AA00000000000000000000A1 /* Railly */,
+				BB00000000000000000000E3 /* RaillyWidgets */,
 				AA00000000000000000000A5 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,6 +87,7 @@
 			isa = PBXGroup;
 			children = (
 				AA00000000000000000000A2 /* Railly.app */,
+				BB00000000000000000000E2 /* RaillyWidgets.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -55,10 +102,12 @@
 				AA00000000000000000000A8 /* Sources */,
 				AA00000000000000000000A3 /* Frameworks */,
 				AA00000000000000000000A9 /* Resources */,
+				BB00000000000000000000E9 /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				BB00000000000000000000F2 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				AA00000000000000000000A1 /* Railly */,
@@ -70,7 +119,53 @@
 			productReference = AA00000000000000000000A2 /* Railly.app */;
 			productType = "com.apple.product-type.application";
 		};
+		BB00000000000000000000E5 /* RaillyWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BB00000000000000000000F0 /* Build configuration list for PBXNativeTarget "RaillyWidgets" */;
+			buildPhases = (
+				BB00000000000000000000E6 /* Sources */,
+				BB00000000000000000000E7 /* Frameworks */,
+				BB00000000000000000000E8 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				BB00000000000000000000E3 /* RaillyWidgets */,
+			);
+			name = RaillyWidgets;
+			packageProductDependencies = (
+			);
+			productName = RaillyWidgets;
+			productReference = BB00000000000000000000E2 /* RaillyWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
+
+/* Begin PBXSourcesBuildPhase section */
+		BB00000000000000000000E6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BB00000000000000000000E7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BB00000000000000000000E8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
 
 /* Begin PBXProject section */
 		AA00000000000000000000B0 /* Project object */ = {
@@ -100,6 +195,7 @@
 			projectRoot = "";
 			targets = (
 				AA00000000000000000000A6 /* Railly */,
+				BB00000000000000000000E5 /* RaillyWidgets */,
 			);
 		};
 /* End PBXProject section */
@@ -123,6 +219,24 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXContainerItemProxy section */
+		BB00000000000000000000F1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AA00000000000000000000B0 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BB00000000000000000000E5;
+			remoteInfo = RaillyWidgets;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXTargetDependency section */
+		BB00000000000000000000F2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BB00000000000000000000E5 /* RaillyWidgets */;
+			targetProxy = BB00000000000000000000F1 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		AA00000000000000000000C1 /* Debug */ = {
@@ -184,7 +298,10 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2RCBFYPDLD;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Railly/Info.plist";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -210,7 +327,10 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2RCBFYPDLD;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Railly/Info.plist";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -223,6 +343,58 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yash121l.railly;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		BB00000000000000000000F3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2RCBFYPDLD;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "RaillyWidgets-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Railly;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yash121l.railly.RaillyWidgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		BB00000000000000000000F4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2RCBFYPDLD;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "RaillyWidgets-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Railly;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yash121l.railly.RaillyWidgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -246,6 +418,15 @@
 			buildConfigurations = (
 				AA00000000000000000000C1 /* Debug */,
 				AA00000000000000000000C2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BB00000000000000000000F0 /* Build configuration list for PBXNativeTarget "RaillyWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BB00000000000000000000F3 /* Debug */,
+				BB00000000000000000000F4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

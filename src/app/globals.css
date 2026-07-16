@@ -257,6 +257,13 @@
     font-variant-numeric: tabular-nums;
   }
 
+  /* The live-status pulse honours reduced-motion wherever it's applied */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-pulse-dot {
+      animation: none;
+    }
+  }
+
   /* One-time load-in for above-the-fold hero content (Reveal only handles
    * below-fold). SSR paints the frames' start state, then springs up. */
   .hero-rise {
@@ -298,24 +305,6 @@
   }
   .no-scrollbar::-webkit-scrollbar {
     display: none;
-  }
-
-  /* Live train position on the dark map */
-  .railly-train-marker {
-    width: 14px;
-    height: 14px;
-    border-radius: 9999px;
-    background: #ffffff;
-    border: 3px solid #4d9fff;
-    box-shadow:
-      0 0 0 4px rgba(77, 159, 255, 0.28),
-      0 0 18px rgba(77, 159, 255, 0.95);
-  }
-
-  .railly-train-marker--small {
-    width: 11px;
-    height: 11px;
-    border-width: 2.5px;
   }
 
   /* Split-flap tile — the Delay Report signature */

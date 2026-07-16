@@ -47,8 +47,14 @@ private func clamp(_ v: Double, _ lo: Double, _ hi: Double) -> Double {
     min(hi, max(lo, v))
 }
 
-/// Arrival delay (minutes) at every stop for a given run — deterministic.
+/// Arrival delay (minutes) at every stop for a given run. Real running data
+/// from the live feed wins when present (see LiveFeed); otherwise a
+/// deterministic seeded walk stands in so the app works offline.
 private func delaysForRun(_ train: Train, _ runDate: String) -> [Int] {
+    if let real = LiveFeed.shared.alignedDelays(
+        number: train.number, runDate: runDate, stops: train.stops) {
+        return real
+    }
     let rng = SeededRng("\(train.number):\(runDate)")
     let profile = delayProfiles[train.category]!
     let n = train.stops.count
@@ -78,7 +84,57 @@ struct Run {
     let arrivesEst: Date
 }
 
+/// Memoized runs, keyed by "number:runDate" plus the live-snapshot stamp that
+/// fed the delay walk. A `Run` is a pure function of (train, runDate, snapshot)
+/// and carries no `now`, so caching it is exact: the per-second UIs stop
+/// rebuilding every delay walk each tick, and a new live snapshot (its `at`
+/// changes) invalidates the entry on its own.
+private final class RunCache: @unchecked Sendable {
+    private let lock = NSLock()
+    private var store: [String: (run: Run, stamp: Date?)] = [:]
+
+    func get(_ key: String, stamp: Date?) -> Run? {
+        lock.lock(); defer { lock.unlock() }
+        guard let c = store[key], c.stamp == stamp else { return nil }
+        return c.run
+    }
+
+    func set(_ key: String, run: Run, stamp: Date?) {
+        lock.lock(); defer { lock.unlock() }
+        if store.count > 512 { store.removeAll(keepingCapacity: true) }
+        store[key] = (run, stamp)
+    }
+
+    func invalidate(prefix: String) {
+        lock.lock(); defer { lock.unlock() }
+        for k in store.keys where k.hasPrefix(prefix) { store.removeValue(forKey: k) }
+    }
+
+    func invalidateAll() {
+        lock.lock(); defer { lock.unlock() }
+        store.removeAll()
+    }
+}
+
+private let runCache = RunCache()
+
+/// Drop memoized runs for a train after its schedule is refetched, so a new
+/// route or timing takes effect immediately.
+func invalidateRunCache(_ number: String) { runCache.invalidate(prefix: "\(number):") }
+
+/// Drop every memoized run — used when the whole train cache is cleared.
+func invalidateAllRunCache() { runCache.invalidateAll() }
+
 func buildRun(_ train: Train, _ runDate: String) -> Run {
+    let key = "\(train.number):\(runDate)"
+    let stamp = LiveFeed.shared.snapshotStamp(train.number, runDate)
+    if let cached = runCache.get(key, stamp: stamp) { return cached }
+    let run = computeRun(train, runDate)
+    runCache.set(key, run: run, stamp: stamp)
+    return run
+}
+
+private func computeRun(_ train: Train, _ runDate: String) -> Run {
     let depTimeMin = parseHM(train.departureTime)
     let delays = delaysForRun(train, runDate)
     let timings: [StopTiming] = train.stops.enumerated().map { i, s in
@@ -242,11 +298,74 @@ private func eventsForRun(_ train: Train, _ run: Run, _ now: Date) -> [TrainEven
         detail: lastDelay > 5 ? "\(lastDelay)m late" : "On time"
     ))
 
+    // Journey-companion grammar for the long overnighters (30h+): scheduled
+    // long halts and a morning position summary, then quiet hours that mute the
+    // routine chatter while the coach sleeps.
+    if train.destination.arrMin >= 30 * 60 {
+        appendLongHaulEvents(train, run, &events)
+        events = events.filter { keepThroughQuietHours($0) }
+    }
+
     return events
         .filter { $0.time <= now }
         .sorted { $0.time > $1.time }
         .prefix(14)
         .map { $0 }
+}
+
+/// Rail-native milestones the timetable already implies on a 30h+ run: the
+/// scheduled long halts (crew change, loco reversal, watering) and a "where are
+/// we?" summary at 06:30 each morning, when quiet hours lift.
+private func appendLongHaulEvents(_ train: Train, _ run: Run,
+                                  _ events: inout [TrainEvent]) {
+    let stops = train.stops
+    guard stops.count > 2 else { return }
+
+    for i in 1..<(stops.count - 1) {
+        let halt = stops[i].depMin - stops[i].arrMin
+        guard halt >= 10 else { continue }
+        events.append(TrainEvent(
+            time: run.timings[i].arrEst,
+            kind: .halt,
+            text: "\(halt)m halt at \(stops[i].name)",
+            detail: run.delays[i] > 5 ? "Running +\(run.delays[i])m" : "On time"
+        ))
+    }
+
+    for offset in 0...3 {
+        let morning = istDateTime(addDaysISO(run.runDate, offset), minutes: 6 * 60 + 30)
+        guard morning > run.departsEst.addingTimeInterval(3600),
+              morning < run.arrivesEst.addingTimeInterval(-1800) else { continue }
+        // the last stop the train had cleared by this morning
+        var idx = 0
+        for i in 0..<stops.count where run.timings[i].depEst <= morning { idx = i }
+        let d = run.delays[idx]
+        events.append(TrainEvent(
+            time: morning,
+            kind: .summary,
+            text: d > 5 ? "Running +\(d)m as of \(stops[idx].name)"
+                        : "On time as of \(stops[idx].name)",
+            detail: "Morning position · reaches \(stops[stops.count - 1].name) \(fmtTime(run.arrivesEst))"
+        ))
+    }
+}
+
+/// Overnight quiet hours (22:30–06:00 IST): the routine stop/recovery/halt
+/// chatter is suppressed so an overnighter doesn't buzz all night; delays,
+/// platform changes, the morning summary, and arrival always survive.
+private func keepThroughQuietHours(_ event: TrainEvent) -> Bool {
+    switch event.kind {
+    case .stop, .recovery, .halt:
+        return !isISTQuietHour(event.time)
+    default:
+        return true
+    }
+}
+
+private func isISTQuietHour(_ date: Date) -> Bool {
+    let secs = Int((date.timeIntervalSince1970 + Double(istOffsetMin * 60)).rounded(.down))
+    let minute = (((secs % 86400) + 86400) % 86400) / 60
+    return minute >= 22 * 60 + 30 || minute < 6 * 60
 }
 
 func getLiveStatus(_ train: Train, _ now: Date) -> LiveStatus {
@@ -354,6 +473,105 @@ func statusForRun(_ train: Train, _ run: Run, _ now: Date) -> LiveStatus {
         arrivesSched: run.arrivesSched,
         arrivesEst: run.arrivesEst,
         events: phase == .scheduled ? [] : eventsForRun(train, run, now)
+    )
+}
+
+// MARK: - Charting
+
+/// The chart-preparation picture for a booked run. A ticket that goes in
+/// waitlisted or RAC has its fate sealed when the reservation chart prepares
+/// (`chartTime`, see Reservation); this resolves that outcome deterministically,
+/// like every other number in the sim.
+struct ChartingStatus {
+    /// when the reservation chart prepares for this run
+    let chartsAt: Date
+    /// chart has prepared — the WL/RAC fate is now sealed
+    let prepared: Bool
+    /// pre-chart position ("WL 12", "RAC 5")
+    let waitlistStatus: String
+    /// resolved allotment once charted ("B2 · 34 LB")
+    let allotment: String
+}
+
+/// The charting picture for a held booking, or nil when the ticket was never
+/// on a waitlist — a plain CNF ticket has no charting drama to broadcast.
+func chartingStatus(_ train: Train, runDate: String, booking: Booking,
+                    now: Date) -> ChartingStatus? {
+    let rng = SeededRng("charting:\(booking.pnr)")
+    // ~55% of held bookings went in on a waitlist or RAC; the rest were CNF
+    // from the start and skip the charting phase entirely.
+    guard rng.next() < 0.55 else { return nil }
+
+    let chartsAt = chartTime(departure: buildRun(train, runDate).departs)
+    let waitlistStatus = rng.next() < 0.4
+        ? "RAC \(rng.int(1, 18))"
+        : "WL \(rng.int(2, 26))"
+    return ChartingStatus(
+        chartsAt: chartsAt,
+        prepared: now >= chartsAt,
+        waitlistStatus: waitlistStatus,
+        allotment: "\(booking.coach) · \(booking.seat)"
+    )
+}
+
+// MARK: - Rake linkage
+
+/// The paired return service whose rake turns around to become this train,
+/// and how its inbound running bleeds into our departure. Indian trains run
+/// as numbered pairs (12951 down ↔ 12952 up): the same physical rake turns
+/// around at each terminus, so a rake that arrives late has to leave late.
+struct RakeLink {
+    let inbound: Train
+    let runDate: String
+    let arrivesSched: Date
+    let arrivesEst: Date
+    /// the inbound run's arrival delay at our origin, minutes
+    let delayMin: Int
+    /// how much of that delay survives the scheduled turnaround buffer to push
+    /// out our own departure, minutes
+    let propagatedDelayMin: Int
+}
+
+/// minutes a rake needs on the platform to turn around (clean, water, brake test)
+private let rakeTurnaroundMin = 40.0
+
+/// The rake linkage for a run, or nil when the paired service isn't known or
+/// doesn't terminate where we begin (so there's no believable turnaround).
+@MainActor
+func rakeLink(for train: Train, runDate: String, now: Date) -> RakeLink? {
+    guard let num = Int(train.number) else { return nil }
+    // the pair: an odd number runs down, the next even runs back up
+    let pairNum = num % 2 == 0 ? num - 1 : num + 1
+    let pairStr = String(format: "%0\(train.number.count)d", pairNum)
+    guard pairStr != train.number,
+          let inbound = TrainBank.shared.cached(pairStr),
+          // the return rake must terminate where we begin
+          inbound.destination.code == train.origin.code
+    else { return nil }
+
+    let ourDep = istDateTime(runDate, minutes: parseHM(train.departureTime))
+    // the inbound run that just came in: the latest arrival still before our
+    // start, inside a day's turnaround window
+    var chosen: Run?
+    for offset in stride(from: 0, through: -maxLookbackDays, by: -1) {
+        let d = addDaysISO(runDate, offset)
+        guard inbound.days.contains(istWeekday(d)) else { continue }
+        let run = buildRun(inbound, d)
+        guard run.arrivesSched <= ourDep,
+              run.arrivesSched > ourDep.addingTimeInterval(-24 * 3600) else { continue }
+        if chosen == nil || run.arrivesSched > chosen!.arrivesSched { chosen = run }
+    }
+    guard let inRun = chosen else { return nil }
+
+    let readyAt = inRun.arrivesEst.addingTimeInterval(rakeTurnaroundMin * 60)
+    let propagated = max(0, readyAt.timeIntervalSince(ourDep) / 60)
+    return RakeLink(
+        inbound: inbound,
+        runDate: inRun.runDate,
+        arrivesSched: inRun.arrivesSched,
+        arrivesEst: inRun.arrivesEst,
+        delayMin: inRun.delays[inRun.delays.count - 1],
+        propagatedDelayMin: Int(propagated.rounded())
     )
 }
 
