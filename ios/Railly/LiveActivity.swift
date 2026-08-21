@@ -79,7 +79,7 @@ final class LiveActivityManager: ObservableObject {
             }
         case .enRoute:
             why = destDelay > 5
-                ? "Running \(destDelay)m behind — reaches \(trip.train.destination.code) late"
+                ? "Running \(TrainActivityAttributes.ContentState.durationText(minutes: destDelay)) behind — reaches \(trip.train.destination.code) late"
                 : "Running to time"
         case .charting, .arrived:
             why = "Journey complete"
@@ -103,6 +103,9 @@ final class LiveActivityManager: ObservableObject {
         }
 
         let depPlatform = trip.train.origin.platform
+        let nextETA = live.stopTimings.indices.contains(live.nextStopIdx)
+            ? live.stopTimings[live.nextStopIdx].arrEst.timeIntervalSince1970
+            : 0
         return TrainActivityAttributes.ContentState(
             phase: phase,
             delayMinutes: destDelay,
@@ -117,7 +120,8 @@ final class LiveActivityManager: ObservableObject {
             chartISO: chartISO,
             chartPrepared: chartPrepared,
             waitlistStatus: waitlistStatus,
-            berthAllotment: berthAllotment
+            berthAllotment: berthAllotment,
+            nextStopISO: nextETA
         )
     }
 

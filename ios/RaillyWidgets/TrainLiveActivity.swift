@@ -28,55 +28,34 @@ private func statusColor(_ s: TrainActivityAttributes.ContentState) -> Color {
 /// A stylized route-elevation line — Railly's answer to Flighty's terrain
 /// silhouette. The elapsed portion is drawn in the status color, the rest in
 /// grey, with a train dot at the current position.
-private struct RouteProfile: View {
+private struct ProgressBar: View {
     let progress: Double
     let color: Color
 
-    private func shape(_ w: CGFloat, _ h: CGFloat) -> Path {
-        // gentle depart-climb-cruise-arrive profile
-        Path { p in
-            p.move(to: CGPoint(x: 0, y: h * 0.82))
-            p.addCurve(to: CGPoint(x: w * 0.28, y: h * 0.30),
-                       control1: CGPoint(x: w * 0.10, y: h * 0.82),
-                       control2: CGPoint(x: w * 0.18, y: h * 0.30))
-            p.addLine(to: CGPoint(x: w * 0.72, y: h * 0.30))
-            p.addCurve(to: CGPoint(x: w, y: h * 0.82),
-                       control1: CGPoint(x: w * 0.82, y: h * 0.30),
-                       control2: CGPoint(x: w * 0.90, y: h * 0.82))
-        }
-    }
-
     var body: some View {
         GeometryReader { geo in
-            let w = geo.size.width, h = geo.size.height
-            let path = shape(w, h)
             ZStack(alignment: .leading) {
-                path.stroke(Color.white.opacity(0.18),
-                            style: StrokeStyle(lineWidth: 2.5, lineCap: .round))
-                path
-                    .trim(from: 0, to: max(0.001, min(1, progress)))
-                    .stroke(color, style: StrokeStyle(lineWidth: 2.5, lineCap: .round))
-                // origin + destination station ticks
-                Circle().fill(Color.white.opacity(0.5)).frame(width: 5, height: 5)
-                    .position(x: 1, y: h * 0.82)
-                Circle().fill(Color.white.opacity(0.5)).frame(width: 5, height: 5)
-                    .position(x: w - 1, y: h * 0.82)
+                Capsule().fill(Color.white.opacity(0.14))
+                Capsule().fill(color)
+                    .frame(width: max(3, geo.size.width * min(1, max(0, progress))))
             }
         }
-        .frame(height: 26)
+        .frame(height: 4)
     }
 }
 
 /// The full lock-screen / banner card (also the Dynamic Island expanded body).
-private struct LockScreenCard: View {
-    let context: ActivityViewContext<TrainActivityAttributes>
-
-    private var attr: TrainActivityAttributes { context.attributes }
-    private var state: TrainActivityAttributes.ContentState { context.state }
+/// Internal rather than private so a harness can render and measure it: the
+/// lock-screen height budget is not something you can eyeball from a simulator
+/// (there is no way to reach its lock screen headlessly), and guessing at it is
+/// what let the next-stop line ship clipped.
+struct LockScreenCard: View {
+    let attr: TrainActivityAttributes
+    let state: TrainActivityAttributes.ContentState
 
     private var a11yLabel: String {
         let route = "\(attr.trainNumber), \(attr.originCity) to \(attr.destinationCity)"
-        let delay = state.isLate ? "\(state.delayMinutes) minutes late" : "on time"
+        let delay = state.isLate ? "\(state.delayText.lowercased())" : "on time"
         switch state.phase {
         case .charting:
             return state.chartPrepared
@@ -94,16 +73,54 @@ private struct LockScreenCard: View {
 
     var body: some View {
         let tint = statusColor(state)
-        VStack(spacing: 11) {
-            header
-            routeRow(tint: tint)
-            bottomZone(tint: tint)
+        // iOS gives the lock-screen presentation a fixed height and *clips*
+        // anything taller — which is how the next-stop line ended up sliced in
+        // half. The budget also differs across devices, so rather than tune the
+        // card to one magic number, offer three densities and let SwiftUI take
+        // the richest one that actually fits.
+        ViewThatFits(in: .vertical) {
+            card(tint: tint, detail: .full)
+            card(tint: tint, detail: .compact)
+            card(tint: tint, detail: .minimal)
         }
-        .padding(15)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
         .activityBackgroundTint(Color(hex: 0x161719))
         .activitySystemActionForegroundColor(.white)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(a11yLabel)
+    }
+
+    /// One line of the bottom zone: a headline on the left, a stat on the
+    /// right, neither allowed to wrap or push the other off the card.
+    private func infoRow(lead: Text, leadSize: CGFloat,
+                         trail: Text, trailSize: CGFloat) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 6) {
+            lead
+                .font(.system(size: leadSize, weight: .bold))
+                .monospacedDigit()
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+            Spacer(minLength: 4)
+            trail
+                .font(.system(size: trailSize, weight: .semibold))
+                .monospacedDigit()
+                .lineLimit(1)
+                .layoutPriority(1)
+        }
+    }
+
+    /// How much of the card survives at the height iOS actually allowed.
+    enum Detail {
+        case full, compact, minimal
+    }
+
+    func card(tint: Color, detail: Detail) -> some View {
+        VStack(spacing: detail == .full ? 7 : 5) {
+            header
+            routeRow(tint: tint)
+            bottomZone(tint: tint, detail: detail)
+        }
     }
 
     private var header: some View {
@@ -150,7 +167,7 @@ private struct LockScreenCard: View {
                           align: HorizontalAlignment) -> some View {
         VStack(alignment: align, spacing: 1) {
             Text(code)
-                .font(.system(size: 25, weight: .heavy))
+                .font(.system(size: 20, weight: .heavy))
                 .foregroundStyle(.white)
             Text(time, format: .dateTime.hour().minute())
                 .font(.system(size: 13, weight: .semibold))
@@ -159,10 +176,19 @@ private struct LockScreenCard: View {
         }
     }
 
-    @ViewBuilder
-    private func bottomZone(tint: Color) -> some View {
-        Rectangle().fill(Color.white.opacity(0.08)).frame(height: 1)
+    private func bottomZone(tint: Color, detail: Detail) -> some View {
+        VStack(spacing: detail == .full ? 6 : 4) {
+            // En route the progress bar already separates the zones; the rule
+            // is pure cost there, and its 8pt is what the next-stop line needs.
+            if detail != .minimal && state.phase != .enRoute {
+                Rectangle().fill(Color.white.opacity(0.08)).frame(height: 1)
+            }
+            phaseContent(tint: tint, detail: detail)
+        }
+    }
 
+    @ViewBuilder
+    private func phaseContent(tint: Color, detail: Detail) -> some View {
         switch state.phase {
         case .charting:
             if state.chartPrepared {
@@ -242,24 +268,37 @@ private struct LockScreenCard: View {
                 }
             }
         case .enRoute:
-            RouteProfile(progress: state.progress, color: tint)
-            HStack(alignment: .firstTextBaseline) {
-                VStack(alignment: .leading, spacing: 1) {
-                    (Text("Arriving in ").foregroundStyle(.white)
-                        + Text(timerInterval: Date()...max(state.arriveDate, Date().addingTimeInterval(60)),
-                               countsDown: true).foregroundStyle(tint))
-                        .font(.system(size: 17, weight: .bold))
-                        .monospacedDigit()
-                    Text("NEXT \(state.nextStopCode) · \(state.nextStopName)".uppercased())
-                        .font(.system(size: 10, weight: .semibold))
-                        .kerning(0.4)
-                        .foregroundStyle(Color.laSub)
-                        .lineLimit(1)
-                }
-                Spacer()
-                Text(state.isLate ? "\(state.delayMinutes)m late" : "On time")
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(tint)
+            if detail != .minimal {
+                ProgressBar(progress: state.progress, color: tint)
+            }
+            // Which halt is next, and how long until it, is the line people
+            // actually plan around ("can I get off for chai at Dharmapuri?").
+            // It is therefore the last thing dropped, not the first: the full
+            // card leads with the arrival countdown, but every smaller variant
+            // keeps the next stop.
+            if detail == .full {
+                infoRow(
+                    lead: Text("Arriving in ").foregroundStyle(.white)
+                        + Text(state.arriveDate, style: .relative).foregroundStyle(tint),
+                    leadSize: 15,
+                    trail: Text(state.delayText).foregroundStyle(tint),
+                    trailSize: 13)
+                infoRow(
+                    lead: Text("NEXT \(state.nextStopCode) · ").foregroundStyle(Color.laSub)
+                        + Text(state.nextStopName.uppercased()).foregroundStyle(.white)
+                        + Text(" in ").foregroundStyle(Color.laSub)
+                        + Text(state.nextStopDate, style: .relative).foregroundStyle(.white),
+                    leadSize: 11,
+                    trail: Text("\(state.speedKmh) km/h").foregroundStyle(Color.laSub),
+                    trailSize: 11)
+            } else {
+                infoRow(
+                    lead: Text("\(state.nextStopCode) ").foregroundStyle(.white)
+                        + Text("in ").foregroundStyle(Color.laSub)
+                        + Text(state.nextStopDate, style: .relative).foregroundStyle(.white),
+                    leadSize: 15,
+                    trail: Text(state.delayText).foregroundStyle(tint),
+                    trailSize: 13)
             }
         case .arrived:
             HStack {
@@ -268,7 +307,7 @@ private struct LockScreenCard: View {
                     .font(.system(size: 16, weight: .bold))
                     .foregroundStyle(.white)
                 Spacer()
-                Text(state.isLate ? "\(state.delayMinutes)m late" : "On time")
+                Text(state.delayText)
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(tint)
             }
@@ -279,7 +318,7 @@ private struct LockScreenCard: View {
 struct TrainLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: TrainActivityAttributes.self) { context in
-            LockScreenCard(context: context)
+            LockScreenCard(attr: context.attributes, state: context.state)
         } dynamicIsland: { context in
             let tint = statusColor(context.state)
             return DynamicIsland {
@@ -334,17 +373,38 @@ struct TrainLiveActivity: Widget {
                             }
                         }
                     } else if context.state.phase == .enRoute {
-                        RouteProfile(progress: context.state.progress, color: tint)
-                        HStack {
-                            (Text("Arriving in ").foregroundStyle(.white)
-                                + Text(timerInterval: Date()...max(context.state.arriveDate, Date().addingTimeInterval(60)),
-                                       countsDown: true).foregroundStyle(tint))
-                                .font(.system(size: 14, weight: .bold))
-                                .monospacedDigit()
-                            Spacer()
-                            Text("NEXT \(context.state.nextStopCode)")
-                                .font(.system(size: 11, weight: .semibold))
-                                .foregroundStyle(Color.laSub)
+                        ProgressBar(progress: context.state.progress, color: tint)
+                        VStack(spacing: 3) {
+                            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                                (Text("Arriving in ").foregroundStyle(.white)
+                                    + Text(context.state.arriveDate, style: .relative).foregroundStyle(tint))
+                                    .font(.system(size: 14, weight: .bold))
+                                    .monospacedDigit()
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.7)
+                                Spacer(minLength: 4)
+                                Text(context.state.delayText)
+                                    .font(.system(size: 12, weight: .semibold))
+                                    .foregroundStyle(tint)
+                                    .lineLimit(1)
+                                    .layoutPriority(1)
+                            }
+                            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                                (Text("NEXT \(context.state.nextStopCode) ").foregroundStyle(Color.laSub)
+                                    + Text("in ").foregroundStyle(Color.laSub)
+                                    + Text(context.state.nextStopDate, style: .relative).foregroundStyle(.white))
+                                    .font(.system(size: 11, weight: .semibold))
+                                    .monospacedDigit()
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.7)
+                                Spacer(minLength: 4)
+                                Text("\(context.state.speedKmh) km/h")
+                                    .font(.system(size: 11, weight: .semibold))
+                                    .foregroundStyle(Color.laSub)
+                                    .monospacedDigit()
+                                    .lineLimit(1)
+                                    .layoutPriority(1)
+                            }
                         }
                     } else if context.state.phase == .preDeparture {
                         HStack {
@@ -391,7 +451,7 @@ struct TrainLiveActivity: Widget {
                         .padding(.horizontal, 5).padding(.vertical, 1)
                         .background(Color.laGate, in: Capsule())
                 } else {
-                    Text(context.state.isLate ? "+\(context.state.delayMinutes)m" : "On time")
+                    Text(context.state.delayShort)
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundStyle(tint)
                 }

@@ -39,11 +39,37 @@ struct TrainActivityAttributes: ActivityAttributes {
         var waitlistStatus: String = ""
         /// resolved allotment shown once charted ("B2 · 34 LB")
         var berthAllotment: String = ""
+        /// expected arrival at `nextStopName`, epoch seconds
+        var nextStopISO: Double = 0
 
         var departDate: Date { Date(timeIntervalSince1970: departISO) }
         var arriveDate: Date { Date(timeIntervalSince1970: arriveISO) }
         var chartDate: Date { Date(timeIntervalSince1970: chartISO) }
+        var nextStopDate: Date { Date(timeIntervalSince1970: nextStopISO) }
         var isLate: Bool { delayMinutes > 5 }
+
+        /// "2h 33m", "45m". Indian long-distance runs lose hours, not minutes,
+        /// so a raw minute count ("153m late") stops being readable fast.
+        /// `fmtDuration` in the app does this too, but TimeUtil.swift isn't in
+        /// the widget target — this file is the only one both targets compile.
+        static func durationText(minutes: Int) -> String {
+            let m = abs(minutes)
+            let h = m / 60
+            let rest = m % 60
+            if h == 0 { return "\(rest)m" }
+            if rest == 0 { return "\(h)h" }
+            return "\(h)h \(rest)m"
+        }
+
+        /// The delay as the card states it.
+        var delayText: String {
+            isLate ? "\(Self.durationText(minutes: delayMinutes)) late" : "On time"
+        }
+
+        /// Tighter form for the Dynamic Island, where width is scarce.
+        var delayShort: String {
+            isLate ? "+\(Self.durationText(minutes: delayMinutes))" : "On time"
+        }
     }
 
     // Fixed for the life of the run.
