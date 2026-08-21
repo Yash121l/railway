@@ -10,7 +10,7 @@ import { Reveal } from "./Reveal";
  */
 const ANNUAL_PRICE = PLANS.find((plan) => plan.name === "Annual")?.price ?? "₹699";
 
-const DESCRIPTION = `Railly is a train-tracking app for Indian Railways, built for iPhone. It tracks live running status for 4,022 trains across 9,161 stations, watches your PNR and alerts you when your waitlist moves, works offline, and is free to track any journey. Pro from ${ANNUAL_PRICE}/year. Railly is independent and not affiliated with Indian Railways or IRCTC.`;
+const DESCRIPTION = `Railly is a train-tracking app for Indian Railways, built for iPhone. It tracks live running status for 4,022 trains across 9,109 stations, watches your PNR and alerts you when your waitlist moves, works offline, and is free to track any journey. Pro from ${ANNUAL_PRICE}/year. Railly is independent and not affiliated with Indian Railways or IRCTC.`;
 
 const APP_JSON_LD = {
   "@context": "https://schema.org",

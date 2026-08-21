@@ -4,7 +4,8 @@ import stationIndex from "../data/stations.json" with { type: "json" };
 
 /**
  * Bundled offline index of the real IR network — every train and station,
- * straight from erail's own lookup assets (4,022 trains, 9,161 stations).
+ * straight from erail's own lookup assets: 4,022 trains, and 9,161 station
+ * rows carrying 9,109 distinct codes (tourist names alias to a railhead).
  * Search runs instantly in-process; the network is only touched when a
  * specific train's schedule is needed. This is the web port of
  * ios/Railly/Catalog.swift and keeps its Flighty ranking semantics.

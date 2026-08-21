@@ -162,9 +162,9 @@ export function Friends() {
 
 export function PassportTeaser() {
   const stats: [React.ReactNode, string][] = [
-    [<CountUp key="km" value={28412} />, "kilometres"],
-    [<CountUp key="trips" value={47} />, "trips"],
-    [<CountUp key="hours" value={214} suffix="h" />, "on rails"],
+    [<CountUp key="km" value={16418} />, "kilometres"],
+    [<CountUp key="trips" value={12} />, "trips"],
+    [<CountUp key="hours" value={231} suffix="h" />, "on rails"],
     ["+2h 05m", "worst delay"],
   ];
   return (
@@ -191,7 +191,7 @@ export function PassportTeaser() {
             <Starfield className="opacity-70" />
             <div className="relative">
               <div className="text-[11px] font-bold uppercase tracking-[2px] text-sun">
-                Railly Passport
+                Railly Passport · sample
               </div>
               <div className="mt-5 grid grid-cols-2 gap-5">
                 {stats.map(([value, label]) => (
@@ -206,7 +206,8 @@ export function PassportTeaser() {
                 ))}
               </div>
               <div className="mt-6 border-t border-white/15 pt-4 text-[13px] text-white/60">
-                A hall of fame for your riding history.
+                Example figures from a sample passport. Yours is computed from
+                the trips you actually track.
               </div>
             </div>
           </div>
@@ -338,14 +339,14 @@ export function NetworkIntel() {
       <div className="relative">
         <Reveal className="mx-auto max-w-3xl text-center">
           <h2 className="text-headline md:text-[52px] md:leading-[1.03] md:tracking-[-0.5px]">
-            Know what&apos;s happening on any line. Right now.
+            Know what&apos;s happening on any line.
           </h2>
           <p className="mt-5 text-[18px] leading-relaxed text-silver">
-            Track the whole network with live runs, delays, and operational
-            performance — all in real time. We synthesize thousands of
-            control-room bulletins per minute: fog, line blocks, crew shortages,
-            taxiway… sorry, <em>yard</em> congestion. Even rare anomalies like
-            cattle on the track.
+            See the whole network at once: every run in progress, how late it
+            is, and how each section is holding up. Positions and delays are
+            projected from the published timetable, not a live feed, and every
+            screen that shows one says so. Reading control-room bulletins for
+            fog, line blocks and yard congestion is on the roadmap.
           </p>
         </Reveal>
         <Reveal delay={100} from="zoom">

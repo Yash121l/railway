@@ -2,7 +2,7 @@ import { searchTrains } from "@/lib/catalog";
 
 /**
  * Train lookup against the bundled offline index. Server-side so the 4,022-
- * train / 9,161-station catalog never ships to the browser — RailLens's
+ * train / 9,109-code catalog never ships to the browser — RailLens's
  * search box would otherwise pull ~365 KB of JSON into the map bundle.
  *
  * The index is static, so any answer is cacheable indefinitely.

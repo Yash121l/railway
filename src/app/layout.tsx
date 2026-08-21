@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     template: "%s — Railly",
   },
   description:
-    "The Flighty of Indian Railways — built for iPhone. Live train tracking, delay predictions before the railway announces them, platform-change alerts, and a logbook of every kilometre. 4,022 trains, 9,161 stations, works offline.",
+    "The Flighty of Indian Railways — built for iPhone. Track any train, check a real PNR, find your coach on the platform, and keep a logbook of every kilometre. 4,022 trains, 9,109 station codes, works offline.",
   applicationName: "Railly",
   openGraph: {
     siteName: "Railly",
@@ -17,13 +17,13 @@ export const metadata: Metadata = {
     locale: "en_IN",
     title: "Railly — Get the truth when you take the train",
     description:
-      "The Flighty of Indian Railways — built for iPhone. Live tracking, delay predictions before the railway announces them, and platform-change alerts.",
+      "The Flighty of Indian Railways — built for iPhone. Track any train, check a real PNR, and find your coach on the platform.",
   },
   twitter: {
     card: "summary_large_image",
     title: "Railly — Get the truth when you take the train",
     description:
-      "The Flighty of Indian Railways — built for iPhone. Live tracking, delay predictions before the railway announces them, and platform-change alerts.",
+      "The Flighty of Indian Railways — built for iPhone. Track any train, check a real PNR, and find your coach on the platform.",
   },
 };
 

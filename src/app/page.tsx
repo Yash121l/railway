@@ -20,7 +20,7 @@ import { WhatIsRailly } from "@/components/marketing/WhatIsRailly";
 const HOME_TITLE =
   "Live Train Status, PNR Status & Delay Predictions for Indian Railways — Railly";
 const HOME_DESCRIPTION =
-  "Track any Indian Railways train live — running status, PNR status, seat availability, coach position, and delay predictions before the railway announces them. Built for iPhone. 4,022 trains, 9,161 stations, works offline.";
+  "Track any Indian Railways train — running status, real PNR status, coach position, and a logbook of every kilometre. Positions are projected from the timetable and labelled as estimates. Built for iPhone. 4,022 trains, 9,109 station codes, works offline.";
 
 export const metadata: Metadata = {
   title: { absolute: HOME_TITLE },
@@ -58,7 +58,7 @@ function Hero() {
       >
         Railly is the Flighty of Indian Railways — built for iPhone. Live
         running status, PNR confirmations, seat availability, coach position,
-        and delay predictions before the railway announces them. For Vande
+        and delay estimates projected from the timetable. For Vande
         Bharat and AC-corridor commuters, families watching a loved one&apos;s
         train, and NRIs following the journey home from abroad.
       </p>
@@ -80,7 +80,7 @@ function Hero() {
         </span>
         <span className="text-fog">·</span>
         <span className="tnum">
-          <b className="text-black">9,161</b> stations
+          <b className="text-black">9,109</b> stations
         </span>
         <span className="text-fog">·</span>
         <span>works offline</span>

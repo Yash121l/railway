@@ -123,7 +123,7 @@ export default function TrainsIndexPage() {
 
         <Reveal delay={80}>
           <p className="mt-14 text-center text-[13px] text-fog">
-            A curated sample — the app tracks all 4,022 trains and 9,161 stations
+            A curated sample — the app tracks all 4,022 trains and 9,109 stations
             across Indian Railways.
           </p>
         </Reveal>

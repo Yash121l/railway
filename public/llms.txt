@@ -1,18 +1,19 @@
 # Railly
 
-> Railly is an independent, iPhone-first train-tracking app for Indian Railways — the "Flighty of Indian Railways." It gives you live running status, PNR status, seat availability, coach position, platform-change alerts, and delay predictions before the railway announces them, plus a Passport that logs every kilometre you ride. It is a companion app, not a booking app: it sells no tickets and shows no ads, and deep-links you to IRCTC when you're ready to book.
+> Railly is an independent, iPhone-first train-tracking app for Indian Railways — the "Flighty of Indian Railways." It gives you running status projected from the published timetable and labelled as an estimate, real PNR status, coach position from the reservation chart, a seat-availability model, and a Passport that logs every kilometre you ride. It is a companion app, not a booking app: it sells no tickets and shows no ads, and deep-links you to IRCTC when you're ready to book.
 
 ## What Railly is
 
 - A native iOS app for tracking journeys on Indian Railways. Built for iPhone.
-- Offline catalog covering **4,022 trains** and **9,161 stations** — the schedule, routes, and station data work without a connection.
-- Core features: live running status, PNR status with confirmation odds, seat/availability grid with Tatkal reminders, coach position, platform-change alerts, delay predictions, and the Railly Passport (a lifetime rail logbook).
+- Offline catalog covering **4,022 trains** and **9,109 stations** — the schedule, routes, and station data work without a connection.
+- Core features: running status (estimated from the timetable), PNR status with confirmation odds, a seat-availability model with Tatkal reminders, coach position from the chart, and the Railly Passport (a lifetime rail logbook).
+- Not built yet: platform-change alerts, delay/cancellation notifications, and control-room bulletin summaries. India publishes no open live-position feed, so live positions require a paid third-party key.
 
 ## Honesty & data-labeling policy
 
 - Every status is labeled by provenance. A position shown as **Live** comes from a live feed for that train; where no live feed is available, Railly falls back to a schedule-projected **Estimate** built from the timetable and recent running pattern, and says so. Live feeds are still being rolled out, so many positions today are labeled estimates until those feeds land.
-- Delay figures shown for a station ahead of the train are **predictions**, always presented as predictions alongside the official running status — never dressed up as the railway's word.
-- If Railly doesn't know something, it says it doesn't know. Nothing on this site or in the app is a fabricated statistic, review, or unshipped capability presented as fact.
+- Delay figures for a station ahead of the train are **projections** from the timetable, always presented as estimates and never as the railway's word.
+- If Railly doesn't know something, it says it doesn't know. Simulated data is confined to demo launches, illustrative content on this site is labelled illustrative, and features that are not built are listed as not built rather than described in the present tense.
 
 ## Pricing
 
@@ -45,11 +46,11 @@ Railly is independent. It is **not affiliated with, endorsed by, or connected to
 
 ## Pages
 
-- [Home](https://railly.app/): Live train status, PNR status, and delay predictions for Indian Railways.
+- [Home](https://railly.app/): Train running status, PNR status, and coach position for Indian Railways.
 - [Pricing](https://railly.app/pricing): Free vs Pro, plan prices, and what each unlocks.
 - [Compare](https://railly.app/compare): Honest comparison with NTES, Where Is My Train, RailYatri, and ixigo.
 - [Help](https://railly.app/help): PNR status, chart timing, Tatkal windows, live tracking, and data handling.
-- [Stations](https://railly.app/stations): Live station boards, platforms, and delays across the network.
+- [Stations](https://railly.app/stations): Station guide — platform counts, codes, and how Railly's boards work.
 - [Passport](https://railly.app/passport): The rail logbook — every kilometre, delay, platform, and coach.
 - [Gift Cards](https://railly.app/gift-cards): Gift Railly Pro for three months, a year, or a family year.
 - [About](https://railly.app/about): The story behind Railly and its honesty manifesto.

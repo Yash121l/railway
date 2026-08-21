@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Star, TrainFront } from "lucide-react";
+import { TrainFront } from "lucide-react";
 import { Reveal } from "./Reveal";
 
 type Tweet = { kind: "tweet"; name: string; body: string };
@@ -55,16 +55,6 @@ const CARDS: (Tweet | Review | Story)[] = [
     body: "Railly explained WHY we were held outside Ratlam before the TTE knew. I showed him the app. He wanted it too.",
   },
 ];
-
-function Stars() {
-  return (
-    <div className="flex gap-0.5 text-sun">
-      {[...Array(5)].map((_, i) => (
-        <Star key={i} size={13} fill="currentColor" strokeWidth={0} />
-      ))}
-    </div>
-  );
-}
 
 export function Testimonials() {
   return (
@@ -122,7 +112,6 @@ export function Testimonials() {
                 </>
               ) : (
                 <>
-                  <Stars />
                   <div className="mt-2.5 text-[15px] font-bold text-black">
                     {card.title}
                   </div>
@@ -143,7 +132,7 @@ export function Testimonials() {
             <TrainFront size={14} className="text-white" />
           </span>
           <span className="tnum text-[14px] font-semibold text-white">
-            4,022 trains · 9,161 stations tracked
+            4,022 trains · 9,109 stations tracked
           </span>
         </div>
       </div>

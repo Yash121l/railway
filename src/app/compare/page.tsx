@@ -57,13 +57,21 @@ export const ROWS: {
   feature: string;
   note: string;
   claim: string;
+  /**
+   * Railly's own verdict, held to the same bar as everyone else's. A shipped
+   * feature is "yes"; something partly built or still estimated is "varies";
+   * something we have not built is "no". Comparative advertising against named
+   * products has to be accurate about our own column first.
+   */
+  railly: Verdict;
   cells: [Verdict, Verdict, Verdict, Verdict];
 }[] = [
   {
-    feature: "Delay predictions before announcements",
-    note: "Railly calls the delay before the station does.",
+    feature: "Projected delays, labelled as estimates",
+    note: "A likely new time, marked as an estimate rather than fact.",
     claim:
-      "Railly predicts the delay at your station before the railway announces it, instead of only relaying the current official figure.",
+      "Railly projects your delay along the route from the published timetable and the inbound rake's running, and labels every figure an estimate. India publishes no open live-position feed, so nobody can honestly call this a measurement.",
+    railly: "varies",
     cells: ["no", "no", "varies", "varies"],
   },
   {
@@ -71,6 +79,7 @@ export const ROWS: {
     note: "Waitlist movement, watched around the clock.",
     claim:
       "Railly watches your PNR around the clock and reads its confirmation chances in plain English, so you never refresh an enquiry page again.",
+    railly: "yes",
     cells: ["no", "varies", "varies", "yes"],
   },
   {
@@ -78,13 +87,15 @@ export const ROWS: {
     note: "Stand where your door will stop.",
     claim:
       "Railly shows where your coach will halt along the platform, so boarding is a walk to the right spot rather than a sprint down the length of the train.",
+    railly: "yes",
     cells: ["no", "varies", "varies", "varies"],
   },
   {
-    feature: "Seat availability with Tatkal reminders",
+    feature: "Tatkal reminders, with a fill model for availability",
     note: "A nudge before the window opens.",
     claim:
-      "Railly reads the availability grid for you and nudges you minutes before the Tatkal window opens, instead of leaving you to remember the time.",
+      "Railly nudges you minutes before the Tatkal window opens, and models how the class is filling from PRS booking rules. Booking-grade availability needs a paid feed, and Railly says which one you are looking at.",
+    railly: "varies",
     cells: ["no", "varies", "varies", "varies"],
   },
   {
@@ -92,13 +103,15 @@ export const ROWS: {
     note: "Your train on real track geometry.",
     claim:
       "Railly draws your train moving along the real track geometry of the route, not a straight line pinned between two stations.",
+    railly: "yes",
     cells: ["varies", "yes", "varies", "varies"],
   },
   {
-    feature: "Platform-change alerts when the railway publishes them",
-    note: "The moment the railway publishes a platform change, it reaches you.",
+    feature: "Platform-change alerts",
+    note: "On the roadmap, not shipped.",
     claim:
-      "Railly pushes a platform change the moment the railway publishes it, so a last-minute swap reaches you before you reach the wrong platform.",
+      "Pushing a platform change the moment the railway publishes it is work Railly has not done yet. It is on the roadmap and it is not in the app today.",
+    railly: "no",
     cells: ["varies", "varies", "no", "no"],
   },
   {
@@ -106,6 +119,7 @@ export const ROWS: {
     note: "Every kilometre you have ever ridden, remembered.",
     claim:
       "Railly keeps a personal logbook — Passport — of every kilometre you have ridden, so your travel history is remembered instead of forgotten.",
+    railly: "yes",
     cells: ["no", "no", "no", "no"],
   },
   {
@@ -113,6 +127,7 @@ export const ROWS: {
     note: "No banners between you and your train.",
     claim:
       "Railly puts no banner ads between you and your train — the whole screen is your journey, not a billboard.",
+    railly: "yes",
     cells: ["yes", "no", "no", "no"],
   },
   {
@@ -120,6 +135,7 @@ export const ROWS: {
     note: "Built native, polished obsessively.",
     claim:
       "Railly is built native for iPhone and polished obsessively, rather than ported across from another platform.",
+    railly: "yes",
     cells: ["no", "no", "no", "no"],
   },
 ];
@@ -208,11 +224,27 @@ const COMPARE_JSON_LD = {
 /* Pieces                                                              */
 /* ------------------------------------------------------------------ */
 
-function RaillyMark() {
+function RaillyMark({ v }: { v: Verdict }) {
+  if (v === "yes") {
+    return (
+      <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-go/15">
+        <Check size={15} strokeWidth={3} className="text-go" />
+        <span className="sr-only">Built into Railly</span>
+      </span>
+    );
+  }
+  if (v === "varies") {
+    return (
+      <span className="text-[13px] font-medium text-steel">
+        Partly
+        <span className="sr-only"> built into Railly</span>
+      </span>
+    );
+  }
   return (
-    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-go/15">
-      <Check size={15} strokeWidth={3} className="text-go" />
-      <span className="sr-only">Built into Railly</span>
+    <span className="text-[13px] font-medium text-steel">
+      Not yet
+      <span className="sr-only">, not built into Railly</span>
     </span>
   );
 }
@@ -284,7 +316,7 @@ function CompareTable() {
                   </span>
                 </th>
                 <td className="border-t border-black/[0.06] bg-signal/[0.04] px-4 py-5 text-center">
-                  <RaillyMark />
+                  <RaillyMark v={row.railly} />
                 </td>
                 {row.cells.map((cell, i) => (
                   <td

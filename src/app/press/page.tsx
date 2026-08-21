@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 const PRESS_EMAIL = "mailto:hello@railly.app?subject=Press%20enquiry";
 
 const BOILERPLATE =
-  "Railly is an independent, iPhone-first companion for Indian Railways — the Flighty of Indian Railways. It offers live running status, delay predictions before the railway announces them, platform-change alerts, PNR status, seat availability, and coach position, plus a Passport that logs every kilometre you ride. Its offline catalog covers 4,022 trains and 9,161 stations. Railly is not affiliated with Indian Railways or IRCTC, sells no tickets, and shows no ads — when you're ready to book, it deep-links you straight to IRCTC.";
+  "Railly is an independent, iPhone-first companion for Indian Railways — the Flighty of Indian Railways. It offers running status projected from the published timetable and labelled as an estimate, real PNR status, coach position from the reservation chart, a seat-availability model, and a Passport that logs every kilometre you ride. Its offline catalog covers 4,022 trains and 9,109 station codes. Railly is not affiliated with Indian Railways or IRCTC, sells no tickets, and shows no ads — when you're ready to book, it deep-links you straight to IRCTC.";
 
 const SCREENS: { src: string; alt: string; label: string; file: string }[] = [
   {
@@ -52,7 +52,7 @@ const SCREENS: { src: string; alt: string; label: string; file: string }[] = [
 const FACTS: [string, string][] = [
   ["Category", "Train tracking · travel companion"],
   ["Platform", "iPhone (iOS), native SwiftUI"],
-  ["Coverage", "4,022 trains · 9,161 stations · works offline"],
+  ["Coverage", "4,022 trains · 9,109 station codes · works offline"],
   ["Business model", "Free with an optional Pro subscription · no ads"],
   ["Independence", "Not affiliated with Indian Railways or IRCTC"],
   ["Status", "On the waitlist ahead of App Store launch"],

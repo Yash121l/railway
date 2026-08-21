@@ -17,9 +17,9 @@ import { Reveal } from "@/components/marketing/Reveal";
 import { Starfield } from "@/components/marketing/Starfield";
 
 const STATIONS_TITLE =
-  "Indian Railways Station Boards, Platforms & Live Delays";
+  "Indian Railways Station Guide — Platforms, Codes & Boards";
 const STATIONS_DESCRIPTION =
-  "Live boards for India's major railway stations — departures and arrivals, average delays, platform pressure, and what's disrupting the network right now.";
+  "A guide to India's major railway stations: platform counts, station codes, daily traffic, and how Railly's station boards work. Railly's offline catalogue covers 4,022 trains and 9,109 station codes.";
 
 export const metadata: Metadata = {
   title: STATIONS_TITLE,
@@ -192,8 +192,9 @@ function StationBoard() {
           </div>
         </div>
         <p className="mt-3 text-center text-[12px] text-steel">
-          Illustrative board — the app shows every live arrival and departure
-          for all 9,161 stations.
+          Illustrative board. Railly can look up any of the 9,109 station codes;
+          departures and arrivals are projected from the timetable, not a live
+          feed.
         </p>
       </Reveal>
     </section>
@@ -203,10 +204,10 @@ function StationBoard() {
 /* ─────────────────────────  Network metrics  ───────────────────────── */
 
 const METRICS: [string, string, string][] = [
-  ["9,161", "Stations tracked", "Every code in the network, from terminals to halts"],
+  ["9,109", "Station codes", "Every distinct code in the offline catalogue, terminals to halts"],
   ["4,022", "Trains tracked", "Every mail, express and superfast in the offline catalogue"],
-  ["14m", "Avg network delay", "Across mail & express, in a typical evening peak"],
-  ["NR", "Busiest zone", "Northern Railway, by train count"],
+  ["104", "Corridors on real track", "Routed over OpenStreetMap rail, not drawn straight"],
+  ["12", "Full offline schedules", "Every other train resolves on first open, then caches"],
 ];
 
 function MetricsStrip() {
@@ -266,11 +267,12 @@ function StationDirectory() {
         <div className="flex items-end justify-between">
           <div>
             <h2 className="text-[24px] font-bold tracking-tight text-black md:text-[30px]">
-              Major stations, right now
+              Major stations
             </h2>
             <p className="mt-2 max-w-xl text-[15px] leading-relaxed text-carbon">
-              One honest status per station — platforms, daily traffic, and the
-              single sentence that tells you whether tonight is smooth or not.
+              Platform counts and daily traffic, plus an example of the
+              one-line status Railly shows per station. The status sentences
+              below are illustrative, not tonight&apos;s readings.
             </p>
           </div>
         </div>
@@ -318,7 +320,7 @@ function StationDirectory() {
       </div>
       <Reveal delay={80}>
         <p className="mt-6 text-center text-[13px] text-steel">
-          A sample of major stations — open the app to search all 9,161.
+          A sample of major stations — open the app to search all 9,109.
         </p>
       </Reveal>
     </section>

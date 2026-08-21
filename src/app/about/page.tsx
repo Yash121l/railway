@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 const FACTS: [string, string][] = [
   ["4,022", "trains in the offline catalog"],
-  ["9,161", "stations, coast to coast"],
+  ["9,109", "stations, coast to coast"],
   ["100%", "of your history stays on your device"],
 ];
 
@@ -75,7 +75,7 @@ export default function AboutPage() {
           <p>
             So we built the companion we wanted: native, quiet, obsessively
             polished, and honest about what it knows. Live running status and
-            delay predictions before the railway announces them. PNR watched
+            delay estimates projected from the timetable. PNR watched
             around the clock. Coach position so you stand where your door will
             stop. And a Passport that quietly remembers every kilometre you ride.
             Not a booking engine — the thing that rides <em>with</em> you.

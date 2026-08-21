@@ -104,11 +104,10 @@ export function LiveBoard() {
     >
       <div className="flex items-center justify-between border-b border-white/[0.08] px-5 py-3.5">
         <span className="text-[13px] font-bold uppercase tracking-[1px] text-white/60">
-          Network board · live
+          Network board · sample
         </span>
-        <span className="flex items-center gap-1.5 text-[12px] font-semibold text-go">
-          <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-go" />
-          8 trains watched
+        <span className="text-[12px] font-semibold text-white/40">
+          Illustrative data
         </span>
       </div>
       {FEEDS.map(({ no, route, states }, i) => {

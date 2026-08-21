@@ -403,22 +403,24 @@ function DarkFeaturePair() {
           <Starfield className="opacity-80" />
           <div className="relative flex h-full flex-col">
             <h3 className="text-[22px] font-bold leading-snug tracking-tight text-white">
-              Delay predictions.{" "}
+              Late rakes.{" "}
               <span className="text-white/60">
-                Long before the railway admits it.
+                Usually why your train leaves late.
               </span>
             </h3>
             <p className="mt-3 text-[14px] leading-relaxed text-white/60">
-              Late rakes are the #1 cause of delays. Railly uses machine
-              learning to predict them — up to 6 hours before the railway says
-              anything.
+              A train can only leave once its rake arrives. Railly finds the
+              paired service whose rake becomes your train, then projects a
+              likely late start from how that service is running. It is an
+              estimate, and the app says so.
             </p>
             <div className="mt-6 rounded-2xl bg-white/[0.06] p-5 ring-1 ring-white/[0.08]">
               <div className="text-[17px] font-bold text-white">
                 Where&apos;s My Rake?
               </div>
               <div className="mt-0.5 text-[12px] text-white/50">
-                WAP-7 hauled · 22 LHB coaches · inbound from Ahmedabad
+                Illustrative · WAP-7 hauled · 22 LHB coaches · inbound from
+                Ahmedabad
               </div>
               <div className="mt-5">
                 <RakeSilhouette />
@@ -456,13 +458,15 @@ function DarkFeaturePair() {
             <h3 className="text-[22px] font-bold leading-snug tracking-tight text-white">
               Direct from the control room.{" "}
               <span className="text-white/70">
-                Section mandates are the #2 cause of delays.
+                On the roadmap, not shipped yet.
               </span>
             </h3>
             <p className="mt-3 text-[14px] leading-relaxed text-white/70">
-              Railly sifts through control-room bulletins and tells you what
-              might impact your train: fog blocks, crossings, line works, yard
-              congestion.
+              Section mandates are a major cause of delays. Reading
+              control-room bulletins and turning them into plain language, so
+              you know about fog blocks, crossings, line works and yard
+              congestion before they reach your train, is work we have not done
+              yet. This is a sketch of where it is going.
             </p>
             <div className="mt-auto pt-6">
               <GantrySilhouette />

@@ -170,10 +170,16 @@ export default async function CompareChildPage({
                           </span>
                         </th>
                         <td className="border-t border-black/[0.06] bg-signal/[0.04] px-4 py-5 text-center align-middle">
-                          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-go/15">
-                            <Check size={15} strokeWidth={3} className="text-go" />
-                            <span className="sr-only">Built into Railly</span>
-                          </span>
+                          {row.railly === "yes" ? (
+                            <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-go/15">
+                              <Check size={15} strokeWidth={3} className="text-go" />
+                              <span className="sr-only">Built into Railly</span>
+                            </span>
+                          ) : (
+                            <span className="text-[14px] font-medium text-fog">
+                              {row.railly === "varies" ? "Partly" : "Not yet"}
+                            </span>
+                          )}
                         </td>
                         <td className="border-t border-black/[0.06] px-4 py-5 text-center align-middle">
                           {verdictLabel(row.cells[idx])}
