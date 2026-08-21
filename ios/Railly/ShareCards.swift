@@ -105,7 +105,11 @@ private struct TripShareCard: View {
 
             Spacer(minLength: 0)
 
-            Text("Tracked live with Railly")
+            // This card leaves the app, so it has to carry its own provenance:
+            // "live" is only true when a real feed backed this run.
+            Text(LiveFeed.shared.hasFeedData(train.number, live.runDate)
+                 ? "Tracked live with Railly"
+                 : "Estimated from the timetable · Railly")
                 .font(.system(size: 12, weight: .semibold)).kerning(0.3)
                 .foregroundStyle(Color.subGray)
         }

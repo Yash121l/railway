@@ -89,6 +89,17 @@ final class LiveFeed: @unchecked Sendable {
         snapshot(number, runDate) != nil
     }
 
+    /// True when a real snapshot has landed for this run, at any age.
+    ///
+    /// Gate on this, not on a delay value, before making any claim that carries
+    /// money or legal consequence (TDR refund eligibility being the one that
+    /// matters). Without a live-data key no snapshot ever lands, so every delay
+    /// figure is a timetable projection, and telling someone the railway owes
+    /// them a refund on the strength of a projection is not a claim to make.
+    func hasFeedData(_ number: String, _ runDate: String) -> Bool {
+        entry(number, runDate) != nil
+    }
+
     /// How old the stored snapshot is, at any age; nil when there's none.
     /// Drives the "as of N min ago" staleness label.
     func snapshotAge(_ number: String, _ runDate: String) -> TimeInterval? {

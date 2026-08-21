@@ -496,12 +496,22 @@ struct ChartingStatus {
     let allotment: String
 }
 
-/// The charting picture for a held booking, or nil when the ticket was never
-/// on a waitlist — a plain CNF ticket has no charting drama to broadcast.
+/// The charting picture for a demo booking, or nil on a normal launch.
+///
+/// The WL/RAC fate below is a seeded guess, so it may only answer demo and
+/// snapshot launches. A real imported PNR always reaches here already
+/// confirmed: `addToTrips` builds a Booking only from a `.cnf` passenger with
+/// an assigned coach and berth, and everything else becomes a PNR-only trip.
+/// Broadcasting an invented "WL 12" to the lock screen would therefore
+/// contradict the ticket the user is holding.
+///
+/// ConfirmTkt does report a real `chartPrepared`, but nothing persists it into
+/// TripRecord yet, so there is no real charting picture to show in its place.
 func chartingStatus(_ train: Train, runDate: String, booking: Booking,
                     now: Date) -> ChartingStatus? {
+    guard isSnapshotLaunch() else { return nil }
     let rng = SeededRng("charting:\(booking.pnr)")
-    // ~55% of held bookings went in on a waitlist or RAC; the rest were CNF
+    // ~55% of demo bookings went in on a waitlist or RAC; the rest were CNF
     // from the start and skip the charting phase entirely.
     guard rng.next() < 0.55 else { return nil }
 

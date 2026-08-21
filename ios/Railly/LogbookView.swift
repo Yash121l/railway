@@ -12,10 +12,15 @@ struct LogStats {
     var trainNumbers = Set<String>()
     var lostMinutes = 0
     var delayedTrips = 0
+    /// How many of `delayedTrips` had their delay read from a real feed rather
+    /// than projected from the timetable. Drives the provenance line on the
+    /// delay card, so the Passport never states a figure it cannot source.
+    var measuredDelayedTrips = 0
     var worstDelayMin = 0
     var worstTrain = ""
     var worstRoute = ""
-    /// trips that arrived 3h+ late — eligible for a full TDR refund
+    /// Trips that arrived 3h+ late *on real feed data*, so a full TDR refund is
+    /// genuinely owed. Projected delays never count here: see `compute`.
     var refundEligible = 0
 
     var aroundTheWorld: Double { distanceKm / 40_075 }
@@ -35,16 +40,22 @@ struct LogStats {
                 s.overnight += 1
             }
             let arrDelay = trip.live.stopTimings[trip.live.stopTimings.count - 1].delayMin
+            let measured = LiveFeed.shared.hasFeedData(train.number, trip.live.runDate)
             if arrDelay > 0 {
                 s.lostMinutes += arrDelay
                 s.delayedTrips += 1
+                if measured { s.measuredDelayedTrips += 1 }
                 if arrDelay > s.worstDelayMin {
                     s.worstDelayMin = arrDelay
                     s.worstTrain = train.number
                     s.worstRoute = "\(train.origin.code)-\(train.destination.code)"
                 }
             }
-            if arrDelay >= 180 { s.refundEligible += 1 }
+            // Only count a refund when the arrival delay came from a real feed.
+            // Without a live-data key every delay here is a timetable
+            // projection, and a projection is not grounds to tell someone the
+            // railway owes them money.
+            if arrDelay >= 180, measured { s.refundEligible += 1 }
         }
         return s
     }
@@ -245,6 +256,16 @@ private struct DelayCard: View {
                 .font(.system(size: 13))
                 .foregroundStyle(Color(hex: 0xC98F85))
                 .padding(.top, 2)
+
+            if stats.delayedTrips > 0 {
+                Text(stats.measuredDelayedTrips == 0
+                    ? "Estimated from the timetable, not a live feed"
+                    : "\(stats.measuredDelayedTrips) of \(stats.delayedTrips) measured from a live feed, the rest estimated from the timetable")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(Color(hex: 0xC98F85).opacity(0.8))
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.top, 7)
+            }
 
             if stats.refundEligible > 0 {
                 HStack(spacing: 6) {

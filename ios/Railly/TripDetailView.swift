@@ -480,7 +480,8 @@ struct TripDetailView: View {
                                              originName: train.origin.name)
                         }
                         if live.phase == .arrived,
-                           (live.stopTimings.last?.delayMin ?? 0) >= 180 {
+                           (live.stopTimings.last?.delayMin ?? 0) >= 180,
+                           LiveFeed.shared.hasFeedData(train.number, live.runDate) {
                             tdrRefundBanner(live)
                         }
                         if live.phase == .enroute {
