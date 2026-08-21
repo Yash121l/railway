@@ -1,12 +1,7 @@
-routed 115/123 pairs, 25 short skipped
+routed 120/123 pairs, 25 short skipped
 
 MISS BAU>KNW        widened still 83km vs feed 69km — corridor mismatch  (straight-line fallback)
 MISS DAA>DBA        widened still 44km vs feed 31km — corridor mismatch  (straight-line fallback)
-MISS GTL>AD         widened still 52km vs feed 34km — corridor mismatch  (straight-line fallback)
-MISS JIND>NRW       no path; widened: route 173km >> chord 34km  (straight-line fallback)
-MISS KSV>FDB        no path; widened: no path  (straight-line fallback)
-MISS MTJ>KSV        no path; widened: no path  (straight-line fallback)
-MISS ND>ADI         no path; widened: no path  (straight-line fallback)
 MISS ROK>JIND       widened still 81km vs feed 57km — corridor mismatch  (straight-line fallback)
 OK   AD>MALM        41km 8pts
 OK   ADI>GNC        29km 9pts
@@ -57,10 +52,12 @@ OK   ET>NGP         297km 97pts
 OK   FDB>NZM        21km 5pts
 OK   FDK>FZR        33km 5pts
 OK   GAYA>DDU       205km 25pts
+OK   GTL>AD         52km 7pts
 OK   GWL>AGC        118km 23pts
 OK   HD>BPF         42km 7pts
 OK   HUP>PKD        38km 13pts
 OK   HWH>ASN        201km 33pts
+OK   JIND>NRW       35km 5pts
 OK   JJKR>CTC       72km 19pts
 OK   JL>BSL         25km 6pts
 OK   KGP>BLS        116km 21pts
@@ -73,6 +70,7 @@ OK   KOTA>NDLS      466km 55pts (widened)
 OK   KPG>MMR        42km 17pts
 OK   KQR>DDU        281km 41pts
 OK   KSRA>NK        65km 27pts
+OK   KSV>FDB        72km 5pts
 OK   KUR>BAM        147km 35pts
 OK   KWV>DD         108km 31pts
 OK   KYN>KSRA       67km 29pts
@@ -85,8 +83,10 @@ OK   MMCT>BVI       31km 7pts
 OK   MMR>CSN        67km 18pts
 OK   MMR>JL         160km 33pts
 OK   MRA>GWL        39km 8pts
+OK   MTJ>KSV        41km 5pts
 OK   MTJ>NZM        134km 12pts
 OK   NAD>KOTA       225km 48pts
+OK   ND>ADI         46km 5pts
 OK   NDLS>AGC       196km 24pts
 OK   NDLS>LHU       175km 30pts (widened)
 OK   NDLS>MTJ       141km 15pts

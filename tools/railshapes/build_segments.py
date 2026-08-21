@@ -242,6 +242,45 @@ def nearest(nodes, pt):
     return best
 
 
+def snap_pair(g, nodes, pa, pb, max_km=6.0):
+    """Snap both halts into the same connected component.
+
+    Snapping each halt to its globally nearest node lands it on whatever rail
+    fragment happens to be closest, which around a station is very often a yard
+    siding or a stub that is not connected to the through line inside this bbox.
+    Dijkstra then reports "no path" across a corridor that is actually
+    continuous — that was four of the eight remaining misses, all of them short
+    legs on busy main lines.
+
+    So pick the component that holds a usable node for *both* ends and
+    minimises the combined snap distance. Ranking uses squared degrees (cheap)
+    and only the winner per component pays for a haversine.
+    """
+    best = None
+    for comp in nx.connected_components(g):
+        da = db = 1e18
+        na = nb = None
+        for n in comp:
+            c = nodes[n]
+            d1 = (c[0] - pa[0]) ** 2 + (c[1] - pa[1]) ** 2
+            if d1 < da:
+                da, na = d1, n
+            d2 = (c[0] - pb[0]) ** 2 + (c[1] - pb[1]) ** 2
+            if d2 < db:
+                db, nb = d2, n
+        if na is None or nb is None:
+            continue
+        ka = haversine_km(nodes[na], pa)
+        kb = haversine_km(nodes[nb], pb)
+        if ka > max_km or kb > max_km:
+            continue
+        if best is None or ka + kb < best[0]:
+            best = (ka + kb, na, nb)
+    if best is None:
+        return None, None
+    return best[1], best[2]
+
+
 def _route_once(pa, pb, pad):
     bbox = (min(pa[0], pb[0]) - pad, min(pa[1], pb[1]) - pad,
             max(pa[0], pb[0]) + pad, max(pa[1], pb[1]) + pad)
@@ -249,10 +288,9 @@ def _route_once(pa, pb, pad):
     g, nodes = build_graph(data)
     if not nodes:
         return None, "no rail in bbox", 0.0
-    sa, sb = nearest(nodes, pa), nearest(nodes, pb)
-    # snapped nodes must land near the actual halt, else it's the wrong line
-    if haversine_km(nodes[sa], pa) > 6 or haversine_km(nodes[sb], pb) > 6:
-        return None, "halt too far from rail", 0.0
+    sa, sb = snap_pair(g, nodes, pa, pb)
+    if sa is None:
+        return None, "no component within 6km of both halts", 0.0
     try:
         path = nx.shortest_path(g, sa, sb, weight="w")
     except (nx.NetworkXNoPath, nx.NodeNotFound):
@@ -287,22 +325,41 @@ def route_pair(a, b, expected_km=None):
     fallback rather than draw a confident line through the wrong cities."""
     (_, pa), (_, pb) = a, b
 
+    chord_km = haversine_km(pa, pb)
+    # A leg cannot be shorter than the straight line between its endpoints, so a
+    # feed figure below the chord is wrong and must not be used as the
+    # reference. GTL>AD claims 34km across a 50km chord; gating on it rejected
+    # every candidate route no matter how good.
+    # Real track distance can never be less than the straight line between the
+    # endpoints, so clamp the reference up to the chord rather than trusting a
+    # feed figure below it. GTL>AD claims 34km across a 50km chord; gating on
+    # that rejected every candidate route however good. Clamping keeps a
+    # corridor guard for the leg instead of dropping it entirely.
+    feed_km = expected_km
+    if feed_km is not None and feed_km < chord_km:
+        print(f"    feed says {feed_km:.0f}km for a {chord_km:.0f}km chord; "
+              f"clamping the reference up to the chord", flush=True)
+        feed_km = chord_km
+
     def acceptable(length):
-        return expected_km is None or length <= expected_km * LEG_TOLERANCE
+        return feed_km is None or length <= feed_km * LEG_TOLERANCE
 
     poly, note, length = _route_once(pa, pb, BBOX_PAD_DEG)
     if poly is not None and acceptable(length):
         return poly, note
     tight_note = note if poly is None else (
-        f"{length:.0f}km vs feed {expected_km:.0f}km — wrong corridor")
+        f"{length:.0f}km vs feed {feed_km:.0f}km — wrong corridor"
+        if feed_km is not None else f"{length:.0f}km, no usable feed distance")
 
     poly2, note2, length2 = _route_once(pa, pb, 0.55)
     if poly2 is not None and acceptable(length2):
         return poly2, note2 + " (widened)"
 
     if poly2 is not None:
+        if feed_km is None:
+            return None, f"widened still {length2:.0f}km vs chord {chord_km:.0f}km"
         return None, (f"widened still {length2:.0f}km vs feed "
-                      f"{expected_km:.0f}km — corridor mismatch")
+                      f"{feed_km:.0f}km — corridor mismatch")
     return None, f"{tight_note}; widened: {note2}"
 
 
