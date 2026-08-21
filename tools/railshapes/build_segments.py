@@ -136,6 +136,45 @@ def real_leg_km(trains):
     return out
 
 
+_LIVE_MIRRORS = None
+
+
+def live_mirrors():
+    """MIRRORS that actually resolve and answer, probed once per run.
+
+    Two of the three public mirrors do not resolve from some networks. The
+    retry loop used to spend a third of its attempts on them and sleep 3-15s
+    after each, so a leg could burn a minute failing on DNS before it ever
+    reached a working mirror. That is what produced most of the
+    "nodename nor servname provided" misses in coverage.txt.
+    """
+    global _LIVE_MIRRORS
+    if _LIVE_MIRRORS is not None:
+        return _LIVE_MIRRORS
+    probe = urllib.parse.urlencode({"data": "[out:json];node(1);out;"}).encode()
+    live = []
+    for m in MIRRORS:
+        try:
+            req = urllib.request.Request(
+                m, data=probe, headers={"User-Agent": "railly-railshapes/1.0"})
+            with urllib.request.urlopen(req, timeout=15):
+                pass
+            live.append(m)
+        except Exception as ex:                       # noqa: BLE001
+            print(f"mirror unavailable, skipping: {m} ({ex})", flush=True)
+    if not live:
+        live = list(MIRRORS)
+        print("no mirror answered the probe; trying all anyway", flush=True)
+    print(f"using {len(live)}/{len(MIRRORS)} overpass mirror(s)", flush=True)
+    _LIVE_MIRRORS = live
+    return live
+
+
+def _is_unresolvable(ex):
+    """DNS/name-resolution failure: another 3s of waiting will not help."""
+    return "nodename nor servname" in str(ex) or "Name or service not known" in str(ex)
+
+
 def overpass(bbox):
     """Fetch rail ways (geometry inline) for a bbox; cache raw JSON on disk.
 
@@ -151,22 +190,28 @@ def overpass(bbox):
              f'way["railway"="rail"]({s},{w},{n},{e});'
              f"out geom;")
     body = urllib.parse.urlencode({"data": query}).encode()
+    mirrors = live_mirrors()
     last = None
     for attempt in range(6):
-        mirror = MIRRORS[attempt % len(MIRRORS)]
+        mirror = mirrors[attempt % len(mirrors)]
         try:
             req = urllib.request.Request(
                 mirror, data=body,
                 headers={"User-Agent": "railly-railshapes/1.0"})
-            with urllib.request.urlopen(req, timeout=120) as r:
+            with urllib.request.urlopen(req, timeout=180) as r:
                 data = json.loads(r.read().decode("utf-8", "ignore"))
             os.makedirs(CACHE, exist_ok=True)
             with open(path, "w") as f:
                 json.dump(data, f)
+            # Overpass is a donated public service; pace new fetches.
+            time.sleep(2)
             return data
         except Exception as ex:                       # noqa: BLE001
             last = ex
-            time.sleep(3 * (attempt + 1))
+            if _is_unresolvable(ex):
+                continue
+            # 504s and rate limits do benefit from waiting.
+            time.sleep(5 * (attempt + 1))
     raise RuntimeError(f"overpass failed for {bbox}: {last}")
 
 
@@ -262,10 +307,23 @@ def route_pair(a, b, expected_km=None):
 
 
 def write_segments(segments):
-    """Publish the library to both bundles that read it."""
+    """Publish the library to both bundles that read it, atomically.
+
+    This is called after every routed leg, so it runs ~100 times a run. Writing
+    in place truncated both shipped files first, which meant a Ctrl-C or a crash
+    mid-dump left the app and the web map with unparseable JSON — and even a
+    clean interrupt left them holding a partial library that silently degrades
+    routes to straight chords. Write a sibling temp file and rename, which is
+    atomic on the same filesystem, so readers only ever see a complete library.
+    """
+    blob = json.dumps(segments, separators=(",", ":"))
     for path in (OUT, OUT_WEB):
-        with open(path, "w") as f:
-            json.dump(segments, f, separators=(",", ":"))
+        tmp = f"{path}.tmp"
+        with open(tmp, "w") as f:
+            f.write(blob)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp, path)
 
 
 def main():
@@ -319,7 +377,7 @@ def main():
     with open(REPORT, "w") as f:
         f.write(f"routed {ok}/{len(todo)} pairs, {skipped_short} short skipped\n\n"
                 + "\n".join(sorted(report)))
-    print(f"\nWROTE {OUT}: {ok}/{len(todo)} segments. Report → {REPORT}", flush=True)
+    print(f"\nWROTE {ok}/{len(todo)} segments to:\n  {OUT}\n  {OUT_WEB}\nReport → {REPORT}", flush=True)
 
 
 if __name__ == "__main__":

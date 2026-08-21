@@ -51,3 +51,6 @@ next-env.d.ts
 # Xcode per-user UI state
 *.xcuserstate
 xcuserdata/
+
+# atomic-write temp files from the rail-shape pipeline
+*.json.tmp

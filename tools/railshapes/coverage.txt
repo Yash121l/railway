@@ -1,32 +1,24 @@
-routed 104/123 pairs, 25 short skipped
+routed 115/123 pairs, 25 short skipped
 
-MISS AGC>DHO        error: overpass failed for (26.516286, 77.72604799999999, 27.337689, 78.17008700000001): <urlopen error [Errno 8] nodename nor servname provided, or not known>  (straight-line fallback)
-MISS ANG>BAP        error: overpass failed for (18.894286, 74.480919, 19.79981, 74.90174): HTTP Error 504: Gateway Timeout  (straight-line fallback)
-MISS BAP>KPG        error: overpass failed for (19.43981, 74.323505, 20.083676, 74.84091900000001): <urlopen error [Errno 8] nodename nor servname provided, or not known>  (straight-line fallback)
 MISS BAU>KNW        widened still 83km vs feed 69km — corridor mismatch  (straight-line fallback)
-MISS BPL>BHS        error: overpass failed for (23.08764, 77.233584, 23.702458, 77.99482400000001): <urlopen error [Errno 8] nodename nor servname provided, or not known>  (straight-line fallback)
-MISS BRC>ANND       error: overpass failed for (22.130667, 72.78632599999999, 22.741671, 73.36032900000001): <urlopen error [Errno 8] nodename nor servname provided, or not known>  (straight-line fallback)
 MISS DAA>DBA        widened still 44km vs feed 31km — corridor mismatch  (straight-line fallback)
-MISS GTL>AD         error: overpass failed for (14.995406000000001, 77.09467799999999, 15.797478, 77.54683800000001): <urlopen error [Errno 8] nodename nor servname provided, or not known>  (straight-line fallback)
+MISS GTL>AD         widened still 52km vs feed 34km — corridor mismatch  (straight-line fallback)
 MISS JIND>NRW       no path; widened: route 173km >> chord 34km  (straight-line fallback)
-MISS KSRA>NK        error: overpass failed for (19.467923, 73.29275399999999, 20.127451999999998, 74.02221200000001): <urlopen error [Errno 8] nodename nor servname provided, or not known>  (straight-line fallback)
 MISS KSV>FDB        no path; widened: no path  (straight-line fallback)
-MISS LAR>BAB        error: overpass failed for (24.508249, 78.21558399999999, 25.419921, 78.63408000000001): HTTP Error 504: Gateway Timeout  (straight-line fallback)
-MISS MRA>GWL        error: overpass failed for (26.035917, 77.823439, 26.681148, 78.361956): <urlopen error [Errno 8] nodename nor servname provided, or not known>  (straight-line fallback)
 MISS MTJ>KSV        no path; widened: no path  (straight-line fallback)
 MISS ND>ADI         no path; widened: no path  (straight-line fallback)
-MISS RKM>MTJ        error: overpass failed for (27.014015, 77.49357599999999, 27.659415, 78.176889): HTTP Error 504: Gateway Timeout  (straight-line fallback)
-MISS ROK>JIND       error: overpass failed for (28.340365, 75.73989900000001, 29.879154, 77.129921): HTTP Error 504: Gateway Timeout  (straight-line fallback)
-MISS WADI>KLBG      error: overpass failed for (16.872075, 76.644195, 17.495017999999998, 77.17142600000001): <urlopen error [Errno 8] nodename nor servname provided, or not known>  (straight-line fallback)
-MISS YG>WADI        error: overpass failed for (16.56388, 76.811426, 17.232075, 77.31013100000001): HTTP Error 504: Gateway Timeout  (straight-line fallback)
+MISS ROK>JIND       widened still 81km vs feed 57km — corridor mismatch  (straight-line fallback)
 OK   AD>MALM        41km 8pts
 OK   ADI>GNC        29km 9pts
+OK   AGC>DHO        53km 7pts
 OK   AGC>MTJ        55km 10pts
+OK   ANG>BAP        67km 23pts
 OK   ANND>ADI       64km 4pts
 OK   ASN>DHN        58km 13pts
 OK   ATP>GTL        69km 25pts
 OK   BAB>VGLJ       25km 6pts
 OK   BAM>VSKP       278km 54pts
+OK   BAP>KPG        45km 18pts
 OK   BAQ>BINA       46km 7pts
 OK   BGZ>ROK        40km 3pts
 OK   BH>BRC         70km 4pts
@@ -36,8 +28,10 @@ OK   BINA>VGLJ      154km 26pts
 OK   BL>NVS         39km 4pts
 OK   BLS>BHC        62km 8pts
 OK   BPF>ET         33km 3pts
+OK   BPL>BHS        53km 16pts
 OK   BPL>BINA       139km 26pts
 OK   BPQ>WL         245km 51pts
+OK   BRC>ANND       38km 6pts
 OK   BRC>RTM        261km 80pts
 OK   BSL>BAU        54km 10pts
 OK   BVI>ST         234km 21pts
@@ -78,9 +72,11 @@ OK   KNW>KKN        76km 25pts
 OK   KOTA>NDLS      466km 55pts (widened)
 OK   KPG>MMR        42km 17pts
 OK   KQR>DDU        281km 41pts
+OK   KSRA>NK        65km 27pts
 OK   KUR>BAM        147km 35pts
 OK   KWV>DD         108km 31pts
 OK   KYN>KSRA       67km 29pts
+OK   LAR>BAB        65km 11pts
 OK   LAR>BINA       63km 12pts
 OK   LHU>SDLP       50km 9pts
 OK   MALM>RC        29km 7pts
@@ -88,6 +84,7 @@ OK   MAUR>BTI       34km 4pts
 OK   MMCT>BVI       31km 7pts
 OK   MMR>CSN        67km 18pts
 OK   MMR>JL         160km 33pts
+OK   MRA>GWL        39km 8pts
 OK   MTJ>NZM        134km 12pts
 OK   NAD>KOTA       225km 48pts
 OK   NDLS>AGC       196km 24pts
@@ -103,6 +100,7 @@ OK   PRYJ>BSB       124km 11pts
 OK   PRYJ>CNB       194km 14pts
 OK   RC>YG          69km 11pts
 OK   RJY>TDD        42km 13pts
+OK   RKM>MTJ        50km 8pts
 OK   RTGH>SDGH      64km 14pts
 OK   RTM>NAD        41km 9pts
 OK   SDAH>DHN       266km 44pts
@@ -121,5 +119,7 @@ OK   VGLJ>DAA       25km 8pts
 OK   VGLJ>GWL       98km 21pts
 OK   VGLJ>LAR       90km 16pts
 OK   VSKP>RJY       200km 36pts
+OK   WADI>KLBG      38km 14pts
 OK   WL>KMT         108km 13pts
+OK   YG>WADI        40km 8pts
 OK   YNK>HUP        84km 21pts
