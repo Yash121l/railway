@@ -25,7 +25,11 @@ import urllib.request
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.abspath(os.path.join(HERE, "..", ".."))
 SEED = os.path.join(REPO, "ios/Railly/Resources/SeedTrains.json")
+# The iOS app and the web map read the same segment library from their own
+# bundles, so every run writes both — a stale copy silently degrades one of
+# them back to straight-line chords.
 OUT = os.path.join(REPO, "ios/Railly/Resources/RailSegments.json")
+OUT_WEB = os.path.join(REPO, "src/data/rail-segments.json")
 CACHE = os.path.join(HERE, "cache")
 REPORT = os.path.join(HERE, "coverage.txt")
 
@@ -35,6 +39,9 @@ MIN_KM = 20.0
 BBOX_PAD_DEG = 0.18           # ~20 km padding around the halt-pair bbox
 RDP_EPS_DEG = 0.0025          # ~275 m simplification tolerance
 COORD_DP = 5                  # ~1 m coordinate precision in the bundle
+
+# erail rejects unfamiliar clients; mirror the app's own header.
+UA = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15"
 
 MIRRORS = [
     "https://overpass.kumi.systems/api/interpreter",
@@ -80,6 +87,53 @@ def _perp(p, a, b):
     num = abs((b[0] - a[0]) * (a[1] - p[1]) - (a[0] - p[0]) * (b[1] - a[1]))
     den = math.hypot(b[0] - a[0], b[1] - a[1])
     return num / den
+
+
+def real_leg_km(trains):
+    """Real track km for every consecutive halt pair, from erail's own route.
+
+    TRAINROUTE field 6 is the halt's cumulative track distance from the origin,
+    so the difference between two halts is the true length of that leg. Without
+    it the only sanity check available is "not wildly longer than the straight
+    chord", which is far too loose: the Kota->New Delhi leg routed 544 km via
+    *Jaipur* instead of 464 km via Bharatpur/Mathura — a different corridor
+    entirely, and only 1.35x the chord, so it passed unnoticed."""
+    path = os.path.join(CACHE, "legkm.json")
+    if os.path.exists(path):
+        with open(path) as f:
+            return json.load(f)
+
+    out = {}
+    for t in trains:
+        url = ("https://erail.in/data.aspx?Action=TRAINROUTE&Password=2012"
+               f"&Data1={t['trainId']}&Data2=0&Cache=true")
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": UA})
+            with urllib.request.urlopen(req, timeout=25) as r:
+                text = r.read().decode("utf-8", "ignore")
+        except Exception as ex:                        # noqa: BLE001
+            print(f"  legkm: {t['number']} unavailable ({ex})", flush=True)
+            continue
+        km = {}
+        for row in text.split("^"):
+            f = row.split("~")
+            if len(f) <= 17:
+                continue
+            try:
+                km[f[1].strip()] = float(f[6])
+            except ValueError:
+                pass
+        for s1, s2 in zip(t["stops"], t["stops"][1:]):
+            c1, c2 = s1["code"], s2["code"]
+            if c1 in km and c2 in km:
+                out[f"{c1}>{c2}"] = abs(km[c2] - km[c1])
+        time.sleep(0.4)
+
+    os.makedirs(CACHE, exist_ok=True)
+    with open(path, "w") as f:
+        json.dump(out, f)
+    print(f"real leg distances for {len(out)} pairs (cached)", flush=True)
+    return out
 
 
 def overpass(bbox):
@@ -149,39 +203,69 @@ def _route_once(pa, pb, pad):
     data = overpass(bbox)
     g, nodes = build_graph(data)
     if not nodes:
-        return None, "no rail in bbox"
+        return None, "no rail in bbox", 0.0
     sa, sb = nearest(nodes, pa), nearest(nodes, pb)
     # snapped nodes must land near the actual halt, else it's the wrong line
     if haversine_km(nodes[sa], pa) > 6 or haversine_km(nodes[sb], pb) > 6:
-        return None, "halt too far from rail"
+        return None, "halt too far from rail", 0.0
     try:
         path = nx.shortest_path(g, sa, sb, weight="w")
     except (nx.NetworkXNoPath, nx.NodeNotFound):
-        return None, "no path"
+        return None, "no path", 0.0
     coords = [nodes[n] for n in path]
     # sanity: routed length shouldn't wildly exceed the straight chord
     chord = haversine_km(pa, pb)
     length = sum(haversine_km(coords[i - 1], coords[i]) for i in range(1, len(coords)))
     if chord > 1 and length > chord * 2.2:
-        return None, f"route {length:.0f}km >> chord {chord:.0f}km"
+        return None, f"route {length:.0f}km >> chord {chord:.0f}km", 0.0
     simplified = rdp([(round(c[0], COORD_DP), round(c[1], COORD_DP)) for c in coords], RDP_EPS_DEG)
-    return [[c[0], c[1]] for c in simplified], f"{length:.0f}km {len(simplified)}pts"
+    return [[c[0], c[1]] for c in simplified], f"{length:.0f}km {len(simplified)}pts", length
 
 
-def route_pair(a, b):
+# A routed leg may exceed the feed's own distance a little (OSM traces every
+# curve the timetable rounds off), but not by much. Beyond this it isn't the
+# same corridor.
+LEG_TOLERANCE = 1.12
+
+
+def route_pair(a, b, expected_km=None):
     """a,b are (code,(lat,lng)); return simplified [[lat,lng],...] or None.
 
-    Tries a tight bbox first (fast, cache-friendly); if the track detours
-    outside it — clipping the graph so no path is found — widens and retries,
-    since long coastal legs bow well off the straight chord."""
+    Tries a tight bbox first (fast, cache-friendly), then widens. A tight bbox
+    fails in two ways: it can clip the graph so *no* path is found, or — worse,
+    because it looks like success — it can leave only a path down a completely
+    different corridor. Kota->New Delhi did exactly that: Bharatpur (77.49E)
+    and Mathura (77.67E) fell outside the 77.40E edge, so the only connected
+    route was the western one via Jaipur, 544 km against the timetable's 464.
+    So a leg is accepted only if its length matches what the feed says that leg
+    actually is; otherwise we widen, and failing that we take the straight-line
+    fallback rather than draw a confident line through the wrong cities."""
     (_, pa), (_, pb) = a, b
-    poly, note = _route_once(pa, pb, BBOX_PAD_DEG)
-    if poly is not None:
+
+    def acceptable(length):
+        return expected_km is None or length <= expected_km * LEG_TOLERANCE
+
+    poly, note, length = _route_once(pa, pb, BBOX_PAD_DEG)
+    if poly is not None and acceptable(length):
         return poly, note
-    poly2, note2 = _route_once(pa, pb, 0.55)
-    if poly2 is not None:
+    tight_note = note if poly is None else (
+        f"{length:.0f}km vs feed {expected_km:.0f}km — wrong corridor")
+
+    poly2, note2, length2 = _route_once(pa, pb, 0.55)
+    if poly2 is not None and acceptable(length2):
         return poly2, note2 + " (widened)"
-    return None, note2
+
+    if poly2 is not None:
+        return None, (f"widened still {length2:.0f}km vs feed "
+                      f"{expected_km:.0f}km — corridor mismatch")
+    return None, f"{tight_note}; widened: {note2}"
+
+
+def write_segments(segments):
+    """Publish the library to both bundles that read it."""
+    for path in (OUT, OUT_WEB):
+        with open(path, "w") as f:
+            json.dump(segments, f, separators=(",", ":"))
 
 
 def main():
@@ -211,24 +295,26 @@ def main():
     print(f"{len(pairs)} unique pairs · routing {len(todo)} "
           f"(skipped {skipped_short} short <{MIN_KM}km) · --all={route_all}", flush=True)
 
+    # Ground truth for "is this actually the leg the train runs?"
+    expected = real_leg_km(trains)
+
     segments, report = {}, []
     for i, (key, a, b) in enumerate(todo, 1):
+        exp = expected.get(key) or expected.get(f"{b[0]}>{a[0]}")
         try:
-            poly, note = route_pair(a, b)
+            poly, note = route_pair(a, b, exp)
         except Exception as ex:                        # noqa: BLE001
             poly, note = None, f"error: {ex}"
         if poly:
             segments[key] = poly
             report.append(f"OK   {key:14} {note}")
             # flush incrementally so the app can be rebuilt with partial results
-            with open(OUT, "w") as f:
-                json.dump(segments, f, separators=(",", ":"))
+            write_segments(segments)
         else:
             report.append(f"MISS {key:14} {note}  (straight-line fallback)")
         print(f"[{i}/{len(todo)}] {key}: {'ok' if poly else 'miss'} — {note}", flush=True)
 
-    with open(OUT, "w") as f:
-        json.dump(segments, f, separators=(",", ":"))
+    write_segments(segments)
     ok = len(segments)
     with open(REPORT, "w") as f:
         f.write(f"routed {ok}/{len(todo)} pairs, {skipped_short} short skipped\n\n"
