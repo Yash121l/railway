@@ -32,7 +32,7 @@ struct NetworkMapView: View {
             span: MKCoordinateSpan(latitudeDelta: 24, longitudeDelta: 22)
         ))) {
             ForEach(arcTrains) { train in
-                MapPolyline(coordinates: railDrawCoords(train.stops))
+                MapPolyline(coordinates: RailRouteCache.route(for: train).coords)
                 .stroke(
                     Color.arcBlue.opacity(onRailsOnly && !isEnroute(train) ? 0.10 : 0.85),
                     style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round)

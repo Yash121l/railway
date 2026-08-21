@@ -43,10 +43,6 @@ private let delayReasons = [
     "Signal failure ahead cleared after inspection",
 ]
 
-private func clamp(_ v: Double, _ lo: Double, _ hi: Double) -> Double {
-    min(hi, max(lo, v))
-}
-
 /// Arrival delay (minutes) at every stop for a given run. Real running data
 /// from the live feed wins when present (see LiveFeed); otherwise a
 /// deterministic seeded walk stands in so the app works offline.
@@ -379,8 +375,12 @@ func getLiveStatusForRun(_ train: Train, runDate: String, now: Date) -> LiveStat
 func statusForRun(_ train: Train, _ run: Run, _ now: Date) -> LiveStatus {
     let stops = train.stops
     let n = stops.count
-    let cum = cumulativeKm(stops)
-    let totalKm = cum[n - 1]
+    // The drawn line and the tracked position are the same geometry — see
+    // RailRoute. `stopKm` is real track distance (the feed's own, or measured
+    // along the spliced polyline), not the straight chords this used to use.
+    let route = RailRouteCache.route(for: train)
+    let cum = route.stopKm
+    let totalKm = route.totalKm
 
     let phase: RunPhase
     if now < run.departs.addingTimeInterval(-boardingMin * 60) {
@@ -431,11 +431,13 @@ func statusForRun(_ train: Train, _ run: Run, _ now: Date) -> LiveStatus {
         }
     }
 
-    let a = stops[prevStopIdx]
-    let b = stops[nextStopIdx]
-    let posLat = atStation || prevStopIdx == nextStopIdx ? a.lat : lerp(a.lat, b.lat, frac)
-    let posLng = atStation || prevStopIdx == nextStopIdx ? a.lng : lerp(a.lng, b.lng, frac)
-    let bearing = prevStopIdx == nextStopIdx ? 0 : bearingDeg(a.lat, a.lng, b.lat, b.lng)
+    // Standing at a halt pins the marker to the halt itself; running places it
+    // on the drawn track, heading where that track actually points.
+    let onTrack = route.point(leg: prevStopIdx,
+                              frac: atStation || prevStopIdx == nextStopIdx ? 0 : frac)
+    let posLat = onTrack.coordinate.latitude
+    let posLng = onTrack.coordinate.longitude
+    let bearing = prevStopIdx == nextStopIdx ? 0 : onTrack.bearing
 
     let progressKm: Double
     switch phase {
@@ -464,6 +466,7 @@ func statusForRun(_ train: Train, _ run: Run, _ now: Date) -> LiveStatus {
         speedKmh: speedKmh,
         prevStopIdx: prevStopIdx,
         nextStopIdx: nextStopIdx,
+        legFraction: atStation || prevStopIdx == nextStopIdx ? 0 : frac,
         atStation: atStation,
         stopTimings: timings,
         progressKm: progressKm,

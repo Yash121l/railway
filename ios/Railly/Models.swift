@@ -37,6 +37,22 @@ struct Stop: Codable {
     /// minutes after origin departure the train departs (== arrMin at destination)
     let depMin: Int
     let platform: String?
+    /// Real cumulative *track* kilometres from the origin, as published by the
+    /// feed. Nil when the feed omits it (or for older cached trains), in which
+    /// case `railRoute` measures the drawn polyline instead — see RailGeometry.
+    let distanceKm: Double?
+
+    init(name: String, code: String, lat: Double, lng: Double,
+         arrMin: Int, depMin: Int, platform: String?, distanceKm: Double? = nil) {
+        self.name = name
+        self.code = code
+        self.lat = lat
+        self.lng = lng
+        self.arrMin = arrMin
+        self.depMin = depMin
+        self.platform = platform
+        self.distanceKm = distanceKm
+    }
 }
 
 /// A real Indian Railways service. Everything here comes from the live
@@ -106,6 +122,9 @@ struct LiveStatus {
     let speedKmh: Int
     let prevStopIdx: Int
     let nextStopIdx: Int
+    /// 0...1 of the way along the leg out of `prevStopIdx`, measured along the
+    /// drawn track — lets the map split the line at exactly the marker.
+    let legFraction: Double
     let atStation: Bool
     let stopTimings: [StopTiming]
     let progressKm: Double

@@ -25,6 +25,8 @@ func bearingDeg(_ aLat: Double, _ aLng: Double, _ bLat: Double, _ bLng: Double) 
 
 func lerp(_ a: Double, _ b: Double, _ t: Double) -> Double { a + (b - a) * t }
 
+func clamp(_ v: Double, _ lo: Double, _ hi: Double) -> Double { min(hi, max(lo, v)) }
+
 /// Cumulative km along the stop polyline; [0] = 0, [n-1] = total.
 func cumulativeKm(_ stops: [Stop]) -> [Double] {
     var out = [0.0]

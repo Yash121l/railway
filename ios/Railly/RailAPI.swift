@@ -82,6 +82,8 @@ final class RailAPI {
     // TRAINROUTE row fields (TR_* in erail's JS)
     private enum TR {
         static let code = 1, name = 2
+        /// cumulative track km from the origin
+        static let distance = 6
         static let platform = 8
         static let lat = 14, lng = 15, arrMin = 16, depMin = 17
     }
@@ -178,13 +180,16 @@ final class RailAPI {
                   let arrMin = Int(f[TR.arrMin])
             else { continue }
             let pf = f[TR.platform].trimmingCharacters(in: .whitespaces)
+            // The guard above already proves this index exists (depMin is 17).
+            let km = Double(f[TR.distance].trimmingCharacters(in: .whitespaces))
             stops.append(Stop(
                 name: f[TR.name].trimmingCharacters(in: .whitespaces),
                 code: f[TR.code].trimmingCharacters(in: .whitespaces),
                 lat: lat, lng: lng,
                 arrMin: arrMin,
                 depMin: Int(f[TR.depMin]) ?? arrMin,
-                platform: (pf.isEmpty || pf == "0") ? nil : pf
+                platform: (pf.isEmpty || pf == "0") ? nil : pf,
+                distanceKm: (km.map { $0 >= 0 } ?? false) ? km : nil
             ))
         }
         guard stops.count >= 2 else { throw RailError.badResponse }
@@ -225,7 +230,11 @@ final class RailAPI {
             category: info.category,
             departureTime: info.departure,
             days: info.days,
-            distanceKm: info.distanceKm > 0 ? info.distanceKm : (cumulativeKm(stops).last ?? 0),
+            // Real track km where the feed gives it, straight-chord only as a
+            // last resort — see RailRoute, which every derived number rides on.
+            distanceKm: info.distanceKm > 0
+                ? info.distanceKm
+                : (stops.last?.distanceKm ?? cumulativeKm(stops).last ?? 0),
             stops: stops,
             trainId: info.trainId,
             typeName: info.typeName,

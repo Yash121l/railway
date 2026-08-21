@@ -16,7 +16,7 @@ private struct TripMapView: View {
     let live: LiveStatus
 
     var body: some View {
-        let stops = live.train.stops
+        let route = RailRouteCache.route(for: live.train)
         let pos = CLLocationCoordinate2D(latitude: live.positionLat, longitude: live.positionLng)
         let lats = live.train.stops.map(\.lat)
         let lngs = live.train.stops.map(\.lng)
@@ -33,13 +33,17 @@ private struct TripMapView: View {
 
         Map(initialPosition: .region(region)) {
             if live.phase == .enroute {
-                MapPolyline(coordinates: railDrawCoords(Array(stops[0...live.prevStopIdx])) + [pos])
+                // Both halves come off the same polyline the marker sits on, so
+                // the line meets the train exactly instead of jumping to it.
+                MapPolyline(coordinates: route.travelled(toLeg: live.prevStopIdx,
+                                                         frac: live.legFraction))
                     .stroke(Color.arcBlue, style: StrokeStyle(lineWidth: 3, lineCap: .round))
-                MapPolyline(coordinates: [pos] + railDrawCoords(Array(stops[live.nextStopIdx...])))
+                MapPolyline(coordinates: route.remaining(fromLeg: live.prevStopIdx,
+                                                         frac: live.legFraction))
                     .stroke(Color.arcBlue.opacity(0.45),
                             style: StrokeStyle(lineWidth: 2.5, lineCap: .round, dash: [1, 6]))
             } else {
-                MapPolyline(coordinates: railDrawCoords(stops))
+                MapPolyline(coordinates: route.coords)
                     .stroke(
                         Color.arcBlue.opacity(live.phase == .arrived ? 1 : 0.5),
                         style: StrokeStyle(lineWidth: 3, lineCap: .round)
@@ -508,7 +512,7 @@ struct TripDetailView: View {
                         if !trip.isHeld {
                             addToTrips(trip)
                         }
-                        Text("Schedule, platforms & route: Indian Railways via erail.in.\nLive position and delays are estimated from the timetable.")
+                        Text(sourceNote(for: train))
                             .font(.system(size: 11))
                             .foregroundStyle(Color.subGray)
                             .frame(maxWidth: .infinity)
@@ -1143,4 +1147,24 @@ private struct AlternateTrainsSheet: View {
         .frame(maxWidth: .infinity)
         .padding(.top, 60)
     }
+}
+
+/// Where every number on this screen comes from, said plainly.
+///
+/// The drawn line is real OpenStreetMap track shape only where we've bundled a
+/// segment for that leg; everything else is a straight line between halts. The
+/// train rides whichever of the two it is, so the note says which.
+func sourceNote(for train: Train) -> String {
+    let route = RailRouteCache.route(for: train)
+    let path: String
+    if route.approximatedLegs == 0 {
+        path = "Route drawn on OpenStreetMap track."
+    } else if route.tracedLegs == 0 {
+        path = "Halts are exact; the line between them is drawn straight."
+    } else {
+        path = "\(route.tracedLegs) of \(route.tracedLegs + route.approximatedLegs) legs "
+            + "drawn on OpenStreetMap track, the rest straight between halts."
+    }
+    return "Schedule, platforms & halts: Indian Railways via erail.in.\n"
+        + path + "\nLive position and delays are estimated from the timetable."
 }
