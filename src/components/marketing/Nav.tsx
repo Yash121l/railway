@@ -45,6 +45,7 @@ export function AnnouncementBar() {
 }
 
 const LINKS = [
+  ["RailLens", "/raillens"],
   ["Pricing", "/pricing"],
   ["Compare", "/compare"],
   ["Stations", "/stations"],
@@ -82,7 +83,9 @@ export function Nav() {
       <nav
         className={`mx-auto flex w-full items-center justify-between transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           pill
-            ? "max-w-[708px] rounded-full bg-white/95 py-2 pl-3 pr-2 shadow-[0_18px_44px_rgba(0,0,0,0.14),0_2px_8px_rgba(0,0,0,0.06)] ring-1 ring-black/[0.06] backdrop-blur-xl"
+            // 890px, not flighty's 708 — seven links plus the CTA need the
+            // room, and a wrapped pill reads as broken rather than collapsed.
+            ? "max-w-[890px] rounded-full bg-white/95 py-2 pl-3 pr-2 shadow-[0_18px_44px_rgba(0,0,0,0.14),0_2px_8px_rgba(0,0,0,0.06)] ring-1 ring-black/[0.06] backdrop-blur-xl"
             : "max-w-6xl px-6 py-5"
         }`}
       >
@@ -111,7 +114,7 @@ export function Nav() {
             <Link
               key={label}
               href={href}
-              className="rounded-full px-3.5 py-2 text-[15px] font-medium text-black/80 transition-colors hover:bg-black/[0.05] hover:text-black"
+              className="whitespace-nowrap rounded-full px-3.5 py-2 text-[15px] font-medium text-black/80 transition-colors hover:bg-black/[0.05] hover:text-black"
             >
               {label}
             </Link>
@@ -121,7 +124,7 @@ export function Nav() {
         <div className="flex items-center gap-2">
           <a
             href={APP_CTA_HREF}
-            className={`hidden items-center gap-1.5 text-[15px] font-semibold transition-all duration-500 sm:inline-flex ${
+            className={`hidden items-center gap-1.5 whitespace-nowrap text-[15px] font-semibold transition-all duration-500 sm:inline-flex ${
               pill
                 ? "rounded-full bg-black px-4 py-2 text-white hover:bg-black/85"
                 : "text-black hover:opacity-70"

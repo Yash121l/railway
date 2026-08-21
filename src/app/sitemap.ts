@@ -8,6 +8,7 @@ const UPDATED = "2026-07-12";
 /** Per-route last-modified dates — bump the one line that actually changed. */
 const LAST_MODIFIED: Record<string, string> = {
   "": "2026-07-12",
+  "/raillens": "2026-08-20",
   "/pricing": "2026-07-12",
   "/compare": "2026-07-12",
   "/stations": "2026-07-12",
@@ -31,6 +32,7 @@ const GUIDES = [
 export default function sitemap(): MetadataRoute.Sitemap {
   const routes: [string, MetadataRoute.Sitemap[number]["priority"]][] = [
     ["", 1],
+    ["/raillens", 0.9],
     ["/pricing", 0.8],
     ["/compare", 0.8],
     ["/stations", 0.8],
