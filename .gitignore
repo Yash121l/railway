@@ -39,3 +39,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# maplibre worker, copied from node_modules by tools/sync-maplibre-worker.mjs
+/public/maplibre/
+
+# Overpass extracts for the rail-shape pipeline — regenerable, and ~96 MB of it.
+# The pipeline's outputs (rail-segments.json, RailSegments.json, coverage.txt)
+# are committed; these raw bbox dumps are not.
+/tools/railshapes/cache/
+
+# Xcode per-user UI state
+*.xcuserstate
+xcuserdata/
