@@ -5,11 +5,12 @@ import { APP_CTA_HREF } from "@/lib/cta";
 import { PageHero, PageShell } from "@/components/marketing/PageShell";
 import { Reveal } from "@/components/marketing/Reveal";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { PnrLookup } from "@/components/rail/PnrLookup";
 
 const PNR_TITLE =
-  "PNR Status Explained — CNF, RAC, GNWL & TQWL Decoded | Railly";
+  "PNR Status Check — Live Indian Railways PNR Enquiry | Railly";
 const PNR_DESCRIPTION =
-  "What your Indian Railways PNR status really means — CNF, RAC, WL, GNWL, PQWL, RLWL and TQWL decoded, when the reservation chart prepares, and why a PNR stops resolving. Railly watches your PNR and alerts you the moment it moves.";
+  "Check your Indian Railways PNR status live: per-passenger current status, coach and berth, chart status and coach position. Plus every code decoded — CNF, RAC, WL, GNWL, PQWL, RLWL and TQWL — and when the chart actually prepares.";
 
 export const metadata: Metadata = {
   title: { absolute: PNR_TITLE },
@@ -137,9 +138,13 @@ export default function PnrStatusPage() {
       <JsonLd data={FAQ_JSON_LD} />
       <PageHero
         eyebrow="PNR STATUS"
-        title="Your PNR status, in plain English."
-        dek="CNF, RAC, GNWL, TQWL — every Indian Railways status decoded, when the chart actually prepares, and why a PNR sometimes stops resolving. Then let Railly watch it, so a change reaches you before you think to check."
+        title="Check your PNR. Then understand it."
+        dek="Enter a 10-digit PNR for the live per-passenger status, coach and berth, and where your coach sits on the train. Below that, every status code decoded and when the chart actually prepares."
       />
+
+      <section className="mx-auto max-w-4xl px-4 pt-8">
+        <PnrLookup />
+      </section>
 
       {/* Decoder table */}
       <section className="mx-auto max-w-4xl px-4 pt-10">
