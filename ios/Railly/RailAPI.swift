@@ -101,14 +101,48 @@ final class RailAPI {
         return URLSession(configuration: cfg)
     }()
 
+    /// GET with the same retry policy the web client uses: three attempts,
+    /// exponential backoff with jitter.
+    ///
+    /// This used to discard the URLResponse entirely. A 403 or 429 from erail
+    /// then reached the `^`/`~` splitter as an HTML block page, every row
+    /// failed the field-count guard, and the user was told "No schedule found
+    /// for train 12951" — blaming the train for erail blocking us.
     private func fetch(_ urlString: String) async throws -> String {
         guard let url = URL(string: urlString) else { throw RailError.badResponse }
-        let (data, _) = try await session.data(from: url)
-        guard let text = String(data: data, encoding: .utf8) else {
-            throw RailError.badResponse
+        var lastError: Error = RailError.badResponse
+        for attempt in 0..<3 {
+            if Task.isCancelled { throw CancellationError() }
+            if attempt > 0 {
+                let base = 0.25 * pow(2, Double(attempt - 1))
+                let wait = base + Double.random(in: 0...base)
+                try? await Task.sleep(nanoseconds: UInt64(wait * 1_000_000_000))
+            }
+            do {
+                let (data, response) = try await session.data(from: url)
+                if let http = response as? HTTPURLResponse,
+                   !(200...299).contains(http.statusCode) {
+                    lastError = http.statusCode == 429 || http.statusCode == 503
+                        ? RailError.throttled
+                        : RailError.badResponse
+                    continue
+                }
+                guard let text = String(data: data, encoding: .utf8) else {
+                    lastError = RailError.badResponse
+                    continue
+                }
+                if text.contains("Please try again") {
+                    lastError = RailError.throttled
+                    continue
+                }
+                return text
+            } catch is CancellationError {
+                throw CancellationError()
+            } catch {
+                lastError = error
+            }
         }
-        if text.contains("Please try again") { throw RailError.throttled }
-        return text
+        throw lastError
     }
 
     private func parseSummary(_ fields: [String]) -> TrainSummary? {
@@ -223,6 +257,10 @@ final class RailAPI {
     /// Lookup + route composed into the app's Train model.
     func fullTrain(_ number: String) async throws -> Train {
         let info = try await trainInfo(number)
+        // Every run time is derived from the departure clock, so an
+        // unparseable one poisons the whole train rather than a single field.
+        // Reject it here, before TrainBank writes it to disk.
+        guard parseHMOrNil(info.departure) != nil else { throw RailError.sourceDrifted }
         let stops = try await route(trainId: info.trainId)
         return Train(
             number: info.number,

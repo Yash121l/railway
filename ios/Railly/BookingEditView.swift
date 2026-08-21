@@ -93,8 +93,7 @@ struct BookingEditView: View {
             id,
             coach: c.isEmpty ? nil : c,
             seat: s.isEmpty ? nil : s,
-            pnr: pnrDigits.isEmpty ? nil : groupPNR(pnrDigits),
-            berths: nil
+            pnr: pnrDigits.isEmpty ? nil : groupPNR(pnrDigits)
         )
         dismiss()
     }

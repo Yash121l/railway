@@ -79,10 +79,15 @@ final class TrainBank: ObservableObject {
             .contentModificationDate
     }
 
-    /// True once a fetched copy has aged past the TTL. Seed-only trains (no
-    /// disk file) are treated as fresh — curated seeds never hit the wire on
-    /// their own.
+    /// True once a fetched copy has aged past the TTL, or whenever we hold no
+    /// copy at all. Seed-only trains (bundled, no disk file) count as fresh:
+    /// curated seeds never hit the wire on their own.
     func isStale(_ number: String) -> Bool {
+        // Holding nothing for this number means any trip on it renders as
+        // nothing, so it is stale by definition. This is what makes "Clear
+        // Route Cache" survivable: it empties `trains`, and cacheDate() then
+        // returns nil, which used to read as "fresh" and skip the refetch.
+        guard trains[number] != nil else { return true }
         guard let at = cacheDate(number) else { return false }
         return Date().timeIntervalSince(at) > cacheTTL
     }

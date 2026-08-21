@@ -57,6 +57,14 @@ final class Analytics {
     /// "what we've measured" disclosure screen.
     func recent() -> [Entry] { entries.reversed() }
 
+    /// Drop every recorded event and the file behind it. Part of "delete all my
+    /// data": this buffer holds train numbers and timestamps, so leaving it in
+    /// place after a delete would contradict the privacy copy.
+    func reset() {
+        entries = []
+        try? FileManager.default.removeItem(at: fileURL)
+    }
+
     private func persist() {
         let enc = JSONEncoder()
         enc.dateEncodingStrategy = .iso8601

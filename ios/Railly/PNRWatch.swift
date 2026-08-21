@@ -19,8 +19,22 @@ enum PNRWatch {
     /// Must match the entry in Info.plist's BGTaskSchedulerPermittedIdentifiers.
     static let taskId = "com.yash121l.railly.pnrwatch"
 
+    static let recentKey = "railly.recentPNRs"
     private static let stateKey = "railly.pnrwatch.state"
     private static let lastRunKey = "railly.pnrwatch.lastRun"
+
+    /// Forget every watched PNR and its stored status snapshots.
+    ///
+    /// The settings screen promises "Railly keeps no copy anywhere else", but
+    /// deleting trips only ever rewrote trips.json, so real 10-digit PNRs and
+    /// their per-passenger statuses survived and the background task kept
+    /// querying them.
+    static func forgetAll() {
+        let d = UserDefaults.standard
+        d.removeObject(forKey: recentKey)
+        d.removeObject(forKey: stateKey)
+        d.removeObject(forKey: lastRunKey)
+    }
     /// Foreground re-checks are throttled; a background wake always runs.
     private static let foregroundThrottle: TimeInterval = 10 * 60
 
@@ -193,7 +207,7 @@ enum PNRWatch {
             guard digits.count == 10, seen.insert(digits).inserted else { continue }
             out.append(WatchedPNR(pnr: digits, number: rec.number, runDate: rec.runDate))
         }
-        let csv = UserDefaults.standard.string(forKey: "railly.recentPNRs") ?? ""
+        let csv = UserDefaults.standard.string(forKey: recentKey) ?? ""
         for entry in csv.split(separator: ",") {
             let parts = entry.split(separator: ":").map(String.init)
             guard let first = parts.first else { continue }

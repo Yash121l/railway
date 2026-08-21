@@ -247,7 +247,8 @@ struct LockScreenCard: View {
             HStack(alignment: .center) {
                 VStack(alignment: .leading, spacing: 2) {
                     (Text("Departs in ").foregroundStyle(.white)
-                        + Text(timerInterval: Date()...state.departDate, countsDown: true)
+                        + Text(timerInterval: Date()...max(state.departDate, Date().addingTimeInterval(60)),
+                               countsDown: true)
                             .foregroundStyle(tint))
                         .font(.system(size: 16, weight: .bold))
                         .monospacedDigit()
@@ -409,7 +410,8 @@ struct TrainLiveActivity: Widget {
                     } else if context.state.phase == .preDeparture {
                         HStack {
                             (Text("Departs in ").foregroundStyle(.white)
-                                + Text(timerInterval: Date()...context.state.departDate, countsDown: true)
+                                + Text(timerInterval: Date()...max(context.state.departDate, Date().addingTimeInterval(60)),
+                                       countsDown: true)
                                     .foregroundStyle(tint))
                                 .font(.system(size: 14, weight: .bold))
                                 .monospacedDigit()

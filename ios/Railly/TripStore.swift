@@ -96,13 +96,15 @@ final class TripStore: ObservableObject {
     /// Update the ticket on a held trip (from the booking editor). Empty fields
     /// clear that detail, so an unassigned coach/berth reverts to a PNR-only
     /// card.
-    func setBooking(_ id: String, coach: String?, seat: String?, pnr: String?,
-                    berths: [String]?) {
+    /// Edit the ticket fields the editor can actually express. `berths` is left
+    /// alone on purpose: it is only ever populated by a multi-passenger PNR
+    /// import, and the editor has no field for it, so writing nil here silently
+    /// destroyed the whole party's berths when someone fixed a typo in a coach.
+    func setBooking(_ id: String, coach: String?, seat: String?, pnr: String?) {
         guard let idx = records.firstIndex(where: { $0.id == id }) else { return }
         records[idx].coach = coach
         records[idx].seat = seat
         records[idx].pnr = pnr
-        records[idx].berths = berths
         save()
     }
 
@@ -111,9 +113,17 @@ final class TripStore: ObservableObject {
         save()
     }
 
+    /// Delete every trip, and everything else derived from them.
+    ///
+    /// This backs "Delete All Trips", whose own footer says Railly keeps no
+    /// copy anywhere else. That was only true of trips.json, so watched PNRs,
+    /// their status snapshots and the analytics buffer all had to be cleared
+    /// here too.
     func removeAll() {
         records = []
         save()
+        PNRWatch.forgetAll()
+        Analytics.shared.reset()
     }
 
     private func save() {

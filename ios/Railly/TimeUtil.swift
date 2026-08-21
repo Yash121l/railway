@@ -49,10 +49,25 @@ func addDaysISO(_ dateISO: String, _ delta: Int) -> String {
     return String(format: "%04d-%02d-%02d", c.year!, c.month!, c.day!)
 }
 
-func parseHM(_ hm: String) -> Int {
-    let parts = hm.split(separator: ":").compactMap { Int($0) }
-    return parts[0] * 60 + parts[1]
+/// Minutes past midnight for an "HH:mm" string, or nil when the feed hands us
+/// something that isn't one. erail returns "--" and empty strings on some rows.
+func parseHMOrNil(_ hm: String) -> Int? {
+    let parts = hm.split(separator: ":")
+    guard parts.count >= 2,
+          let h = Int(parts[0]), let m = Int(parts[1]),
+          (0...23).contains(h), (0...59).contains(m)
+    else { return nil }
+    return h * 60 + m
 }
+
+/// Minutes past midnight, falling back to midnight on an unparseable time.
+///
+/// This used to index parts[0] and parts[1] unguarded, so one malformed
+/// departure from the feed crashed that train on every render, permanently,
+/// because the bad record had already been written to the disk cache.
+/// `RailAPI.assertSchemaSane` now rejects such a train before it is cached, so
+/// the fallback here should be unreachable in practice.
+func parseHM(_ hm: String) -> Int { parseHMOrNil(hm) ?? 0 }
 
 private let timeFormatter24: DateFormatter = {
     let f = DateFormatter()
