@@ -229,6 +229,13 @@ private func eventsForRun(_ train: Train, _ run: Run, _ now: Date) -> [TrainEven
     let pfNewRaw = rng.int(1, 8)
     let reasons = stops.map { _ in rng.pick(delayReasons) }
 
+    // A timetable can say a train is running late. It cannot say *why*, and it
+    // certainly cannot say a platform moved. Those two are invented facts about
+    // the world rather than estimates derived from the schedule, so they only
+    // appear in demo launches. Every RNG draw above still happens
+    // unconditionally, so gating the output here cannot shift past events.
+    let demo = isSnapshotLaunch()
+
     var events: [TrainEvent] = []
 
     events.append(TrainEvent(
@@ -238,7 +245,7 @@ private func eventsForRun(_ train: Train, _ run: Run, _ now: Date) -> [TrainEven
         detail: run.delays[0] > 0 ? "\(run.delays[0])m late" : "On time"
     ))
 
-    if pfStop > 0 {
+    if demo, pfStop > 0 {
         let announceAt = run.timings[pfStop].arrEst.addingTimeInterval(-40 * 60)
         if announceAt >= run.departs {
             let oldPf = stops[pfStop].platform ?? String(pfOldFallback)
@@ -263,7 +270,7 @@ private func eventsForRun(_ train: Train, _ run: Run, _ now: Date) -> [TrainEven
             events.append(TrainEvent(
                 time: mid,
                 kind: .delay,
-                text: reasons[i],
+                text: demo ? reasons[i] : "Lost time between halts",
                 detail: "+\(jump)m near \(stops[i].name)"
             ))
         } else if jump <= -8 {

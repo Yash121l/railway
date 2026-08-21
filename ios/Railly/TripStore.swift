@@ -133,21 +133,61 @@ final class TripStore: ObservableObject {
         }
     }
 
+    /// One exported trip. `name`/`from`/`to` are conveniences for a human
+    /// reading the file; only `train` and `runDate` identify the trip on the way
+    /// back in, so an export taken while a schedule was uncached still imports.
+    struct ExportTrip: Codable {
+        let train: String
+        let name: String
+        let from: String
+        let to: String
+        let runDate: String
+        let addedAt: Date
+        var coach: String?
+        var seat: String?
+        var pnr: String?
+        var berths: [String]?
+    }
+
+    struct ExportFile: Codable {
+        let exportedAt: String
+        let app: String
+        let trips: [ExportTrip]
+    }
+
+    /// Merge an exported file back in, keeping whichever copy of a trip was
+    /// added first. Returns how many trips were new.
+    ///
+    /// Export used to drop coach, seat, pnr and berths, and there was no import
+    /// path at all, so it could not round-trip and was not a backup despite the
+    /// privacy page calling it "your full trip history in a portable format".
+    @discardableResult
+    func importJSON(_ data: Data) throws -> Int {
+        let dec = JSONDecoder()
+        dec.dateDecodingStrategy = .iso8601
+        let file = try dec.decode(ExportFile.self, from: data)
+        var byID = Dictionary(uniqueKeysWithValues: records.map { ($0.id, $0) })
+        var added = 0
+        for t in file.trips {
+            let digits = t.train.filter(\.isNumber)
+            guard digits.count >= 4, !t.runDate.isEmpty else { continue }
+            let id = tripId(digits, t.runDate)
+            if let existing = byID[id] {
+                guard t.addedAt < existing.addedAt else { continue }
+            } else {
+                added += 1
+            }
+            byID[id] = TripRecord(number: digits, runDate: t.runDate,
+                                  addedAt: t.addedAt, coach: t.coach,
+                                  seat: t.seat, pnr: t.pnr, berths: t.berths)
+        }
+        records = byID.values.sorted { $0.addedAt < $1.addedAt }
+        save()
+        return added
+    }
+
     /// JSON export for Settings → Account Data.
     func exportJSON(bank: TrainBank) -> String {
-        struct Export: Codable {
-            let exportedAt: String
-            let app: String
-            let trips: [ExportTrip]
-        }
-        struct ExportTrip: Codable {
-            let train: String
-            let name: String
-            let from: String
-            let to: String
-            let runDate: String
-            let addedAt: Date
-        }
         let trips = records.map { rec -> ExportTrip in
             let t = bank.cached(rec.number)
             return ExportTrip(
@@ -156,10 +196,14 @@ final class TripStore: ObservableObject {
                 from: t?.origin.code ?? "",
                 to: t?.destination.code ?? "",
                 runDate: rec.runDate,
-                addedAt: rec.addedAt
+                addedAt: rec.addedAt,
+                coach: rec.coach,
+                seat: rec.seat,
+                pnr: rec.pnr,
+                berths: rec.berths
             )
         }
-        let export = Export(
+        let export = ExportFile(
             exportedAt: istDateISO(Date()),
             app: "Railly",
             trips: trips

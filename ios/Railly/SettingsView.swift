@@ -318,6 +318,8 @@ struct AccountDataView: View {
     @EnvironmentObject private var bank: TrainBank
     @State private var confirmDeleteAll = false
     @State private var confirmClearCache = false
+    @State private var showImporter = false
+    @State private var importResult: String?
 
     var body: some View {
         List {
@@ -331,8 +333,18 @@ struct AccountDataView: View {
                             .foregroundStyle(Color.arcBlue)
                     }
                 }
+                Button {
+                    showImporter = true
+                } label: {
+                    HStack {
+                        Image(systemName: "square.and.arrow.down")
+                            .foregroundStyle(Color.arcBlue)
+                        Text("Import Trips")
+                            .foregroundStyle(Color.arcBlue)
+                    }
+                }
             } header: {
-                Text("Export")
+                Text("Export & import")
             } footer: {
                 Text("\(store.records.count) trips stored on this device · \(bank.diskCacheCount) fetched schedules (\(ByteCountFormatter.string(fromByteCount: Int64(bank.diskCacheBytes), countStyle: .file))) in the route cache.")
             }
@@ -351,11 +363,33 @@ struct AccountDataView: View {
             } header: {
                 Text("Danger Zone")
             } footer: {
-                Text("Deleting trips removes them from this device permanently. Railly keeps no copy anywhere else.")
+                Text("Deleting trips removes them, your watched PNRs and their saved statuses from this device permanently. Railly keeps no copy anywhere else.")
             }
         }
         .navigationTitle("Account Data")
         .navigationBarTitleDisplayMode(.inline)
+        .fileImporter(isPresented: $showImporter,
+                      allowedContentTypes: [.json]) { result in
+            switch result {
+            case .success(let url):
+                do {
+                    let data = try Data(contentsOf: url)
+                    let added = try store.importJSON(data)
+                    importResult = added == 0
+                        ? "Nothing new to add — those trips are already here."
+                        : "Added \(added) trip\(added == 1 ? "" : "s")."
+                } catch {
+                    importResult = "That file isn't a Railly export."
+                }
+            case .failure:
+                importResult = "Couldn't read that file."
+            }
+        }
+        .alert("Import", isPresented: .constant(importResult != nil)) {
+            Button("OK") { importResult = nil }
+        } message: {
+            Text(importResult ?? "")
+        }
         .confirmationDialog("Delete all \(store.records.count) trips? This can't be undone.",
                             isPresented: $confirmDeleteAll, titleVisibility: .visible) {
             Button("Delete All Trips", role: .destructive) { store.removeAll() }
