@@ -12,7 +12,6 @@ import {
   PassportTeaser,
 } from "@/components/marketing/MidSections";
 import { AnnouncementBar, Nav } from "@/components/marketing/Nav";
-import { Pricing } from "@/components/marketing/Pricing";
 import { ScrollScrub } from "@/components/marketing/ScrollStrip";
 import { Testimonials } from "@/components/marketing/Testimonials";
 import { WhatIsRailly } from "@/components/marketing/WhatIsRailly";
@@ -189,7 +188,6 @@ export default function Home() {
         <MoreGrid />
         <Testimonials />
         <WhatIsRailly />
-        <Pricing />
         <ClosingCta />
       </main>
       <Footer />

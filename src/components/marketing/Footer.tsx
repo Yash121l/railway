@@ -31,12 +31,10 @@ const COLUMNS: [string, [string, string][]][] = [
     "Product",
     [
       ["Features", "/#features"],
-      ["Pricing", "/pricing"],
       ["Trains", "/trains"],
       ["Passport", "/passport"],
       ["Stations", "/stations"],
       ["Network Intelligence", "/#network"],
-      ["Gift Cards", "/gift-cards"],
     ],
   ],
   [

@@ -61,15 +61,13 @@ struct SettingsView: View {
                                 .foregroundStyle(Color.inkline)
                                 .textInputAutocapitalization(.words)
                                 .autocorrectionDisabled()
-                            Text("\(store.records.count) trip\(store.records.count == 1 ? "" : "s") · Railly Free")
+                            Text("\(store.records.count) trip\(store.records.count == 1 ? "" : "s")")
                                 .font(.system(size: 13))
                                 .foregroundStyle(Color.subGray)
                         }
                     }
                     .padding(.vertical, 4)
 
-                    proBanner
-                        .listRowInsets(EdgeInsets())
                 }
 
                 Section("Alerts") {
@@ -170,27 +168,6 @@ struct SettingsView: View {
         }
     }
 
-    private var proBanner: some View {
-        VStack(alignment: .leading, spacing: 5) {
-            HStack(spacing: 7) {
-                Image(systemName: "crown.fill")
-                    .font(.system(size: 14))
-                Text("Railly Pro")
-                    .font(.system(size: 17, weight: .bold))
-            }
-            Text("The fastest delay predictions on Indian rails, platform-change pushes, and the full passport.")
-                .font(.system(size: 13))
-                .opacity(0.85)
-        }
-        .foregroundStyle(.white)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(16)
-        .background(
-            LinearGradient(colors: [Color(hex: 0x4C1D95), Color(hex: 0x7C3AED)],
-                           startPoint: .topLeading, endPoint: .bottomTrailing)
-        )
-    }
-
     private func settingsRow(_ icon: String, _ tint: Color, _ title: String) -> some View {
         HStack(spacing: 12) {
             Image(systemName: icon)
@@ -228,8 +205,6 @@ struct SettingsView: View {
 
 struct AlertsSettingsView: View {
     @AppStorage("railly.alert.basics") private var basics = true
-    @AppStorage("railly.alert.beyond") private var beyond = false
-    @AppStorage("railly.alert.platform") private var platform = true
     @AppStorage("railly.alert.arrival") private var arrival = true
 
     var body: some View {
@@ -242,15 +217,10 @@ struct AlertsSettingsView: View {
                     .listRowInsets(EdgeInsets())
             }
             Section {
-                alertToggle($basics, "Basics",
-                            "Departure and arrival delays, cancellations, and rescheduling. The critical stuff.")
-                alertToggle($beyond, "Above & Beyond",
-                            "Inbound rake status, delay forecasts before the railway announces them, connection risk.",
-                            pro: true)
-                alertToggle($platform, "Platform Changes",
-                            "The moment your platform moves — before the station announcement.")
-                alertToggle($arrival, "Arrival Information",
-                            "Final delay, coach position, and exit-side reminders as you roll in.")
+                alertToggle($basics, "Waitlist movement",
+                            "When a watched PNR changes status — waitlist to RAC, RAC to confirmed.")
+                alertToggle($arrival, "Chart prepared",
+                            "When the reservation chart prepares and your berth is final.")
             } footer: {
                 Text("Notifications require iOS notification permission. Railly asks the first time an alert would fire.")
             }
@@ -260,23 +230,12 @@ struct AlertsSettingsView: View {
     }
 
     private func alertToggle(_ binding: Binding<Bool>, _ title: String,
-                             _ desc: String, pro: Bool = false) -> some View {
+                             _ desc: String) -> some View {
         Toggle(isOn: binding) {
             VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 6) {
-                    Text(title)
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(Color.inkline)
-                    if pro {
-                        Text("PRO")
-                            .font(.system(size: 9, weight: .heavy))
-                            .kerning(0.5)
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 5)
-                            .padding(.vertical, 2)
-                            .background(Color.proPurple, in: Capsule())
-                    }
-                }
+                Text(title)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(Color.inkline)
                 Text(desc)
                     .font(.system(size: 13))
                     .foregroundStyle(Color.subGray)
@@ -511,8 +470,10 @@ struct FAQView: View {
          "Indian Railways renumbers and renames services constantly. Railly always shows what the live feed says today — which sometimes disagrees with what's printed on your ticket."),
         ("Do I need an account?",
          "No. Trips live on your device. Export them anytime from Settings → Account Data."),
-        ("What does Railly Pro add?",
-         "In this demo, nothing — the crown is decorative. In the product fiction it's faster alerts and the full passport."),
+        ("What does Railly cost?",
+         "Nothing. There is no paid tier, no subscription and no in-app purchase. If that ever changes we'll say so before it does, not by gating something that already worked."),
+        ("Which notifications does Railly actually send?",
+         "Two, both about a PNR you're watching: when its status moves, and when the chart prepares. Delay, cancellation and platform-change alerts are not built yet — the app won't offer you a switch for something it can't do."),
     ]
 
     var body: some View {

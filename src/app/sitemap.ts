@@ -9,7 +9,6 @@ const UPDATED = "2026-07-12";
 const LAST_MODIFIED: Record<string, string> = {
   "": "2026-07-12",
   "/raillens": "2026-08-20",
-  "/pricing": "2026-07-12",
   "/compare": "2026-07-12",
   "/stations": "2026-07-12",
   "/trains": "2026-07-12",
@@ -17,7 +16,6 @@ const LAST_MODIFIED: Record<string, string> = {
   "/passport": "2026-07-12",
   "/help": "2026-07-11",
   "/about": "2026-07-12",
-  "/gift-cards": "2026-07-11",
   "/press": "2026-07-12",
   "/privacy": "2026-07-11",
   "/terms": "2026-07-11",
@@ -33,7 +31,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const routes: [string, MetadataRoute.Sitemap[number]["priority"]][] = [
     ["", 1],
     ["/raillens", 0.9],
-    ["/pricing", 0.8],
     ["/compare", 0.8],
     ["/stations", 0.8],
     ["/pnr-status", 0.7],
@@ -41,7 +38,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ["/help", 0.7],
     ["/trains", 0.6],
     ["/about", 0.6],
-    ["/gift-cards", 0.5],
     ["/press", 0.4],
     ["/privacy", 0.3],
     ["/terms", 0.3],

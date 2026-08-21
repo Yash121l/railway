@@ -25,7 +25,7 @@ const MANIFESTO: [typeof Radio, string, string][] = [
   [
     Ban,
     "No ads, and no dark patterns.",
-    "Nothing sits between you and your train. We killed the pay-by-the-week pricing that pressures you at exactly the wrong moment. Free stays genuinely free, the subscription is honest, and cancelling is one tap in the App Store.",
+    "Nothing sits between you and your train. No ads, no upsells, no subscription, and no account to make. Railly is free, and if that ever changes we will say so plainly rather than quietly gating what already worked.",
   ],
   [
     Compass,

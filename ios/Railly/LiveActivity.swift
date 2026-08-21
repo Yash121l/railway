@@ -34,7 +34,12 @@ final class LiveActivityManager: ObservableObject {
         }
     }
 
-    var isAvailable: Bool { ActivityAuthorizationInfo().areActivitiesEnabled }
+    /// Both the system permission and the user's own switch. The switch used to
+    /// be written and never read, so turning Live Activities off did nothing.
+    var isAvailable: Bool {
+        ActivityAuthorizationInfo().areActivitiesEnabled
+            && UserDefaults.standard.object(forKey: "railly.liveActivities") as? Bool ?? true
+    }
 
     func isLive(_ number: String) -> Bool { activeNumber == number }
 

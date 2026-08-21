@@ -67,19 +67,17 @@ export default function TermsPage() {
           chosen to share with you. Don&apos;t look up PNRs that aren&apos;t
           yours to look up, don&apos;t scrape or resell data obtained through
           the app, and don&apos;t use Railly in ways that break the law or
-          overload the services we rely on. We may suspend accounts that do.
+          overload the services we rely on.
         </p>
 
         <h2 className="pt-10 text-[22px] font-bold text-black">
-          Subscriptions &amp; gift cards
+          Payment
         </h2>
         <p className="mt-3 text-[15px] leading-relaxed text-carbon">
-          Paid plans are billed through the app store you purchased from, and
-          renew until you cancel — which you can do anytime in your app store
-          subscription settings, effective at the end of the current period.
-          Refunds follow the app store&apos;s policies. Gift cards redeem for
-          the stated period of paid service, aren&apos;t redeemable for cash
-          except where the law requires it, and can&apos;t be re-sold.
+          Railly is free. There is no subscription, no paid tier, no gift card,
+          and no in-app purchase, so there is nothing to bill or cancel. If a
+          paid plan is ever introduced, these terms will be updated before it
+          goes on sale.
         </p>
 
         <h2 className="pt-10 text-[22px] font-bold text-black">Liability</h2>

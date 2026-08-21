@@ -53,7 +53,7 @@ const FACTS: [string, string][] = [
   ["Category", "Train tracking · travel companion"],
   ["Platform", "iPhone (iOS), native SwiftUI"],
   ["Coverage", "4,022 trains · 9,109 station codes · works offline"],
-  ["Business model", "Free with an optional Pro subscription · no ads"],
+  ["Business model", "Free · no ads, no subscription, no in-app purchases"],
   ["Independence", "Not affiliated with Indian Railways or IRCTC"],
   ["Status", "On the waitlist ahead of App Store launch"],
 ];

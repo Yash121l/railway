@@ -5,7 +5,7 @@ import {
   BellRing,
   History,
   Lock,
-  Users,
+  TrainFront,
 } from "lucide-react";
 import { APP_CTA_HREF, APP_CTA_LABEL } from "@/lib/cta";
 import { CountUp } from "./CountUp";
@@ -390,12 +390,12 @@ export function NetworkIntel() {
 }
 
 const MORE = [
-  [Users, "Family sharing.", "Share Railly with up to 5 family members at a time."],
-  [Lock, "Privacy first.", "Your journeys and history are viewable only by you."],
-  [History, "24hr Where's-My-Rake.", "Track your inbound rake a full day before departure."],
-  [Armchair, "Coach position.", "Know where B4 halts — stand where your door arrives."],
+  [Lock, "Privacy first.", "No account. Your trips stay on your device, and Railly keeps no copy."],
+  [Armchair, "Coach position.", "Read from the reservation chart, so you know where B4 actually halts."],
+  [History, "Where's My Rake.", "Finds the paired service whose rake becomes your train, and projects a late start from it."],
   [AlarmClock, "Tatkal alarm.", "A nudge at 9:55 the day before, so you never miss the window."],
-  [BellRing, "Fastest alerts.", "Push arrives before the announcer clears her throat."],
+  [TrainFront, "Real track, not chords.", "Routes follow OpenStreetMap rail where we have it, and say so where we don't."],
+  [BellRing, "PNR auto-watch.", "Checks your waitlist in the background and tells you when it moves."],
 ] as const;
 
 export function MoreGrid() {

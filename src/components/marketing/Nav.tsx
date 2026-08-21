@@ -46,11 +46,9 @@ export function AnnouncementBar() {
 
 const LINKS = [
   ["RailLens", "/raillens"],
-  ["Pricing", "/pricing"],
   ["Compare", "/compare"],
   ["Stations", "/stations"],
   ["Passport", "/passport"],
-  ["Gift Cards", "/gift-cards"],
   ["Help Center", "/help"],
 ] as const;
 

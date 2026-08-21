@@ -479,7 +479,7 @@ function ActionBar({
         )}
       </div>
       <Link
-        href="/#pricing"
+        href="/"
         className="flex items-center gap-2 rounded-full bg-pro px-6 py-3.5 text-[17px] font-semibold text-white shadow-[0_8px_30px_rgba(124,58,237,0.4)]"
       >
         <Sparkles size={17} />
