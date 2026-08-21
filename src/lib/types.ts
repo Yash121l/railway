@@ -38,17 +38,6 @@ export interface Train {
   stops: Stop[];
 }
 
-/** A journey the user holds a ticket for — always the train's full run in this demo. */
-export interface Trip {
-  id: string;
-  trainNumber: string;
-  /** YYYY-MM-DD (IST) of the run's origin departure */
-  runDate: string;
-  coach: string;
-  seat: string;
-  pnr: string;
-}
-
 export type RunPhase = "scheduled" | "boarding" | "enroute" | "arrived";
 
 export type StatusTone = "go" | "sun" | "crit" | "signal" | "steel";

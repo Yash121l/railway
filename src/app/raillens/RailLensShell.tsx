@@ -648,12 +648,14 @@ function EmptyPrompt() {
         RailLens
       </span>
       <h2 className="mt-2.5 text-[21px] font-bold leading-tight tracking-[-0.5px] text-inkline">
-        Every train, on the real tracks
+        Any train, halt by halt
       </h2>
       <p className="mt-2 text-[13px] leading-relaxed text-sub">
-        Search any of the 4,022 services in the index to draw its route over the
-        OpenStreetMap rail network — every halt, arrival time and kilometre mark
-        from the live schedule feed.
+        Search any of the 4,022 services in the index for its full halt list,
+        arrival times and kilometre marks from the live schedule feed. Real
+        OpenStreetMap track geometry covers 120 corridors so far; anywhere it
+        does not reach, the line is drawn straight between halts and the map
+        says which legs those are.
       </p>
 
       <h3 className="mt-5 text-[11px] font-bold uppercase tracking-[1.4px] text-steel">

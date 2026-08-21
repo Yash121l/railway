@@ -14,7 +14,7 @@ timetable rather than fetched from a feed, and every screen that shows one label
 
 | Path | What it is |
 | --- | --- |
-| `src/` | Next.js 16 marketing site, plus RailLens and a small API over the rail feeds |
+| `src/` | Next.js 16 site: marketing, a live PNR check, RailLens, and a small API over the rail feeds |
 | `ios/` | Native SwiftUI app, iOS 17+. This is the product |
 | `ios/RaillyWidgets/` | Live Activity extension (lock screen and Dynamic Island) |
 | `tools/railshapes/` | Offline pipeline that turns OpenStreetMap ways into per-corridor track geometry |
@@ -50,8 +50,10 @@ change shape without warning. `/api/rail/health` probes the two that matter.
   because tourist destinations are aliased to their railhead.
 - **12 trains** carry full offline schedules (`seed-trains.json`). Everything else needs one erail
   round trip, cached afterwards.
-- **104 corridors** have real OSM track geometry. Those are the 12 seed trains' halt pairs. Any other
-  route falls back to a straight line between halts, and the UI says so per route.
+- **120 corridors** have real OSM track geometry, out of 123 eligible halt pairs from the 12 seed
+  trains. The 3 that fail do so because the routed path runs materially longer than the feed's own
+  leg distance, which means the wrong corridor. Any leg without geometry falls back to a straight
+  line between halts, and the UI says so per route.
 
 ## How live positions work
 
@@ -114,10 +116,13 @@ are gitignored; they regenerate and go stale.
 
 Honest list, since the alternative is you finding out yourself.
 
-- PNR status has no UI on the web yet, though the API route works and returns coach position.
+- Live positions are projected from the timetable, not fetched. Real positions need a paid
+  third-party key, which is not shipped.
 - Seat availability is a model of PRS booking rules, not live data, unless a paid key is set.
-- The `/app` routes are an old web preview capped at the 12 seed trains, kept only until they are
-  removed. RailLens is the architecture that replaced them.
+- Platform-change alerts and delay notifications are not built. The app sends two notifications,
+  both about a watched PNR: status movement and chart prepared.
+- Real OSM track geometry covers 120 corridors, all from the 12 seed trains. Any other route falls
+  back to straight lines between halts, and the UI names which legs those are.
 - No tests and no CI yet.
 - No accounts by design. Trips live on the device, in `Documents/trips.json` on iOS.
 
