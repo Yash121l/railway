@@ -110,6 +110,8 @@ const T = {
 const TR = {
   code: 1,
   name: 2,
+  /** cumulative track km from the origin */
+  distance: 6,
   platform: 8,
   lat: 14,
   lng: 15,
@@ -302,6 +304,7 @@ export async function route(
     // schema canary: station codes look like IR codes
     if (!CODE_RE.test(code)) continue;
     const pf = f[TR.platform].trim();
+    const km = strictInt(f[TR.distance]);
     stops.push({
       name: f[TR.name].trim(),
       code,
@@ -310,6 +313,7 @@ export async function route(
       arrMin,
       depMin: strictInt(f[TR.depMin]) ?? arrMin,
       platform: pf === "" || pf === "0" ? undefined : pf,
+      distanceKm: km !== null && km >= 0 ? km : undefined,
     });
   }
   if (stops.length < 2) throw new RailError("badResponse");
@@ -327,7 +331,10 @@ export async function fullTrain(
 ): Promise<FullTrain> {
   const info = await trainInfo(num, opts);
   const stops = await route(info.trainId, opts);
+  // Prefer real track km: the lookup's own total, else the last halt's
+  // cumulative reading, and only then straight-chord distance.
   const cum = cumulativeKm(stops);
+  const lastKm = stops[stops.length - 1]?.distanceKm ?? 0;
   return {
     number: info.number,
     name: info.name,
@@ -337,7 +344,8 @@ export async function fullTrain(
     classes: info.classes,
     departureTime: info.departure,
     days: info.days,
-    distanceKm: info.distanceKm > 0 ? info.distanceKm : (cum[cum.length - 1] ?? 0),
+    distanceKm:
+      info.distanceKm > 0 ? info.distanceKm : lastKm > 0 ? lastKm : (cum[cum.length - 1] ?? 0),
     trainId: info.trainId,
     stops,
   };

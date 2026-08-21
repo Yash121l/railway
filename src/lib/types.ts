@@ -19,6 +19,12 @@ export interface Stop {
   /** minutes after origin departure the train departs (== arrMin at destination) */
   depMin: number;
   platform?: string;
+  /**
+   * Real cumulative track kilometres from the origin, as published by the
+   * feed. Absent when the feed omits it — fall back to `cumulativeKm`, which
+   * measures straight chords between halts and so reads a little short.
+   */
+  distanceKm?: number;
 }
 
 export interface Train {
