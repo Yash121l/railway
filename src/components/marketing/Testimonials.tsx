@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { TrainFront } from "lucide-react";
 import { Reveal } from "./Reveal";
+import { SCREEN_HEIGHT, SCREEN_WIDTH, SCREENS } from "./screens";
 
 type Tweet = { kind: "tweet"; name: string; body: string };
 type Review = { kind: "review"; title: string; body: string };
@@ -74,10 +75,11 @@ export function Testimonials() {
               /* the share-to-Stories cell flighty drops into its wall */
               <div className="card-lift relative overflow-hidden rounded-2xl shadow-float">
                 <Image
-                  src="/screens/logbook.png"
-                  alt="Railly Passport logbook screen shared as a story"
-                  width={430}
-                  height={932}
+                  src={SCREENS.passport}
+                  alt="Railly Passport shared as a story: distance, trips, rail time and stations, above the Delay Report"
+                  width={SCREEN_WIDTH}
+                  height={SCREEN_HEIGHT}
+                  sizes="(min-width: 768px) 360px, 100vw"
                   className="block h-auto w-full"
                 />
                 <div className="absolute inset-x-0 top-0 bg-gradient-to-b from-black/55 to-transparent px-4 pb-8 pt-3">
@@ -90,7 +92,7 @@ export function Testimonials() {
                     </span>
                   </div>
                 </div>
-                <div className="led-board absolute left-1/2 top-16 -translate-x-1/2 whitespace-nowrap rounded px-3 py-1.5 text-[12px] font-bold">
+                <div className="led-board absolute right-3 top-[18%] rotate-2 whitespace-nowrap rounded px-2.5 py-1 text-[10px] font-bold shadow-float">
                   👋 BYE MUMBAI · NEXT: DELHI
                 </div>
               </div>

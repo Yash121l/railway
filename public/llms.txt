@@ -1,13 +1,24 @@
 # Railly
 
-> Railly is an independent, iPhone-first train-tracking app for Indian Railways — the "Flighty of Indian Railways." It gives you running status projected from the published timetable and labelled as an estimate, real PNR status, coach position from the reservation chart, a seat-availability model, and a Passport that logs every kilometre you ride. It is a companion app, not a booking app: it sells no tickets and shows no ads, and deep-links you to IRCTC when you're ready to book.
+> Railly is an independent, iPhone-first train-tracking app for Indian Railways, the "Flighty of Indian Railways." It opens on a satellite globe with your trips drawn on real track, and one sheet over it for your trips, trip detail, and search. It gives you running status projected from the published timetable and labelled as an estimate, real PNR status, coach position, a seat-availability model, and a Passport that logs every kilometre you ride. It is a companion app, not a booking app: it sells no tickets, shows no ads, and deep-links you to IRCTC when you're ready to book.
 
 ## What Railly is
 
 - A native iOS app for tracking journeys on Indian Railways. Built for iPhone.
-- Offline catalog covering **4,022 trains** and **9,109 stations** — the schedule, routes, and station data work without a connection.
-- Core features: running status (estimated from the timetable), PNR status with confirmation odds, a seat-availability model with Tatkal reminders, coach position from the chart, and the Railly Passport (a lifetime rail logbook).
-- Not built yet: platform-change alerts, delay/cancellation notifications, and control-room bulletin summaries. India publishes no open live-position feed, so live positions require a paid third-party key.
+- Offline catalog covering **4,022 trains** and **9,109 station codes**. The schedule, routes, and station data work without a connection. Real OpenStreetMap track geometry covers **120 corridors**; elsewhere the route is drawn straight between halts.
+- Core features: running status (estimated from the timetable), PNR status with confirmation odds and background PNR watch, a seat-availability model with Tatkal reminders, coach position (from the chart's formation when it's out, otherwise the usual composition, marked indicative), a Live Activity on the Lock Screen and Dynamic Island, and the Railly Passport (a lifetime rail logbook) with a Delay Report.
+- Free, no ads, no account. Pre-launch: there is a waitlist ahead of the App Store release.
+- Notifications today: PNR status changes, chart preparation, and Tatkal reminders you set.
+- Not built yet: platform-change alerts, delay/cancellation notifications, sharing trips with friends, and control-room bulletin summaries. India publishes no open live-position feed, so live positions require a paid third-party key.
+
+## How the app works
+
+- One screen, no tabs. A full-bleed satellite globe shows every trip on its route, with moving trains pulsing at their estimated positions. A white sheet floats over it.
+- The sheet shows My Trips. Tapping a trip turns the sheet into that trip's detail while the globe flies to the route and shows the train's estimated position with a speed and next-stop readout.
+- One search field, "Train, station or PNR". A 10-digit number opens that PNR's status. A train number, train name, or station finds trains. Adding a trip is a guided flow: train, then date, then confirm.
+- Trip detail: a one-line status with the reason (for example "Departed Borivali, on time. Reaches New Delhi at 08:50, 18m late."), departure and arrival times colored by status, platform badges, PNR and coach/berth cards, a coach-position strip ("B8 is coach 9 from the engine"), and the stop timeline.
+- The profile avatar opens the Passport (distance in real track kilometres, trips, rail time, stations), the Delay Report, and Settings (alerts, export, delete).
+- Everything projected from the timetable is labelled "Estimated" in the app.
 
 ## Honesty & data-labeling policy
 

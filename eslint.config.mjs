@@ -15,6 +15,8 @@ const eslintConfig = defineConfig([
     // Vendored MapLibre worker — minified, copied in by
     // tools/sync-maplibre-worker.mjs, not ours to lint.
     "public/maplibre/**",
+    // Launch video: a separate Remotion package with its own deps and tsconfig.
+    "video/**",
   ]),
 ]);
 

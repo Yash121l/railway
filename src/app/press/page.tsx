@@ -2,57 +2,70 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { Download, Mail } from "lucide-react";
 import { MiniPhone } from "@/components/marketing/MidSections";
+import { SCREENS as SHOTS } from "@/components/marketing/screens";
 import { PageHero, PageShell } from "@/components/marketing/PageShell";
 import { Reveal } from "@/components/marketing/Reveal";
 
 export const metadata: Metadata = {
   title: "Press",
   description:
-    "Railly press kit — logo, real app screenshots, boilerplate, and fast facts. The Flighty of Indian Railways: live tracking, delay predictions, and a rail logbook, built for iPhone.",
+    "Railly press kit: logo, real app screenshots, boilerplate, and fast facts. The Flighty of Indian Railways, built for iPhone: your trips on a satellite globe, real PNR status, coach position, and a Passport of every kilometre.",
 };
 
 const PRESS_EMAIL = "mailto:hello@railly.app?subject=Press%20enquiry";
 
 const BOILERPLATE =
-  "Railly is an independent, iPhone-first companion for Indian Railways — the Flighty of Indian Railways. It offers running status projected from the published timetable and labelled as an estimate, real PNR status, coach position from the reservation chart, a seat-availability model, and a Passport that logs every kilometre you ride. Its offline catalog covers 4,022 trains and 9,109 station codes. Railly is not affiliated with Indian Railways or IRCTC, sells no tickets, and shows no ads — when you're ready to book, it deep-links you straight to IRCTC.";
+  "Railly is an independent iPhone app for Indian Railways: the Flighty of Indian Railways. It opens on a satellite globe with your trips drawn on real OpenStreetMap track, with one sheet over it for your trips, their details, and a single search field for trains, stations and PNRs. It shows running status projected from the published timetable and labelled as an estimate, real PNR status, coach position, a seat-availability model, and a Passport that logs every kilometre you ride. Its offline catalog covers 4,022 trains and 9,109 station codes, with real track geometry for 120 corridors. Railly is free, needs no account, shows no ads, sells no tickets, and is not affiliated with Indian Railways or IRCTC. When you're ready to book, it deep-links you to IRCTC.";
 
 const SCREENS: { src: string; alt: string; label: string; file: string }[] = [
   {
-    src: "/screens/hero-app.png",
-    alt: "Railly home screen with live train tracking",
-    label: "Home · live tracking",
+    src: SHOTS.home,
+    alt: "Railly home: a satellite globe with every trip on its real track, and the My Trips sheet over it",
+    label: "Home · My Trips",
     file: "railly-home.png",
   },
   {
-    src: "/screens/my-trips.png",
-    alt: "Railly My Trips screen with the live network map",
-    label: "My Trips",
-    file: "railly-my-trips.png",
+    src: SHOTS.globe,
+    alt: "Railly's globe with the sheet pulled down, trips drawn on real track and positions labelled Estimated",
+    label: "The globe",
+    file: "railly-globe.png",
   },
   {
-    src: "/screens/trip-detail.png",
-    alt: "Railly trip detail with the live route map and delay prediction",
+    src: SHOTS.tripDetail,
+    alt: "Railly trip detail over the focused route, with the status sentence and times colored by status",
     label: "Trip detail",
     file: "railly-trip-detail.png",
   },
   {
-    src: "/screens/logbook.png",
-    alt: "Railly Passport logbook of lifetime rail stats",
-    label: "Passport logbook",
-    file: "railly-passport.png",
+    src: SHOTS.tripDetailExpanded,
+    alt: "Railly trip detail expanded, with PNR and berth cards and the coach-position strip",
+    label: "Booking and coach",
+    file: "railly-trip-booking.png",
   },
   {
-    src: "/screens/pnr.png",
-    alt: "Railly PNR status screen",
+    src: SHOTS.addTrip,
+    alt: "Railly Add Trip, with one search field for a train, station or PNR",
+    label: "Add Trip",
+    file: "railly-add-trip.png",
+  },
+  {
+    src: SHOTS.pnr,
+    alt: "Railly PNR status: All 2 confirmed, chart prepared",
     label: "PNR status",
     file: "railly-pnr.png",
+  },
+  {
+    src: SHOTS.passport,
+    alt: "Railly Passport and Delay Report",
+    label: "Passport",
+    file: "railly-passport.png",
   },
 ];
 
 const FACTS: [string, string][] = [
   ["Category", "Train tracking · travel companion"],
   ["Platform", "iPhone (iOS), native SwiftUI"],
-  ["Coverage", "4,022 trains · 9,109 station codes · works offline"],
+  ["Coverage", "4,022 trains · 9,109 station codes · real track for 120 corridors · works offline"],
   ["Business model", "Free · no ads, no subscription, no in-app purchases"],
   ["Independence", "Not affiliated with Indian Railways or IRCTC"],
   ["Status", "On the waitlist ahead of App Store launch"],
@@ -152,21 +165,28 @@ export default function PressPage() {
             Screenshots.
           </h2>
           <p className="mt-4 text-[16px] leading-relaxed text-carbon">
-            Real screens from the app, straight off the device. Tap any shot to
-            download the full-resolution PNG.
+            Real screens from the app, captured in the iPhone simulator. The
+            trips in them are demo data, and train positions are estimated
+            from the timetable, as the app labels them. Tap any shot to
+            download the PNG (860 x 1868).
           </p>
         </Reveal>
 
-        <div className="mt-14 grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-5">
+        <div className="mt-14 flex flex-wrap justify-center gap-x-8 gap-y-10">
           {SCREENS.map((shot, i) => (
-            <Reveal key={shot.src} delay={i * 60} className="flex flex-col items-center gap-4">
+            <Reveal key={shot.src} delay={i * 60} className="flex w-[150px] flex-col items-center gap-4 md:w-[168px]">
               <a
                 href={shot.src}
                 download={shot.file}
                 className="transition-transform hover:scale-[1.03] active:scale-95"
                 aria-label={`Download ${shot.label} screenshot`}
               >
-                <MiniPhone src={shot.src} alt={shot.alt} className="w-[150px] md:w-[168px]" />
+                <MiniPhone
+                  src={shot.src}
+                  alt={shot.alt}
+                  size="w-[150px] md:w-[168px]"
+                  sizes="(min-width: 768px) 154px, 136px"
+                />
               </a>
               <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-steel">
                 <Download size={12} />

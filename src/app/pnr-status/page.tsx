@@ -94,7 +94,7 @@ const FAQS: FaqItem[] = [
   },
   {
     q: "How does PNR import work?",
-    a: "Add a trip with its 10-digit PNR and Railly resolves the whole journey — train, date, class, boarding and destination stations, and the current status of every passenger — and files it under My Trips. From then on Railly re-checks the PNR automatically, stepping up the frequency as chart time approaches, and pushes a notification whenever your status moves. No more refreshing an enquiry page every hour.",
+    a: "Type the 10-digit PNR into the search field at the top of My Trips. Railly opens its status: the train and date, class and quota, boarding and destination stations, and each passenger's booked and current status. Tap Add to My Trips and the journey lands on the globe. From then on Railly re-checks the PNR in the background when iOS allows and each time you open the app, and sends a notification when a status moves or the chart is prepared. No more refreshing an enquiry page every hour.",
   },
   {
     q: "Why did my PNR stop resolving?",

@@ -13,7 +13,9 @@ import { LiveActivityMock } from "./LiveActivityMock";
 import { LiveBoard } from "./LiveBoard";
 import { NetworkCanvas } from "./NetworkCanvas";
 import { NotifCard } from "./NotifCard";
+import { DynamicIsland } from "./PhoneMock";
 import { Reveal } from "./Reveal";
+import { SCREEN_HEIGHT, SCREEN_WIDTH, SCREENS } from "./screens";
 import { ScrollScrub } from "./ScrollStrip";
 import { Starfield } from "./Starfield";
 
@@ -22,17 +24,82 @@ export function MiniPhone({
   src,
   alt,
   className = "",
+  size = "w-[228px] md:w-[250px]",
+  sizes = "(min-width: 768px) 236px, 214px",
 }: {
   src: string;
   alt: string;
   className?: string;
+  /** width utilities for the frame; override instead of stacking w-* classes */
+  size?: string;
+  /** the image `sizes` hint matching `size`, minus the 7px bezel each side */
+  sizes?: string;
 }) {
   return (
     <div
-      className={`w-[228px] rounded-[36px] bg-[#0c0d10] p-[7px] shadow-deep ring-1 ring-black/60 md:w-[250px] ${className}`}
+      className={`rounded-[36px] bg-[#0c0d10] p-[7px] shadow-deep ring-1 ring-black/60 ${size} ${className}`}
     >
-      <div className="overflow-hidden rounded-[29px] bg-black">
-        <Image src={src} alt={alt} width={430} height={932} className="block h-auto w-full" />
+      <div className="@container relative overflow-hidden rounded-[29px] bg-black">
+        <Image
+          src={src}
+          alt={alt}
+          width={SCREEN_WIDTH}
+          height={SCREEN_HEIGHT}
+          sizes={sizes}
+          className="block h-auto w-full"
+        />
+        <DynamicIsland />
+      </div>
+    </div>
+  );
+}
+
+/** The trip share card from the app (ShareCards.swift), drawn for the web. Demo trip. */
+function ShareCardMock() {
+  return (
+    <div className="w-full max-w-[300px] rotate-[2deg] rounded-[20px] bg-white p-4 shadow-float">
+      <div className="flex items-center justify-between">
+        <span className="text-[11px] font-bold tracking-[1.2px] text-steel">RAILLY</span>
+        <span className="rounded-full bg-latered/10 px-2 py-0.5 text-[11px] font-bold text-latered">
+          18m late
+        </span>
+      </div>
+      <div className="mt-2 text-[12px] font-semibold text-steel">12951 · Mumbai Rajdhani</div>
+      <div className="text-[18px] font-bold text-black">
+        Mumbai <span className="font-semibold text-steel">to</span> New Delhi
+      </div>
+      <svg viewBox="0 0 260 110" className="mt-3 w-full rounded-xl bg-[#0f1424]" aria-hidden>
+        <path
+          d="M40 92 C 60 80, 58 64, 76 56 S 104 44, 118 36 S 150 22, 176 20 S 214 14, 226 12"
+          fill="none"
+          stroke="rgba(255,255,255,0.25)"
+          strokeWidth="3"
+          strokeLinecap="round"
+        />
+        <path
+          d="M40 92 C 60 80, 58 64, 76 56 S 104 44, 118 36"
+          fill="none"
+          stroke="#FF453A"
+          strokeWidth="3"
+          strokeLinecap="round"
+        />
+        <circle cx="118" cy="36" r="9" fill="#FF453A" opacity="0.25" />
+        <circle cx="118" cy="36" r="4.5" fill="#fff" />
+        <text x="30" y="106" fill="rgba(255,255,255,0.85)" fontSize="10" fontWeight="700">MMCT</text>
+        <text x="208" y="28" fill="rgba(255,255,255,0.85)" fontSize="10" fontWeight="700">NDLS</text>
+      </svg>
+      <div className="mt-3 flex items-end justify-between">
+        <div>
+          <div className="text-[10px] font-bold uppercase tracking-[1px] text-steel">Arrives</div>
+          <div className="tnum text-[28px] font-bold leading-none text-latered">
+            08:50<sup className="text-[12px]">+1</sup>
+          </div>
+        </div>
+        <div className="tnum text-right text-[11px] text-steel">38% of 1,384 km</div>
+      </div>
+      <div className="mt-3 flex justify-between border-t border-black/[0.06] pt-2 text-[10px] text-steel">
+        <span>Estimated from the timetable · Railly</span>
+        <span>Sat 26 Sep</span>
       </div>
     </div>
   );
@@ -46,12 +113,12 @@ export function Friends() {
           Share your journeys with friends and family.
         </h2>
         <p className="mt-5 text-[18px] leading-relaxed text-carbon">
-          Railly Friends lets you instantly share your travels with your loved
-          ones. Add them just once, and you&apos;ll never have to manually forward
-          a PNR again.
+          Railly Friends will let you share your travels with the people you
+          pick. Add them once, and you won&apos;t have to forward a PNR again.
         </p>
-        <p className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-black/[0.05] px-3 py-1 text-[12px] font-semibold text-steel">
-          Friends is on the roadmap — here&apos;s how it will work.
+        <p className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-sun/20 px-3 py-1 text-[12px] font-bold text-[#7a5a00]">
+          Railly Friends is on the roadmap, not in the app yet. Here&apos;s the
+          plan, and what you can share today.
         </p>
       </Reveal>
 
@@ -64,13 +131,18 @@ export function Friends() {
         >
           <div className="grid md:grid-cols-2">
             <div className="flex flex-col justify-between p-8 md:min-h-[460px] md:p-10">
-              <h3 className="max-w-[300px] text-[26px] font-bold leading-tight tracking-tight text-black md:text-[30px]">
+              <div>
+              <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-sun/20 px-2.5 py-1 text-[11px] font-bold uppercase tracking-[1px] text-[#7a5a00]">
+                Coming later
+              </span>
+              <h3 className="mt-4 max-w-[300px] text-[26px] font-bold leading-tight tracking-tight text-black md:text-[30px]">
                 Never hear, &ldquo;send me your train info?&rdquo; ever again.
               </h3>
+              </div>
               <p className="mt-6 max-w-[320px] text-[15px] leading-relaxed text-carbon md:mt-0">
-                Choose who you want to share your journeys with. They can then
-                customize the notifications they get about your trip — boarding,
-                delays, arrival, and more.
+                The plan: choose who you share your journeys with, and they
+                pick the updates they get about your trip. The phones show
+                today&apos;s app, not Friends.
               </p>
             </div>
             <div className="relative h-[360px] md:h-auto">
@@ -79,8 +151,8 @@ export function Friends() {
                 className="absolute left-1/2 top-8 -translate-x-[96%] rotate-[-7deg] will-change-transform"
               >
                 <MiniPhone
-                  src="/screens/my-trips.png"
-                  alt="Railly My Trips screen with the live network map"
+                  src={SCREENS.globe}
+                  alt="Railly's satellite globe with every trip drawn on its real track and the sheet pulled down"
                 />
               </div>
               <div
@@ -88,8 +160,8 @@ export function Friends() {
                 className="absolute left-1/2 top-20 translate-x-[2%] rotate-[6deg] will-change-transform"
               >
                 <MiniPhone
-                  src="/screens/trip-detail.png"
-                  alt="Railly trip detail screen with the live route map"
+                  src={SCREENS.tripDetail}
+                  alt="Railly trip detail: Mumbai to New Delhi over the focused route, arriving 18 minutes late, labelled Estimated"
                 />
               </div>
             </div>
@@ -102,14 +174,16 @@ export function Friends() {
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <Reveal delay={60}>
           <div className="flex h-full flex-col rounded-3xl bg-linen p-8 ring-1 ring-black/[0.05] md:p-10">
-            <h3 className="max-w-[340px] text-[19px] font-bold leading-snug tracking-tight text-ontime">
-              Get perfectly-timed notifications about your loved ones&apos;
-              journeys.
+            <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-sun/20 px-2.5 py-1 text-[11px] font-bold uppercase tracking-[1px] text-[#7a5a00]">
+                Coming later
+            </span>
+            <h3 className="mt-4 max-w-[340px] text-[19px] font-bold leading-snug tracking-tight text-ontime">
+              Updates about your loved ones&apos; journeys.
             </h3>
             <div className="mt-8 flex flex-1 flex-col items-center justify-center gap-4">
               <NotifCard
                 title="Dad is on rails today"
-                body="12951 to New Delhi departs in 4h — on time so far."
+                body="12951 to New Delhi departs in 4h, on time so far."
                 time="13:00"
                 emoji="👨🏻‍🦳"
                 tilt={-2}
@@ -117,41 +191,32 @@ export function Friends() {
               />
               <NotifCard
                 title="Dad left Mumbai Central"
-                body="Arrives tomorrow 09:32 — 5m early."
+                body="Arrives tomorrow at 09:32, 5m early."
                 time="17:05"
                 accent="go"
                 emoji="👨🏻‍🦳"
                 tilt={2}
                 drift
               />
+              <p className="text-[12px] text-steel">A sketch of the plan.</p>
             </div>
           </div>
         </Reveal>
         <Reveal delay={120}>
           <div className="flex h-full flex-col rounded-3xl bg-linen p-8 ring-1 ring-black/[0.05] md:p-10">
-            <h3 className="max-w-[340px] text-[19px] font-bold leading-snug tracking-tight text-ontime">
-              Know when to leave for the station — to the minute.
+            <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-go/15 px-2.5 py-1 text-[11px] font-bold uppercase tracking-[1px] text-ontime">
+              In the app today
+            </span>
+            <h3 className="mt-4 max-w-[340px] text-[19px] font-bold leading-snug tracking-tight text-ontime">
+              Share a trip as a picture, ready for WhatsApp.
             </h3>
-            <div className="mt-8 flex flex-1 flex-col items-center justify-center gap-4">
-              <NotifCard
-                title="Leave by 15:40 for MMCT"
-                body="22 min to the station in current traffic. PF 2, near the stairs."
-                time="15:12"
-                accent="signal"
-                mark="C4"
-                markColor="#111318"
-                tilt={2}
-                drift
-              />
-              <NotifCard
-                title="Crossed the last junction"
-                body="Dad reaches in 18 min. Exit Gate 1 for pickup."
-                time="09:14"
-                accent="go"
-                emoji="🚗"
-                tilt={-2}
-                drift
-              />
+            <p className="mt-2 max-w-[380px] text-[14px] leading-relaxed text-carbon">
+              Tap Share on any trip for a card with the route on its real
+              track, where the train is, and when it arrives. Or send it as
+              one line of text.
+            </p>
+            <div className="mt-8 flex flex-1 items-center justify-center">
+              <ShareCardMock />
             </div>
           </div>
         </Reveal>
@@ -175,9 +240,11 @@ export function PassportTeaser() {
             Look back on your travels, near and far.
           </h2>
           <p className="mt-5 text-[18px] leading-relaxed text-carbon">
-            Whether you ride once a year or once a day — how many times have you
-            crossed the country? What was your worst delay? What&apos;s your
-            most-ridden train? Your Railly Passport keeps the whole story.
+            How far have you ridden? How many hours have delays cost you? Tap
+            your avatar and the Railly Passport has the answer: distance in real
+            track kilometres, trips, rail time and stations. The Delay Report
+            next to it adds up the hours lost to delays, estimated from the
+            timetable.
           </p>
           <a
             href={APP_CTA_HREF}
@@ -391,9 +458,9 @@ export function NetworkIntel() {
 
 const MORE = [
   [Lock, "Privacy first.", "No account. Your trips stay on your device, and Railly keeps no copy."],
-  [Armchair, "Coach position.", "Read from the reservation chart, so you know where B4 actually halts."],
+  [Armchair, "Coach position.", "\"B8 is coach 9 from the engine.\" From the chart's formation once it's out, marked indicative before that."],
   [History, "Where's My Rake.", "Finds the paired service whose rake becomes your train, and projects a late start from it."],
-  [AlarmClock, "Tatkal alarm.", "A nudge at 9:55 the day before, so you never miss the window."],
+  [AlarmClock, "Tatkal alarm.", "Set it on a train and Railly nudges you 15 minutes before the window opens."],
   [TrainFront, "Real track, not chords.", "Routes follow OpenStreetMap rail where we have it, and say so where we don't."],
   [BellRing, "PNR auto-watch.", "Checks your waitlist in the background and tells you when it moves."],
 ] as const;

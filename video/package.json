@@ -1,0 +1,20 @@
+{
+  "name": "railly-launch-video",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "audio": "python3 audio/score.py",
+    "render": "npm run audio && remotion render src/index.ts Launch out/railly-launch-16x9.mp4 && remotion render src/index.ts LaunchVertical out/railly-launch-9x16.mp4"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.529",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "remotion": "^4.0.529"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "typescript": "^7.0.2"
+  }
+}

@@ -5,6 +5,7 @@ import { CountUp } from "@/components/marketing/CountUp";
 import { MiniPhone } from "@/components/marketing/MidSections";
 import { PageHero, PageShell } from "@/components/marketing/PageShell";
 import { Reveal } from "@/components/marketing/Reveal";
+import { SCREENS } from "@/components/marketing/screens";
 import { Starfield } from "@/components/marketing/Starfield";
 
 const PASSPORT_DESCRIPTION =
@@ -143,23 +144,23 @@ export default function PassportPage() {
       <PageHero
         eyebrow="PASSPORT"
         title="Every journey you've ever taken, on one page."
-        dek="The Railly Passport is your rail logbook. Every kilometre, every delay, every platform and coach — filed automatically while you ride, and kept forever. You take the trips; it keeps the receipts."
+        dek="The Railly Passport is your rail logbook, one tap away behind your avatar. Distance in real track kilometres, trips, rail time and stations, with a Delay Report of the time you lost. You take the trips. It keeps the receipts."
       />
 
-      {/* the logbook screen and the all-time card, side by side */}
+      {/* the Passport screen and the all-time card, side by side */}
       <section className="mx-auto max-w-6xl px-4 py-20 md:py-28">
         <div className="grid items-center gap-12 md:grid-cols-2">
           <Reveal from="left" className="flex justify-center">
             <MiniPhone
-              src="/screens/logbook.png"
-              alt="Railly logbook screen showing lifetime rail stats"
+              src={SCREENS.passport}
+              alt="Railly Passport: 16,418 km, 12 trips, 231h 2m of rail time and 14 stations, above the Delay Report. Demo data."
             />
           </Reveal>
           <Reveal delay={120} from="right">
             <PassportCard />
             <p className="mt-4 text-[13px] leading-relaxed text-steel">
-              A sample passport, so you can see what yours will compute. Your
-              own book starts at zero — on your first trip with Railly.
+              A sample passport, from the same demo trips as the screenshot.
+              Yours starts at zero and fills in from the trips you track.
             </p>
           </Reveal>
         </div>

@@ -19,7 +19,7 @@ import { WhatIsRailly } from "@/components/marketing/WhatIsRailly";
 const HOME_TITLE =
   "Live Train Status, PNR Status & Delay Predictions for Indian Railways — Railly";
 const HOME_DESCRIPTION =
-  "Track any Indian Railways train — running status, real PNR status, coach position, and a logbook of every kilometre. Positions are projected from the timetable and labelled as estimates. Built for iPhone. 4,022 trains, 9,109 station codes, works offline.";
+  "Track any Indian Railways train on a satellite globe, drawn on real OpenStreetMap track across 120 corridors. Real PNR status, coach position, and a Passport of every kilometre. Positions are projected from the timetable and labelled as estimates. Built for iPhone. 4,022 trains, 9,109 station codes, works offline.";
 
 export const metadata: Metadata = {
   title: { absolute: HOME_TITLE },
@@ -55,19 +55,20 @@ function Hero() {
         className="hero-rise mx-auto mt-7 max-w-2xl text-[17px] leading-relaxed text-carbon md:text-[19px]"
         style={{ "--stagger": "110ms" } as React.CSSProperties}
       >
-        Railly is the Flighty of Indian Railways — built for iPhone. Live
-        running status, PNR confirmations, seat availability, coach position,
-        and delay estimates projected from the timetable. For Vande
-        Bharat and AC-corridor commuters, families watching a loved one&apos;s
-        train, and NRIs following the journey home from abroad.
+        Railly is the Flighty of Indian Railways, built for iPhone. Your
+        trips on a satellite globe, drawn on real track across 120
+        corridors, with running status, PNR confirmations, coach position
+        and delay estimates projected from the timetable. For Vande Bharat and AC-corridor
+        commuters, families watching a loved one&apos;s train, and NRIs
+        following the journey home from abroad.
       </p>
 
       <p
         className="hero-rise mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-steel"
         style={{ "--stagger": "150ms" } as React.CSSProperties}
       >
-        Not a booking app. No ads, no upsells — when you&apos;re ready to buy,
-        Railly deep-links you straight to IRCTC.
+        Not a booking app. No ads, no upsells, no account. When you&apos;re
+        ready to buy, Railly deep-links you straight to IRCTC.
       </p>
 
       <div

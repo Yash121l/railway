@@ -102,7 +102,7 @@ export const ROWS: {
     feature: "Live route map",
     note: "Your train on real track geometry.",
     claim:
-      "Railly draws your train moving along the real track geometry of the route, not a straight line pinned between two stations.",
+      "Railly draws every trip on a satellite globe along real OpenStreetMap track, which covers 120 corridors so far, with the train at its estimated position. Where it has no track shape yet, the line runs straight between halts.",
     railly: "yes",
     cells: ["varies", "yes", "varies", "varies"],
   },
@@ -205,7 +205,7 @@ const COMPARE_JSON_LD = {
       operatingSystem: "iOS",
       url: "https://railly.app",
       description:
-        "Railly is an independent train-tracking app for Indian Railways, built for iPhone — live running status, PNR watch, delay predictions, platform alerts, and a trip logbook. Not affiliated with Indian Railways or IRCTC.",
+        "Railly is an independent train-tracking app for Indian Railways, built for iPhone: your trips on a satellite globe, running status estimated from the timetable, PNR watch, coach position, and a trip logbook. Not affiliated with Indian Railways or IRCTC.",
     },
     ...PROFILES.map((app) => ({
       "@type": "SoftwareApplication",

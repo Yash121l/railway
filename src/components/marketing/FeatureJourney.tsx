@@ -1,17 +1,30 @@
 import React from "react";
-import { CalendarDays, CloudFog, Mail, Smartphone, Ticket, TrainFront } from "lucide-react";
+import {
+  CalendarDays,
+  CircleUserRound,
+  CloudFog,
+  Mail,
+  Search,
+  Smartphone,
+  Ticket,
+  TrainFront,
+} from "lucide-react";
 import { APP_CTA_HREF, APP_CTA_LABEL } from "@/lib/cta";
 import { MiniPhone } from "./MidSections";
 import { NotifCard } from "./NotifCard";
 import { Reveal } from "./Reveal";
+import { SCREENS } from "./screens";
 import { Starfield } from "./Starfield";
 
 /** Mini "where's my rake" inbound tracker — the bar creeps closer, live */
 function InboundRakeCard() {
   return (
     <div className="w-full max-w-[300px] rounded-[20px] bg-white p-4 shadow-float" style={{ rotate: "-2deg" }}>
-      <div className="text-[11px] font-bold uppercase tracking-[1px] text-steel">
+      <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-[1px] text-steel">
         Where&apos;s my rake
+        <span className="rounded-full bg-black/[0.06] px-2 py-0.5 text-[10px] normal-case tracking-normal">
+          Estimated
+        </span>
       </div>
       <div className="mt-2 flex items-center gap-2 text-[15px] font-semibold text-black">
         <TrainFront size={16} className="text-signal" />
@@ -21,31 +34,63 @@ function InboundRakeCard() {
         <div className="h-full animate-creep rounded-full bg-signal motion-reduce:w-[78%] motion-reduce:animate-none" />
       </div>
       <p className="mt-2 text-[13px] text-steel">
-        Running 12m late · your departure impact: <b className="text-black">+9m</b>
+        Running 12m late, so expect a <b className="text-black">9m</b> late start.
       </p>
     </div>
   );
 }
 
-function ProDataCard() {
-  const cells = [
-    ["Platform", "PF 5"],
-    ["Coach", "C4 · front"],
-    ["Seat", "32A window"],
-    ["Exit", "Gate 2"],
+/** The booking cards and coach strip from the trip detail, drawn for the web. */
+function CoachStripCard() {
+  const coaches: [string, number][] = [
+    ["B6", 7],
+    ["B7", 8],
+    ["B8", 9],
+    ["B9", 10],
+    ["PC", 11],
+    ["A1", 12],
   ];
   return (
-    <div className="w-full max-w-[300px] rounded-[20px] bg-white p-4 shadow-float" style={{ rotate: "1.5deg" }}>
-      <div className="grid grid-cols-2 gap-3">
-        {cells.map(([label, value]) => (
-          <div key={label}>
-            <div className="text-[10px] font-bold uppercase tracking-[1px] text-fog">
-              {label}
+    <div className="w-full max-w-[320px] rounded-[20px] bg-white p-4 shadow-float" style={{ rotate: "1.5deg" }}>
+      <div className="grid grid-cols-2 gap-2.5">
+        <div className="rounded-xl bg-fill px-3 py-2.5">
+          <div className="tnum text-[15px] font-bold text-black">581 564 3199</div>
+          <div className="mt-0.5 flex items-center gap-1.5 text-[11px] text-steel">
+            PNR
+            <span className="rounded bg-go/15 px-1.5 text-[10px] font-bold text-ontime">CNF</span>
+          </div>
+        </div>
+        <div className="rounded-xl bg-fill px-3 py-2.5">
+          <div className="text-[15px] font-bold text-black">B8 · 57 LB</div>
+          <div className="mt-0.5 text-[11px] text-steel">Coach · Berth</div>
+        </div>
+      </div>
+      <div className="mt-4 text-[15px] font-semibold text-black">
+        <span className="text-signal">B8</span> is coach 9 from the engine
+      </div>
+      <div className="mt-3 flex gap-1.5">
+        {coaches.map(([code, n]) => (
+          <div key={code} className="flex-1 text-center">
+            <div
+              className={`rounded-md py-1.5 text-[12px] font-bold ${
+                code === "B8"
+                  ? "bg-signal text-white"
+                  : code === "PC"
+                    ? "bg-fill text-steel"
+                    : "bg-white text-black ring-1 ring-black/10"
+              }`}
+            >
+              {code}
             </div>
-            <div className="mt-0.5 text-[17px] font-bold text-black">{value}</div>
+            <div className={`tnum mt-1 text-[10px] ${code === "B8" ? "font-bold text-signal" : "text-steel"}`}>
+              {n}
+            </div>
           </div>
         ))}
       </div>
+      <p className="mt-3 border-t border-black/[0.06] pt-2.5 text-[11px] text-steel">
+        Composition is indicative. Rakes can run reversed. Demo trip.
+      </p>
     </div>
   );
 }
@@ -250,10 +295,9 @@ function GantrySilhouette() {
 }
 
 /**
- * flighty opens its feature run with a huge dark card: copy on the left,
- * the real product cropped at the card edge on the right. Same here —
- * the screenshot is our actual trip-detail screen, with the live
- * inbound-rake card floating over it.
+ * flighty's huge dark card: copy on the left, the real product cropped at
+ * the card edge on the right. The screenshot is the actual trip-detail
+ * screen, with the inbound-rake estimate floating over it.
  */
 function DarkIntroCard() {
   return (
@@ -266,25 +310,109 @@ function DarkIntroCard() {
         <div className="relative grid items-center md:grid-cols-2">
           <div className="p-8 md:p-12">
             <h3 className="text-[26px] font-bold leading-tight tracking-tight text-white md:text-[30px]">
-              See why you&apos;re delayed. Finally!
+              Where your train is, and why, in one sentence.
             </h3>
             <p className="mt-4 max-w-md text-[15px] leading-relaxed text-white/65">
-              Railways often keep delay information under wraps until the last
-              minute. Railly doesn&apos;t. We track your inbound rake 24 hours
-              before departure, so we can predict a new time long before the
-              announcement crackles over the PA.
+              Tap a trip and the globe flies to its route while the sheet turns
+              into the trip. The top line reads like a person would say it:
+              &ldquo;Departed Borivali, on time. Reaches New Delhi at 08:50,
+              18m late.&rdquo; Before departure it checks the inbound rake, the
+              train that becomes yours, and tells you if it will make you
+              start late.
+            </p>
+            <p className="mt-3 max-w-md text-[15px] leading-relaxed text-white/65">
+              Departure and arrival times are huge and colored by status.
+              Platforms sit in amber badges. Anything projected from the
+              timetable carries an Estimated label.
             </p>
           </div>
           <div className="relative h-[340px] md:h-[430px]">
             <div className="absolute left-1/2 top-10 -translate-x-1/2 rotate-[4deg] md:left-auto md:right-14 md:translate-x-0">
               <MiniPhone
-                src="/screens/trip-detail.png"
-                alt="Railly trip detail with delay prediction and live map"
+                src={SCREENS.tripDetail}
+                alt="Railly trip detail over the focused route: Mumbai to New Delhi, arriving in 14h 22m, 18 minutes late, with an Estimated label"
               />
             </div>
             <div className="absolute bottom-8 left-4 w-[300px] md:left-10" style={{ rotate: "-3deg" }}>
               <InboundRakeCard />
             </div>
+          </div>
+        </div>
+      </div>
+    </Reveal>
+  );
+}
+
+/**
+ * The redesign in one card: a single screen, a globe with a sheet over it.
+ * The two screenshots are the globe with the sheet pulled down and the
+ * guided add flow behind the one search field.
+ */
+function OneScreenCard() {
+  const points: [typeof Search, string, string][] = [
+    [
+      Search,
+      "One search field.",
+      "Type a 10-digit PNR and its status opens. Type a train number, a train name or a station and Railly finds the trains.",
+    ],
+    [
+      TrainFront,
+      "Adding is guided.",
+      "Pick the train, then the date, then confirm. The trip lands on the globe.",
+    ],
+    [
+      CircleUserRound,
+      "Your avatar opens the rest.",
+      "The Passport, the Delay Report and Settings live behind it.",
+    ],
+  ];
+  return (
+    <Reveal from="zoom">
+      <div
+        id="one-screen"
+        className="relative scroll-mt-28 overflow-hidden rounded-3xl bg-gradient-to-b from-[#0e1a2e] to-[#070b16] ring-1 ring-white/[0.06]"
+      >
+        <Starfield className="opacity-40" />
+        <div className="relative grid items-center md:grid-cols-2">
+          <div className="p-8 md:p-12">
+            <h3 className="text-[26px] font-bold leading-tight tracking-tight text-white md:text-[30px]">
+              One screen. Every trip on the globe.
+            </h3>
+            <p className="mt-4 max-w-md text-[15px] leading-relaxed text-white/65">
+              Railly opens on a satellite globe with your trips drawn on real
+              OpenStreetMap track, which covers 120 corridors so far. Trains
+              on the move pulse at their estimated positions. Your trips sit in
+              a sheet over the globe. Pull the sheet down for the
+              whole map, or tap a trip to fly to it. There are no tabs to learn.
+            </p>
+            <ul className="mt-6 max-w-md space-y-4">
+              {points.map(([Icon, title, body]) => (
+                <li key={title} className="flex gap-3">
+                  <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/[0.08] ring-1 ring-white/[0.1]">
+                    <Icon size={15} className="text-white/80" />
+                  </span>
+                  <p className="text-[14px] leading-relaxed text-white/60">
+                    <span className="font-semibold text-white">{title}</span>{" "}
+                    {body}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="relative h-[400px] md:h-[560px]">
+            <div className="absolute left-1/2 top-10 -translate-x-[88%] rotate-[-5deg] md:top-14">
+              <MiniPhone
+                src={SCREENS.globe}
+                alt="Railly's satellite globe with every trip drawn on its real track, positions labelled Estimated, and the My Trips sheet pulled down"
+              />
+            </div>
+            <div className="absolute left-1/2 top-20 -translate-x-[8%] rotate-[5deg] md:top-24">
+              <MiniPhone
+                src={SCREENS.addTrip}
+                alt="Railly Add Trip: one search field for a train, station or PNR, with Check PNR status, Find trains between stations and popular trains"
+              />
+            </div>
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#070b16] to-transparent" />
           </div>
         </div>
       </div>
@@ -341,7 +469,8 @@ function AvailabilityStripCard() {
         ))}
       </div>
       <div className="mt-4 border-t border-white/10 pt-3 text-[12px] text-white/50">
-        Tatkal opens 10:00 AM the day before — Railly pings you at 9:55.
+        AC Tatkal opens at 10:00 the day before. Set a reminder and Railly
+        pings you at 9:45.
       </div>
     </div>
   );
@@ -358,15 +487,16 @@ function DarkBookingPair() {
             <span className="text-white/60">And watched.</span>
           </h3>
           <p className="mt-3 text-[14px] leading-relaxed text-white/60">
-            Ten digits in, the whole booking out: every passenger&apos;s
-            GNWL → RAC → CNF ladder, chart timing, and the coach and berth
-            the moment they&apos;re assigned. One tap imports the trip.
+            Type the 10 digits into the search field and the whole booking
+            comes back: each passenger&apos;s booked and current status,
+            whether the chart is out, class and quota, and where your coach
+            stands. Add to My Trips takes one tap.
           </p>
           <div className="relative mt-8 h-[320px] flex-1">
             <div className="absolute left-1/2 top-0 -translate-x-1/2 rotate-[2deg]">
               <MiniPhone
-                src="/screens/pnr.png"
-                alt="Railly PNR status: all passengers confirmed, berth ladder and coach position"
+                src={SCREENS.pnr}
+                alt="Railly PNR result: All 2 confirmed, chart prepared, both passengers' coach and seat, class, quota and fare"
               />
             </div>
             <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#0d0a1c] to-transparent" />
@@ -522,30 +652,36 @@ function DarkFeatureSecondPair() {
       <Reveal from="left" className="h-full">
         <div className="card-lift relative flex h-full flex-col overflow-hidden rounded-3xl bg-white/[0.04] p-7 ring-1 ring-white/[0.06]">
           <h3 className="text-[22px] font-bold leading-snug tracking-tight text-white">
-            First to know.{" "}
-            <span className="text-white/60">First to go.</span>
+            Your waitlist moves.{" "}
+            <span className="text-white/60">Your phone buzzes.</span>
           </h3>
           <p className="mt-3 text-[14px] leading-relaxed text-white/60">
-            Hear about delays and platform changes before anyone else, even the
-            announcer. Railly&apos;s alerts are instant, clear, and unfiltered,
-            giving you the earliest heads-up to replan and skip the scrum on the
-            footbridge.
+            Railly re-checks every PNR you hold, in the background when iOS
+            allows and each time you open the app. When a status moves or the
+            chart is prepared, you get a notification. No account, no server
+            keeping your PNR. Platform-change alerts are on the roadmap, not
+            in the app yet.
           </p>
           <div className="mt-8 flex flex-1 flex-col items-center justify-center gap-4 pb-2">
             <NotifCard
-              title="Platform changed at Kota"
-              body="PF 1 → PF 3 · announced 38 min before arrival."
-              time="4:12"
-              accent="crit"
+              title="PNR confirmed"
+              body="ADI Shatabdi Express: all passengers confirmed, C3 69."
+              time="18:40"
+              accent="go"
+              mark="SH"
+              markColor="#546E7A"
               tilt={-2}
             />
             <NotifCard
-              title="Boarding now"
-              body="Your coach C4 stops near the PF 3 stairs."
-              time="4:48"
+              title="Chart prepared"
+              body="ADI Shatabdi Express: the chart is out. Your PNR status and coach position are now final."
+              time="22:10"
               accent="signal"
+              mark="SH"
+              markColor="#546E7A"
               tilt={2}
             />
+            <p className="text-[12px] text-white/45">Example notifications.</p>
           </div>
         </div>
       </Reveal>
@@ -555,16 +691,17 @@ function DarkFeatureSecondPair() {
           className="card-lift relative flex h-full flex-col overflow-hidden rounded-3xl bg-white/[0.04] p-7 ring-1 ring-white/[0.06]"
         >
           <h3 className="text-[22px] font-bold leading-snug tracking-tight text-white">
-            Putting the &lsquo;Pro&rsquo; in{" "}
-            <span className="text-white/60">approachable.</span>
+            Know where to stand.{" "}
+            <span className="text-white/60">Before the train rolls in.</span>
           </h3>
           <p className="mt-3 text-[14px] leading-relaxed text-white/60">
-            Powerful, loco-grade data that you can actually understand.
-            Platform, coach position, seat, PNR and exit gate — all at a
-            glance. Never stop and stare at a departure board again.
+            Pull the trip sheet up for your PNR, coach and berth, then the
+            coach strip: &ldquo;B8 is coach 9 from the engine.&rdquo; Railly
+            uses the chart&apos;s formation once it&apos;s out and the usual
+            composition before that, and says which one you&apos;re seeing.
           </p>
           <div className="mt-8 flex flex-1 items-center justify-center pb-2">
-            <ProDataCard />
+            <CoachStripCard />
           </div>
         </div>
       </Reveal>
@@ -583,9 +720,9 @@ function ImportCard() {
             Add your trips in seconds.
           </h3>
           <p className="mt-4 text-[16px] leading-relaxed text-white/60">
-            You can magically (read: extremely quickly) make your journeys
-            appear on Railly from your PNR, calendar, or email. Get up &amp;
-            running faster than you can say, &ldquo;have a nice journey&rdquo;.
+            It all starts in one search field. Type a PNR and the trip comes in
+            with its booking attached. Or type a train or a station, pick the
+            train, pick the date, and confirm. That&apos;s the whole flow.
           </p>
           <div className="mt-7 flex items-center justify-center gap-3">
             {[Ticket, CalendarDays, Mail].map((Icon, i) => (
@@ -628,10 +765,10 @@ export function FeatureJourney() {
             Everything you&apos;ve ever wanted to know about your train—and more.
           </h2>
           <p className="mt-5 text-[18px] leading-relaxed text-white/65">
-            Railly keeps you informed by tracking more information about your train
-            than any other app—like the #1 and #2 biggest causes of delays. Know
-            exactly what&apos;s happening and how it affects your journey, so you can
-            finally just enjoy the ride.
+            Where your train should be, when it will likely arrive, and why it
+            might be late. Railly works it out from the timetable, labels every
+            projection as an estimate, and puts it on one screen so you can get
+            on with the ride. Screenshots show demo trips.
           </p>
           <div className="mt-7 inline-flex gap-2 rounded-full bg-white/[0.06] p-1.5 ring-1 ring-white/[0.08]">
             {[
@@ -654,6 +791,7 @@ export function FeatureJourney() {
         <div className="mt-20 space-y-4">
           {/* flighty's dark-card run, in journey order: the booking pair, then
               the big intro card, then the platform pairs */}
+          <OneScreenCard />
           <DarkBookingPair />
           <DarkIntroCard />
           <DarkFeaturePair />

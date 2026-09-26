@@ -104,6 +104,11 @@ const FAQS: { group: GroupId; q: string; a: string }[] = [
   },
   {
     group: "about",
+    q: "How is the app laid out?",
+    a: "Railly is one screen: a satellite globe with a sheet floating over it. There are no tabs. The sheet lists My Trips, and the globe shows each trip on its route, drawn on real OpenStreetMap track where Railly has it. Tap a trip and the sheet turns into that trip's detail while the globe flies to the train and shows its estimated position. The search field, \"Train, station or PNR\", finds trains by number, name or station, and opens a PNR's status when you type 10 digits. Your avatar in the corner opens the Passport, the Delay Report and Settings.",
+  },
+  {
+    group: "about",
     q: "Is Railly available on Android?",
     a: "Not yet. Railly is built for iPhone first — a native iOS app, designed and polished for the platform rather than ported across from something else. There's no Android version today. If you'd like one, write to us at hello@railly.app so we can see the demand.",
   },
@@ -120,7 +125,7 @@ const FAQS: { group: GroupId; q: string; a: string }[] = [
   {
     group: "pnr",
     q: "How does PNR import work?",
-    a: "Add a trip with its 10-digit PNR and Railly resolves the whole journey — train, date, class, boarding and destination stations, and the current status of every passenger — and files it under My Trips. From then on Railly re-checks the PNR automatically, stepping up the frequency as chart time approaches, and pushes a notification whenever your status moves. No more refreshing an enquiry page every hour.",
+    a: "Type the 10-digit PNR into the search field at the top of My Trips. Railly opens its status: the train and date, class and quota, boarding and destination stations, and each passenger's booked and current status. Tap Add to My Trips and the journey lands on the globe. From then on Railly re-checks the PNR in the background when iOS allows and each time you open the app, and sends a notification when a status moves or the chart is prepared. No more refreshing an enquiry page every hour.",
   },
   {
     group: "pnr",
@@ -144,8 +149,8 @@ const FAQS: { group: GroupId; q: string; a: string }[] = [
   },
   {
     group: "tracking",
-    q: "What are platform alerts?",
-    a: "Railly watches the platform assignment at your boarding and arrival stations and pushes a notification the moment it's published — or changes. Combined with coach position, you'll know not just which platform to stand on, but where along it your coach will halt, so a last-minute platform swap becomes a walk instead of a sprint.",
+    q: "Does Railly send platform alerts?",
+    a: "Not yet. Platform-change alerts are on the roadmap and are not in the app today. The trip detail shows a platform in an amber badge when Railly has one, or Platform TBA when it doesn't, and the coach strip shows where your coach should stand. The notifications Railly sends today are for PNR status changes, chart preparation, and the Tatkal reminder you set.",
   },
   {
     group: "tatkal",
@@ -154,8 +159,8 @@ const FAQS: { group: GroupId; q: string; a: string }[] = [
   },
   {
     group: "tatkal",
-    q: "What is the 9:55 reminder?",
-    a: "If a journey you're watching is still waitlisted, Railly nudges you at 9:55 AM the day before travel — five minutes ahead of the AC Tatkal window — and again before the 11 AM non-AC window when that's the one you need. That's enough time to log in to IRCTC, load your saved passenger list, and be sitting on the booking screen when the quota opens.",
+    q: "How does the Tatkal reminder work?",
+    a: "Open a train's seat availability, pick the Tatkal quota and tap Remind me before it opens. Railly schedules a notification 15 minutes before the window for that class: 9:45 AM the day before travel for AC classes, 10:45 AM for Sleeper and Second Sitting. That's enough time to log in to IRCTC, load your saved passenger list, and be on the booking screen when the quota opens.",
   },
   {
     group: "tatkal",
@@ -170,7 +175,7 @@ const FAQS: { group: GroupId; q: string; a: string }[] = [
   {
     group: "data",
     q: "How do I export or delete my data?",
-    a: "Both live in Settings. Export produces a file with every journey Railly has recorded so your history is never locked in; Delete wipes the logbook and all stored PNRs from the device in one step. Because your data lives on the device, removing the app removes the data with it.",
+    a: "Both live in Settings: tap your avatar on the My Trips sheet, then Settings. Export produces a file with every journey Railly has recorded, so your history is never locked in. Delete All Trips wipes your trips and every stored PNR from the device in one step. Because your data lives on the device, removing the app removes the data with it.",
   },
   {
     group: "data",

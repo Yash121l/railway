@@ -46,8 +46,8 @@ const FAQS: FaqItem[] = [
     a: "As of the 2025 IRCTC rules, booking Tatkal on the IRCTC website or app requires an Aadhaar-authenticated account, and an Aadhaar-linked mobile OTP is verified at the time of booking. Authorised travel agents are also barred from booking Tatkal during the first 30 minutes of each window. Rules change, so confirm the current requirement on IRCTC before you rely on it. Railly doesn't book tickets — it reminds you and deep-links you to IRCTC.",
   },
   {
-    q: "How does the 9:55 reminder work?",
-    a: "If a journey you're watching is still waitlisted, Railly nudges you at 9:55 AM the day before travel — five minutes ahead of the AC Tatkal window — and again before the 11 AM non-AC window when that's the one you need. That's enough time to log in to IRCTC, load your saved passenger list, and be on the booking screen when the quota opens.",
+    q: "How does the Tatkal reminder work?",
+    a: "Open a train's seat availability, pick the Tatkal quota and tap Remind me before it opens. Railly schedules a notification 15 minutes before the window for that class: 9:45 AM the day before travel for AC classes, 10:45 AM for Sleeper and Second Sitting. That's enough time to log in to IRCTC, load your saved passenger list, and be on the booking screen when the quota opens.",
   },
 ];
 
@@ -201,11 +201,11 @@ export default function TatkalBookingTimeGuide() {
               <AlarmClock size={22} className="text-sun" />
             </span>
             <h2 className="text-[26px] font-bold tracking-tight md:text-[32px]">
-              Get the 9:55 Tatkal reminder.
+              Get a Tatkal reminder.
             </h2>
             <p className="mx-auto max-w-md text-[16px] leading-relaxed text-silver">
-              Watch a waitlisted journey in Railly and we&apos;ll nudge you five
-              minutes before the right window opens — so you&apos;re logged in,
+              Set a reminder on a train in Railly and it nudges you 15 minutes
+              before that class&apos;s window opens, so you&apos;re logged in,
               passengers loaded, and on the booking screen when the quota does.
             </p>
             <a

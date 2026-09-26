@@ -1,10 +1,10 @@
 import SwiftUI
 
-/// Flighty's Settings sheet, for rails. Every control here is real: alert
-/// prefs persist, units change how the app renders, account data actually
-/// exports and deletes.
+/// Settings, Flighty-style. Every control here is real: alert prefs persist,
+/// units change how the app renders, account data actually exports, imports
+/// and deletes.
 
-/// The traveller's name drives the avatar monogram, the logbook header, and
+/// The traveller's name drives the avatar monogram, the profile header, and
 /// the passport's machine-readable zone. Unset falls back to a neutral name.
 func profileDisplayName(_ raw: String) -> String {
     let n = raw.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -33,11 +33,51 @@ func profileMRZName(_ raw: String) -> String {
     return out.isEmpty ? "TRAVELLER" : out
 }
 
+/// An icon on a tinted rounded tile, then the title and an optional value.
+private struct SettingsRow: View {
+    let icon: String
+    let tint: Color
+    let title: String
+    var value: String? = nil
+    var valueColor: Color = DS.secondary
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(.white)
+                .frame(width: 30, height: 30)
+                .background(tint, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+            Text(title)
+                .font(.dsBody)
+                .foregroundStyle(DS.ink)
+            Spacer(minLength: 8)
+            if let value {
+                Text(value)
+                    .font(.dsCallout)
+                    .foregroundStyle(valueColor)
+            }
+        }
+        .padding(.vertical, 2)
+    }
+}
+
+/// The shared look for every settings screen: grouped rows on the canvas gray.
+private extension View {
+    func settingsList() -> some View {
+        self.listStyle(.insetGrouped)
+            .scrollContentBackground(.hidden)
+            .background(DS.canvas)
+            .tint(DS.action)
+    }
+}
+
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var store: TripStore
-    @EnvironmentObject private var bank: TrainBank
     @AppStorage("railly.profileName") private var profileName = ""
+    @AppStorage(IndianRailAPI.keyDefault) private var apiKey = ""
+    @AppStorage("railly.liveActivities") private var liveActivities = true
 
     private var version: String {
         let v = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
@@ -45,56 +85,41 @@ struct SettingsView: View {
         return "\(v) (\(b))"
     }
 
+    private var liveConfigured: Bool {
+        !apiKey.trimmingCharacters(in: .whitespaces).isEmpty
+    }
+
     var body: some View {
         NavigationStack {
             List {
                 Section {
-                    HStack(spacing: 13) {
-                        Text(profileAvatarInitial(profileName))
-                            .font(.system(size: 20, weight: .bold))
-                            .foregroundStyle(Color(hex: 0x2563AB))
-                            .frame(width: 56, height: 56)
-                            .background(Color(hex: 0xCFE3F8), in: Circle())
+                    HStack(spacing: 14) {
+                        ProfileAvatar(name: profileName, size: 54)
                         VStack(alignment: .leading, spacing: 2) {
-                            TextField("Traveller", text: $profileName)
-                                .font(.system(size: 19, weight: .bold))
-                                .foregroundStyle(Color.inkline)
+                            TextField("Add Your Name", text: $profileName)
+                                .font(.dsHeadline)
+                                .foregroundStyle(DS.ink)
                                 .textInputAutocapitalization(.words)
                                 .autocorrectionDisabled()
-                            Text("\(store.records.count) trip\(store.records.count == 1 ? "" : "s")")
-                                .font(.system(size: 13))
-                                .foregroundStyle(Color.subGray)
+                            Text("\(store.records.count) trip\(store.records.count == 1 ? "" : "s") on this device")
+                                .font(.dsFootnote)
+                                .foregroundStyle(DS.secondary)
                         }
                     }
                     .padding(.vertical, 4)
-
                 }
 
                 Section("Alerts") {
                     NavigationLink {
                         AlertsSettingsView()
                     } label: {
-                        settingsRow("bell.badge.fill", .lateRed, "My Trains")
+                        SettingsRow(icon: "bell.badge.fill", tint: DS.late, title: "PNR Alerts")
                     }
-                }
-
-                Section("Extensions") {
                     NavigationLink {
                         LiveActivitiesSettingsView()
                     } label: {
-                        settingsRow("bolt.fill", .proPurple, "Live Activities")
-                    }
-                    NavigationLink {
-                        comingSoon("Lock Screen Widgets",
-                                   "Countdown and live-run widgets are on the roadmap.")
-                    } label: {
-                        settingsRow("lock.iphone", .inkline, "Lock Screen Widgets")
-                    }
-                    NavigationLink {
-                        comingSoon("Apple Watch",
-                                   "Platform numbers on your wrist, the moment they change.")
-                    } label: {
-                        settingsRow("applewatch", .inkline, "Apple Watch")
+                        SettingsRow(icon: "bolt.fill", tint: DS.passport, title: "Live Activities",
+                                    value: liveActivities ? "On" : "Off")
                     }
                 }
 
@@ -102,7 +127,14 @@ struct SettingsView: View {
                     NavigationLink {
                         UnitsSettingsView()
                     } label: {
-                        settingsRow("ruler", Color(hex: 0x0A84FF), "Units")
+                        SettingsRow(icon: "ruler.fill", tint: DS.action, title: "Units")
+                    }
+                    NavigationLink {
+                        LiveDataSettingsView()
+                    } label: {
+                        SettingsRow(icon: "dot.radiowaves.up.forward", tint: DS.onTime, title: "Live Data",
+                                    value: liveConfigured ? "Live" : "Estimated",
+                                    valueColor: liveConfigured ? DS.onTimeText : DS.secondary)
                     }
                 }
 
@@ -110,55 +142,56 @@ struct SettingsView: View {
                     NavigationLink {
                         AccountDataView()
                     } label: {
-                        settingsRow("externaldrive.fill", .subGray, "Account Data")
-                    }
-                    NavigationLink {
-                        DataSourcesView()
-                    } label: {
-                        settingsRow("antenna.radiowaves.left.and.right", .onTime, "Data Sources")
-                    }
-                    NavigationLink {
-                        LiveDataSettingsView()
-                    } label: {
-                        settingsRow("dot.radiowaves.up.forward", .arcBlue, "Live Data")
-                    }
-                }
-
-                Section("Help Center") {
-                    NavigationLink {
-                        FAQView()
-                    } label: {
-                        settingsRow("questionmark.circle.fill", Color(hex: 0x0A84FF), "FAQ")
-                    }
-                    Link(destination: URL(string: "mailto:feedback@railly.app?subject=Railly%20Feedback")!) {
-                        settingsRow("paperplane.fill", .arcBlue, "Send Feedback")
-                    }
-                    NavigationLink {
-                        WhatsNewView()
-                    } label: {
-                        settingsRow("sparkles", .gateAmber, "What's New")
+                        SettingsRow(icon: "externaldrive.fill", tint: DS.secondary, title: "Account Data")
                     }
                 }
 
                 Section {
                     NavigationLink {
+                        FAQView()
+                    } label: {
+                        SettingsRow(icon: "questionmark", tint: DS.action, title: "FAQ")
+                    }
+                    Link(destination: URL(string: "mailto:feedback@railly.app?subject=Railly%20Feedback")!) {
+                        HStack {
+                            SettingsRow(icon: "paperplane.fill", tint: DS.route, title: "Send Feedback")
+                            Image(systemName: "arrow.up.right")
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundStyle(DS.tertiary)
+                        }
+                    }
+                    NavigationLink {
+                        WhatsNewView()
+                    } label: {
+                        SettingsRow(icon: "sparkles", tint: DS.rac, title: "What's New")
+                    }
+                    NavigationLink {
+                        DataSourcesView()
+                    } label: {
+                        SettingsRow(icon: "antenna.radiowaves.left.and.right", tint: DS.onTime, title: "Data Sources")
+                    }
+                    NavigationLink {
                         AboutView()
                     } label: {
-                        settingsRow("tram.fill", .inkline, "About Railly")
+                        SettingsRow(icon: "tram.fill", tint: DS.ink, title: "About Railly")
                     }
+                } header: {
+                    Text("Help")
                 } footer: {
                     VStack(spacing: 4) {
-                        Text("Railly \(version)")
                         Text("Come ride with me, let's ride, let's ride away…")
                             .italic()
+                        Text("Railly \(version)")
                     }
+                    .font(.dsFootnote)
+                    .foregroundStyle(DS.tertiary)
                     .frame(maxWidth: .infinity)
-                    .padding(.top, 10)
+                    .padding(.top, 22)
                 }
             }
-            .listStyle(.insetGrouped)
+            .settingsList()
             .navigationTitle("Settings")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }
@@ -166,38 +199,6 @@ struct SettingsView: View {
                 }
             }
         }
-    }
-
-    private func settingsRow(_ icon: String, _ tint: Color, _ title: String) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: icon)
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundStyle(.white)
-                .frame(width: 29, height: 29)
-                .background(tint, in: RoundedRectangle(cornerRadius: 7))
-            Text(title)
-                .font(.system(size: 16))
-                .foregroundStyle(Color.inkline)
-        }
-    }
-
-    private func comingSoon(_ title: String, _ blurb: String) -> some View {
-        VStack(spacing: 12) {
-            Image(systemName: "hammer.fill")
-                .font(.system(size: 28))
-                .foregroundStyle(Color.fadedGray)
-            Text(blurb)
-                .font(.system(size: 15))
-                .foregroundStyle(Color.subGray)
-                .multilineTextAlignment(.center)
-            Text("COMING SOON")
-                .font(.system(size: 11, weight: .bold))
-                .kerning(1)
-                .foregroundStyle(Color.fadedGray)
-        }
-        .padding(30)
-        .navigationTitle(title)
-        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
@@ -210,22 +211,18 @@ struct AlertsSettingsView: View {
     var body: some View {
         List {
             Section {
-                Text("Pick the notification types you receive for your trains.")
-                    .font(.system(size: 13))
-                    .foregroundStyle(Color.subGray)
-                    .listRowBackground(Color.clear)
-                    .listRowInsets(EdgeInsets())
-            }
-            Section {
                 alertToggle($basics, "Waitlist movement",
-                            "When a watched PNR changes status — waitlist to RAC, RAC to confirmed.")
+                            "When a watched PNR changes status: waitlist to RAC, RAC to confirmed.")
                 alertToggle($arrival, "Chart prepared",
                             "When the reservation chart prepares and your berth is final.")
+            } header: {
+                Text("Watched PNRs")
             } footer: {
-                Text("Notifications require iOS notification permission. Railly asks the first time an alert would fire.")
+                Text("Notifications need iOS permission; Railly asks the first time one would fire. Delay, cancellation and platform alerts aren't built yet, so there's no switch for them.")
             }
         }
-        .navigationTitle("My Trains")
+        .settingsList()
+        .navigationTitle("PNR Alerts")
         .navigationBarTitleDisplayMode(.inline)
     }
 
@@ -234,14 +231,14 @@ struct AlertsSettingsView: View {
         Toggle(isOn: binding) {
             VStack(alignment: .leading, spacing: 3) {
                 Text(title)
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(Color.inkline)
+                    .font(.dsHeadline)
+                    .foregroundStyle(DS.ink)
                 Text(desc)
-                    .font(.system(size: 13))
-                    .foregroundStyle(Color.subGray)
+                    .font(.dsFootnote)
+                    .foregroundStyle(DS.secondary)
             }
         }
-        .tint(Color.onTime)
+        .tint(DS.onTime)
         .padding(.vertical, 2)
         .onChange(of: binding.wrappedValue) { _, on in
             if on { PNRWatch.requestAuthorizationIfNeeded() }
@@ -259,13 +256,15 @@ struct LiveActivitiesSettingsView: View {
             Section {
                 Toggle(isOn: $enabled) {
                     Text("Live Activities")
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.dsHeadline)
+                        .foregroundStyle(DS.ink)
                 }
-                .tint(Color.onTime)
+                .tint(DS.onTime)
             } footer: {
-                Text("Your train's live run on the Lock Screen and in the Dynamic Island — position, delay, and the next halt, updating in place.")
+                Text("Your train's run on the Lock Screen and in the Dynamic Island: position, delay, and the next halt, updating in place.")
             }
         }
+        .settingsList()
         .navigationTitle("Live Activities")
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -290,7 +289,7 @@ struct UnitsSettingsView: View {
             } header: {
                 Text("Train Speed")
             } footer: {
-                Text("Speed over the ground, shown on the live map and in Live Run.")
+                Text("Speed over the ground, shown on the map and in trip detail.")
             }
             Section {
                 Picker("Time Format", selection: $time12) {
@@ -303,9 +302,10 @@ struct UnitsSettingsView: View {
             } header: {
                 Text("Time Format")
             } footer: {
-                Text("Indian Railways timetables are published in 24-hour IST. All times in Railly are IST.")
+                Text("Indian Railways publishes timetables in 24-hour IST. Every time in Railly is IST.")
             }
         }
+        .settingsList()
         .navigationTitle("Units")
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -322,61 +322,67 @@ struct AccountDataView: View {
     @State private var importResult: String?
 
     var body: some View {
-        List {
-            Section {
-                ShareLink(item: store.exportJSON(bank: bank),
-                          preview: SharePreview("Railly trips export")) {
-                    HStack {
-                        Image(systemName: "square.and.arrow.up")
-                            .foregroundStyle(Color.arcBlue)
-                        Text("Export Your Trips")
-                            .foregroundStyle(Color.arcBlue)
-                    }
-                }
-                Button {
-                    showImporter = true
-                } label: {
-                    HStack {
-                        Image(systemName: "square.and.arrow.down")
-                            .foregroundStyle(Color.arcBlue)
-                        Text("Import Trips")
-                            .foregroundStyle(Color.arcBlue)
-                    }
-                }
-            } header: {
-                Text("Export & import")
-            } footer: {
-                Text("\(store.records.count) trips stored on this device · \(bank.diskCacheCount) fetched schedules (\(ByteCountFormatter.string(fromByteCount: Int64(bank.diskCacheBytes), countStyle: .file))) in the route cache.")
-            }
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                Text("Your trips live only on this device. Back them up, bring them back, or clear them out.")
+                    .font(.dsBody)
+                    .foregroundStyle(DS.secondary)
 
-            Section {
-                Button(role: .destructive) {
+                groupHeader("Export & Import")
+                VStack(spacing: 0) {
+                    ShareLink(item: store.exportJSON(bank: bank),
+                              preview: SharePreview("Railly trips export")) {
+                        actionRow("square.and.arrow.up", "Export Your Trips", DS.action)
+                    }
+                    Rectangle().fill(DS.separator).frame(height: 1).padding(.leading, 52)
+                    Button {
+                        showImporter = true
+                    } label: {
+                        actionRow("square.and.arrow.down", "Import Trips", DS.action)
+                    }
+                }
+                .dsWell(radius: 18)
+                footnote("A JSON file with every trip and its ticket details (coach, berth, PNR). Importing merges; trips you already have are kept.")
+
+                groupHeader("Storage")
+                Button {
                     confirmClearCache = true
                 } label: {
-                    Text("Clear Route Cache")
+                    actionRow("arrow.clockwise", "Clear Route Cache", DS.action)
                 }
-                Button(role: .destructive) {
+                .dsWell(radius: 18)
+                footnote("\(store.records.count) trip\(store.records.count == 1 ? "" : "s") stored · \(bank.diskCacheCount) fetched schedules (\(ByteCountFormatter.string(fromByteCount: Int64(bank.diskCacheBytes), countStyle: .file))) in the route cache. Cleared schedules refetch when opened.")
+
+                groupHeader("Danger Zone")
+                Button {
                     confirmDeleteAll = true
                 } label: {
-                    Text("Delete All Trips")
+                    actionRow("exclamationmark.triangle", "Delete All Trips", DS.lateText)
                 }
-            } header: {
-                Text("Danger Zone")
-            } footer: {
-                Text("Deleting trips removes them, your watched PNRs and their saved statuses from this device permanently. Railly keeps no copy anywhere else.")
+                .background(DS.lateWash, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .disabled(store.records.isEmpty)
+                .opacity(store.records.isEmpty ? 0.5 : 1)
+                footnote("Permanently removes every trip, your watched PNRs and their saved statuses from this device. Railly keeps no copy anywhere else.",
+                         color: DS.lateText)
             }
+            .padding(.horizontal, DS.gutter)
+            .padding(.top, 4)
+            .padding(.bottom, 40)
         }
+        .background(DS.sheet)
         .navigationTitle("Account Data")
-        .navigationBarTitleDisplayMode(.inline)
-        .fileImporter(isPresented: $showImporter,
-                      allowedContentTypes: [.json]) { result in
+        .navigationBarTitleDisplayMode(.large)
+        .fileImporter(isPresented: $showImporter, allowedContentTypes: [.json]) { result in
             switch result {
             case .success(let url):
+                // Files from iCloud Drive or other apps arrive security-scoped.
+                let scoped = url.startAccessingSecurityScopedResource()
+                defer { if scoped { url.stopAccessingSecurityScopedResource() } }
                 do {
                     let data = try Data(contentsOf: url)
                     let added = try store.importJSON(data)
                     importResult = added == 0
-                        ? "Nothing new to add — those trips are already here."
+                        ? "Nothing new to add. Those trips are already here."
                         : "Added \(added) trip\(added == 1 ? "" : "s")."
                 } catch {
                     importResult = "That file isn't a Railly export."
@@ -385,7 +391,9 @@ struct AccountDataView: View {
                 importResult = "Couldn't read that file."
             }
         }
-        .alert("Import", isPresented: .constant(importResult != nil)) {
+        .alert("Import", isPresented: Binding(
+            get: { importResult != nil },
+            set: { if !$0 { importResult = nil } })) {
             Button("OK") { importResult = nil }
         } message: {
             Text(importResult ?? "")
@@ -398,6 +406,39 @@ struct AccountDataView: View {
                             isPresented: $confirmClearCache, titleVisibility: .visible) {
             Button("Clear Cache", role: .destructive) { bank.clearDiskCache() }
         }
+    }
+
+    private func groupHeader(_ title: String) -> some View {
+        Text(title)
+            .font(.dsSubhead)
+            .foregroundStyle(DS.secondary)
+            .textCase(.uppercase)
+            .padding(.leading, 4)
+            .padding(.top, 28)
+            .padding(.bottom, 8)
+    }
+
+    private func actionRow(_ icon: String, _ title: String, _ color: Color) -> some View {
+        HStack(spacing: 14) {
+            Image(systemName: icon)
+                .font(.system(size: 18, weight: .medium))
+                .frame(width: 24)
+            Text(title).font(.dsBody)
+            Spacer()
+        }
+        .foregroundStyle(color)
+        .padding(.horizontal, 16)
+        .frame(height: 56)
+        .contentShape(Rectangle())
+    }
+
+    private func footnote(_ text: String, color: Color = DS.secondary) -> some View {
+        Text(text)
+            .font(.dsFootnote)
+            .foregroundStyle(color)
+            .fixedSize(horizontal: false, vertical: true)
+            .padding(.horizontal, 4)
+            .padding(.top, 8)
     }
 }
 
@@ -414,6 +455,7 @@ struct LiveDataSettingsView: View {
         List {
             Section {
                 SecureField("indianrailapi.com API key", text: $apiKey)
+                    .font(.dsBody)
                     .autocorrectionDisabled()
                     .textInputAutocapitalization(.never)
             } header: {
@@ -424,18 +466,22 @@ struct LiveDataSettingsView: View {
 
             Section {
                 HStack {
-                    Text("Status").foregroundStyle(Color.inkline)
+                    Text("Status").font(.dsBody).foregroundStyle(DS.ink)
                     Spacer()
-                    Text(configured ? "Live" : "Estimated")
-                        .font(.system(size: 15, weight: .semibold))
-                        .foregroundStyle(configured ? Color.onTime : Color.gateAmber)
+                    if configured {
+                        DSChip(text: "Live", color: DS.onTime, filled: true)
+                    } else {
+                        EstimateTag()
+                    }
                 }
                 Link(destination: URL(string: "https://indianrailapi.com/api-collection/live-train-status")!) {
                     Text("Get a free API key")
-                        .foregroundStyle(Color.arcBlue)
+                        .font(.dsBody)
+                        .foregroundStyle(DS.action)
                 }
             }
         }
+        .settingsList()
         .navigationTitle("Live Data")
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -449,46 +495,41 @@ struct DataSourcesView: View {
             Section("Schedules & Platforms") {
                 sourceRow("Indian Railways via erail.in",
                           "Live timetables, run days, coach classes, platforms, and station coordinates for every train on the network. Fetched on demand, cached on device.",
-                          status: "LIVE", color: .onTime)
+                          status: "LIVE", color: DS.onTime)
             }
             Section("Offline Search") {
                 sourceRow("\(Catalog.trains.count) trains · \(Catalog.stations.count) stations",
-                          "The full network index ships inside the app, so search works instantly — even in a tunnel.",
-                          status: "BUNDLED", color: .arcBlue)
+                          "The full network index ships inside the app, so search works instantly, even in a tunnel.",
+                          status: "BUNDLED", color: DS.action)
             }
             Section {
                 sourceRow("Live positions & delay forecast",
                           "India has no public live-position feed, so Railly projects each train along its real route from the published timetable and models delays the way they actually accumulate. Positions are estimates, clearly marked.",
-                          status: "ESTIMATED", color: .gateAmber)
+                          status: "ESTIMATED", color: DS.secondary)
             } footer: {
                 Text("Railly is a demo and is not affiliated with Indian Railways, IRCTC, or erail.in.")
             }
         }
+        .settingsList()
         .navigationTitle("Data Sources")
         .navigationBarTitleDisplayMode(.inline)
     }
 
     private func sourceRow(_ title: String, _ desc: String,
                            status: String, color: Color) -> some View {
-        VStack(alignment: .leading, spacing: 5) {
-            HStack {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .firstTextBaseline) {
                 Text(title)
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(Color.inkline)
-                Spacer()
-                Text(status)
-                    .font(.system(size: 9, weight: .heavy))
-                    .kerning(0.6)
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 3)
-                    .background(color, in: Capsule())
+                    .font(.dsHeadline)
+                    .foregroundStyle(DS.ink)
+                Spacer(minLength: 8)
+                DSChip(text: status, color: color, filled: true)
             }
             Text(desc)
-                .font(.system(size: 13))
-                .foregroundStyle(Color.subGray)
+                .font(.dsFootnote)
+                .foregroundStyle(DS.secondary)
         }
-        .padding(.vertical, 3)
+        .padding(.vertical, 4)
     }
 }
 
@@ -499,15 +540,15 @@ struct FAQView: View {
         ("Where does the data come from?",
          "Train schedules, run days, platforms, and routes come live from erail.in, the same feed powering one of India's most-used enquiry sites. Search runs on a bundled index of the whole network."),
         ("Are the live positions real?",
-         "They're estimates. India's live NTES feed has no public API, so Railly projects each train along its real route from the published timetable, with a realistic delay model. Everything estimated is labeled."),
+         "They're estimates. India's live NTES feed has no public API, so Railly projects each train along its real route from the published timetable, with a realistic delay model. Everything estimated is labeled. Add an indianrailapi.com key in Settings → Live Data and real positions take over."),
         ("Why is a train missing or renamed?",
-         "Indian Railways renumbers and renames services constantly. Railly always shows what the live feed says today — which sometimes disagrees with what's printed on your ticket."),
+         "Indian Railways renumbers and renames services constantly. Railly always shows what the live feed says today, which sometimes disagrees with what's printed on your ticket."),
         ("Do I need an account?",
          "No. Trips live on your device. Export them anytime from Settings → Account Data."),
         ("What does Railly cost?",
          "Nothing. There is no paid tier, no subscription and no in-app purchase. If that ever changes we'll say so before it does, not by gating something that already worked."),
         ("Which notifications does Railly actually send?",
-         "Two, both about a PNR you're watching: when its status moves, and when the chart prepares. Delay, cancellation and platform-change alerts are not built yet — the app won't offer you a switch for something it can't do."),
+         "Two, both about a PNR you're watching: when its status moves, and when the chart prepares. Delay, cancellation and platform-change alerts are not built yet, and the app won't offer you a switch for something it can't do."),
     ]
 
     var body: some View {
@@ -515,16 +556,18 @@ struct FAQView: View {
             ForEach(items, id: \.0) { q, a in
                 DisclosureGroup {
                     Text(a)
-                        .font(.system(size: 14))
-                        .foregroundStyle(Color.subGray)
+                        .font(.dsCallout)
+                        .foregroundStyle(DS.ink2)
                         .padding(.vertical, 4)
                 } label: {
                     Text(q)
-                        .font(.system(size: 15, weight: .semibold))
-                        .foregroundStyle(Color.inkline)
+                        .font(.dsHeadline)
+                        .foregroundStyle(DS.ink)
                 }
+                .tint(DS.secondary)
             }
         }
+        .settingsList()
         .navigationTitle("FAQ")
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -533,15 +576,24 @@ struct FAQView: View {
 struct WhatsNewView: View {
     var body: some View {
         List {
+            Section("September 2026") {
+                newItem("One screen, one globe",
+                        "Your trips now float over a satellite globe. Tap a trip and the globe flies to its route.")
+                newItem("Passport and Delay Report",
+                        "Your profile adds up every completed trip: track kilometres, rail time, top routes and trains, and how much time delays cost you.")
+                newItem("Share cards, redrawn",
+                        "Trip cards show the real route shape, and every estimated time says so.")
+            }
             Section("July 2026") {
                 newItem("The whole network, for real",
                         "Search all \(Catalog.trains.count) real IR trains and \(Catalog.stations.count) stations. Schedules, platforms, and routes now come from the live feed.")
                 newItem("Add your own trips",
-                        "Hold tickets on real dates, with the run-day calendar enforced. Past trips build your logbook.")
+                        "Hold tickets on real dates, with the run-day calendar enforced. Past trips build your Passport.")
                 newItem("Settings, properly",
-                        "Alert preferences, units that actually change the app, data export, and a full account-data page.")
+                        "Alert preferences, units that actually change the app, data export and import, and a full account-data page.")
             }
         }
+        .settingsList()
         .navigationTitle("What's New")
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -549,11 +601,11 @@ struct WhatsNewView: View {
     private func newItem(_ title: String, _ desc: String) -> some View {
         VStack(alignment: .leading, spacing: 3) {
             Text(title)
-                .font(.system(size: 15, weight: .semibold))
-                .foregroundStyle(Color.inkline)
+                .font(.dsHeadline)
+                .foregroundStyle(DS.ink)
             Text(desc)
-                .font(.system(size: 13))
-                .foregroundStyle(Color.subGray)
+                .font(.dsFootnote)
+                .foregroundStyle(DS.secondary)
         }
         .padding(.vertical, 3)
     }
@@ -563,22 +615,26 @@ struct AboutView: View {
     var body: some View {
         VStack(spacing: 14) {
             Image(systemName: "tram.fill")
-                .font(.system(size: 44))
-                .foregroundStyle(Color.inkline)
+                .font(.system(size: 38, weight: .semibold))
+                .foregroundStyle(.white)
+                .frame(width: 84, height: 84)
+                .background(DS.ink, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
             Text("Railly")
-                .font(.system(size: 28, weight: .heavy))
-                .foregroundStyle(Color.inkline)
+                .font(.dsLargeTitle)
+                .foregroundStyle(DS.ink)
             Text("Flighty-grade tracking for Indian Railways.\nBuilt as a love letter to both.")
-                .font(.system(size: 15))
-                .foregroundStyle(Color.subGray)
+                .font(.dsCallout)
+                .foregroundStyle(DS.secondary)
                 .multilineTextAlignment(.center)
             Text("Not affiliated with Indian Railways, IRCTC, erail.in, or Flighty.")
-                .font(.system(size: 12))
-                .foregroundStyle(Color.fadedGray)
+                .font(.dsCaption)
+                .foregroundStyle(DS.tertiary)
                 .multilineTextAlignment(.center)
                 .padding(.top, 18)
         }
         .padding(30)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(DS.sheet)
         .navigationTitle("About")
         .navigationBarTitleDisplayMode(.inline)
     }
