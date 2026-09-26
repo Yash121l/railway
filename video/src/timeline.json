@@ -1,0 +1,158 @@
+{
+  "fps": 60,
+  "bpm": 120,
+  "scenes": [
+    {
+      "id": "hook",
+      "from": 0,
+      "beats": 8
+    },
+    {
+      "id": "headlights",
+      "from": 8,
+      "beats": 4
+    },
+    {
+      "id": "logo",
+      "from": 12,
+      "beats": 8
+    },
+    {
+      "id": "network",
+      "from": 20,
+      "beats": 10
+    },
+    {
+      "id": "home",
+      "from": 30,
+      "beats": 6
+    },
+    {
+      "id": "fly",
+      "from": 36,
+      "beats": 8
+    },
+    {
+      "id": "detail",
+      "from": 44,
+      "beats": 10
+    },
+    {
+      "id": "pnr",
+      "from": 54,
+      "beats": 8
+    },
+    {
+      "id": "add",
+      "from": 62,
+      "beats": 10
+    },
+    {
+      "id": "live",
+      "from": 72,
+      "beats": 6
+    },
+    {
+      "id": "passport",
+      "from": 78,
+      "beats": 8
+    },
+    {
+      "id": "slam",
+      "from": 86,
+      "beats": 10
+    },
+    {
+      "id": "honest",
+      "from": 96,
+      "beats": 6
+    },
+    {
+      "id": "end",
+      "from": 102,
+      "beats": 12
+    }
+  ],
+  "totalBeats": 114,
+  "hookWords": [
+    "WHICH PLATFORM?",
+    "STILL WAITLISTED?",
+    "HOW LATE?",
+    "WHERE'S COACH B1?"
+  ],
+  "slam": [
+    {
+      "text": "4,022 trains",
+      "beat": 0,
+      "beats": 2,
+      "tone": "dark"
+    },
+    {
+      "text": "9,109 station codes",
+      "beat": 2,
+      "beats": 2,
+      "tone": "light"
+    },
+    {
+      "text": "Search works offline",
+      "beat": 4,
+      "beats": 2,
+      "tone": "dark"
+    },
+    {
+      "text": "No ads",
+      "beat": 6,
+      "beats": 1,
+      "tone": "light"
+    },
+    {
+      "text": "No account",
+      "beat": 7,
+      "beats": 1,
+      "tone": "dark"
+    },
+    {
+      "text": "Free.",
+      "beat": 8,
+      "beats": 2,
+      "tone": "sun"
+    }
+  ],
+  "clips": {
+    "home": {
+      "src": "rec/home.mp4",
+      "start": 0.4,
+      "rate": 1.0
+    },
+    "fly": {
+      "src": "rec/fly.mp4",
+      "start": 0.9,
+      "rate": 1.0,
+      "tapAt": 1.5,
+      "tapX": 0.5,
+      "tapY": 0.735
+    },
+    "detail": {
+      "src": "rec/detail.mp4",
+      "start": 0.2,
+      "rate": 2.0
+    },
+    "pnr": {
+      "src": "rec/pnr.mp4",
+      "start": 0.0,
+      "rate": 2.3,
+      "resultAt": 3.7
+    },
+    "add": {
+      "src": "rec/add.mp4",
+      "start": 0.3,
+      "rate": 2.1,
+      "addedAt": 9.9
+    },
+    "passport": {
+      "src": "rec/profile.mp4",
+      "start": 0.2,
+      "rate": 1.8
+    }
+  }
+}
