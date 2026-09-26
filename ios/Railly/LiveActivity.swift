@@ -111,6 +111,8 @@ final class LiveActivityManager: ObservableObject {
         let nextETA = live.stopTimings.indices.contains(live.nextStopIdx)
             ? live.stopTimings[live.nextStopIdx].arrEst.timeIntervalSince1970
             : 0
+        let origin = live.stopTimings[0]
+        let departDelay = Int((origin.depEst.timeIntervalSince(origin.depSched) / 60).rounded())
         return TrainActivityAttributes.ContentState(
             phase: phase,
             delayMinutes: destDelay,
@@ -120,13 +122,15 @@ final class LiveActivityManager: ObservableObject {
             platform: phase == .preDeparture ? depPlatform : nil,
             speedKmh: live.speedKmh,
             statusLine: why,
-            departISO: live.stopTimings[0].depEst.timeIntervalSince1970,
+            departISO: origin.depEst.timeIntervalSince1970,
             arriveISO: live.arrivesEst.timeIntervalSince1970,
             chartISO: chartISO,
             chartPrepared: chartPrepared,
             waitlistStatus: waitlistStatus,
             berthAllotment: berthAllotment,
-            nextStopISO: nextETA
+            nextStopISO: nextETA,
+            departDelayMinutes: departDelay,
+            isEstimate: !LiveFeed.shared.isLive(trip.train.number, live.runDate)
         )
     }
 

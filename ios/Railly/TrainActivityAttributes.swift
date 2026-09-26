@@ -41,6 +41,11 @@ struct TrainActivityAttributes: ActivityAttributes {
         var berthAllotment: String = ""
         /// expected arrival at `nextStopName`, epoch seconds
         var nextStopISO: Double = 0
+        /// origin departure delay in minutes (colors the departure end)
+        var departDelayMinutes: Int = 0
+        /// true unless a fresh real feed snapshot drives the run; the card
+        /// labels every figure "Estimated" while this holds
+        var isEstimate: Bool = true
 
         var departDate: Date { Date(timeIntervalSince1970: departISO) }
         var arriveDate: Date { Date(timeIntervalSince1970: arriveISO) }
@@ -83,4 +88,36 @@ struct TrainActivityAttributes: ActivityAttributes {
     var monogram: String
     /// badge fill, packed as 0xRRGGBB so the widget can rebuild the Color
     var liveryHex: UInt32
+}
+
+/// Fields added after 1.0 carry defaults, but the synthesized decoder ignores
+/// them: an activity started by an older build would fail to decode after an
+/// update. Decode those fields leniently.
+extension TrainActivityAttributes.ContentState {
+    private enum CodingKeys: String, CodingKey {
+        case phase, delayMinutes, progress, nextStopName, nextStopCode, platform, speedKmh,
+             statusLine, departISO, arriveISO, chartISO, chartPrepared, waitlistStatus,
+             berthAllotment, nextStopISO, departDelayMinutes, isEstimate
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        phase = try c.decode(Phase.self, forKey: .phase)
+        delayMinutes = try c.decode(Int.self, forKey: .delayMinutes)
+        progress = try c.decode(Double.self, forKey: .progress)
+        nextStopName = try c.decode(String.self, forKey: .nextStopName)
+        nextStopCode = try c.decode(String.self, forKey: .nextStopCode)
+        platform = try c.decodeIfPresent(String.self, forKey: .platform)
+        speedKmh = try c.decode(Int.self, forKey: .speedKmh)
+        statusLine = try c.decode(String.self, forKey: .statusLine)
+        departISO = try c.decode(Double.self, forKey: .departISO)
+        arriveISO = try c.decode(Double.self, forKey: .arriveISO)
+        chartISO = try c.decodeIfPresent(Double.self, forKey: .chartISO) ?? 0
+        chartPrepared = try c.decodeIfPresent(Bool.self, forKey: .chartPrepared) ?? false
+        waitlistStatus = try c.decodeIfPresent(String.self, forKey: .waitlistStatus) ?? ""
+        berthAllotment = try c.decodeIfPresent(String.self, forKey: .berthAllotment) ?? ""
+        nextStopISO = try c.decodeIfPresent(Double.self, forKey: .nextStopISO) ?? 0
+        departDelayMinutes = try c.decodeIfPresent(Int.self, forKey: .departDelayMinutes) ?? 0
+        isEstimate = try c.decodeIfPresent(Bool.self, forKey: .isEstimate) ?? true
+    }
 }

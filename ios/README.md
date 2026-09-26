@@ -6,7 +6,9 @@ A native SwiftUI port of Railly — the same Dec 2025 Flighty design language, t
 
 - **The engine** (`Rng.swift`, `TimeUtil.swift`, `Geo.swift`, `Sim.swift`, `Trips.swift`) is a **bit-exact port** of the web app's simulation: the seeded PRNG matches JS `Math.imul` semantics via wrapping `UInt32` math, IST is a fixed +5:30, and delays are the same random walk. Verified: at the same instant, the Swift and TypeScript engines produce identical phases, delay arrays, run dates, event counts, and even the same seeded PNRs.
 - **`Trains.swift` is generated** from `src/lib/trains.ts` (see the repo's history for the generator) — keep the two datasets in sync.
-- **Views**: My Trips (MapKit network map with blue route arcs and live markers over a white sheet, countdown-rail rows, working search), Trip Detail (route map with flown/remaining arc, speed pill, status banner, giant colored times, amber PF chips, updates feed, Scheduled/Estimated timetable, booking), Track (one line per train), Logbook (indigo Passport gradient card, maroon delay card with split-flap board and LED worst-delay row).
+- **One screen** (`AppShell.swift`): a satellite globe (`HomeMap.swift`) under a custom draggable sheet. The sheet shows My Trips (`TripsSheet.swift`, `TripRowView.swift`) or, once a trip is focused, its detail (`TripDetailView.swift`) while the globe flies to the route. There is no tab bar.
+- **Modals** hang off the sheet through `Router`: search and add (`AddTripView.swift`), PNR result (`PNRView.swift`), profile with Passport and delay stats (`ProfileView.swift`), settings, and the first-run welcome (`Onboarding.swift`).
+- **Design system** (`DesignSystem.swift`): colour tokens, type scale, the one-status-colour rule (`StatusTone`), and the shared components every screen uses.
 
 ## Building
 
@@ -20,4 +22,4 @@ No dependencies, no signing requirements beyond automatic signing, no API keys �
 
 ## Verification status
 
-Written and verified on a machine without full Xcode: every Swift file **typechecks clean against the macOS 14 SDK** (all APIs used are iOS 17/macOS 14 cross-platform), and the engine was compiled with `swiftc` and parity-tested against the TypeScript engine. The full iOS app target has not been run on a simulator here — open it in Xcode and it should build; if anything trips, it will be cosmetic, not the engine.
+Builds with `xcodebuild` (Xcode 27, iOS 27 simulator) and runs in the simulator. Launch arguments for screenshots and UI tests: `-railly.demo 1` (demo trips), `-railly.detail <train>` (focus that train), `-railly.pnr <10 digits>`, `-railly.screen add|profile|settings|large|peek`.

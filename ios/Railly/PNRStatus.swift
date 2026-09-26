@@ -127,7 +127,7 @@ func isSnapshotLaunch() -> Bool {
         || d.string(forKey: "railly.detail") != nil
         || d.string(forKey: "railly.pnr") != nil
         || d.bool(forKey: "railly.onrails")
-        || d.integer(forKey: "railly.tab") != 0
+        || d.string(forKey: "railly.screen") != nil
 }
 
 /// Front door for PNR lookups. Real data first: the free ConfirmTkt feed
