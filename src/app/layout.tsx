@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     template: "%s — Railly",
   },
   description:
-    "The Flighty of Indian Railways — built for iPhone. Track any train, check a real PNR, find your coach on the platform, and keep a logbook of every kilometre. 4,022 trains, 9,109 station codes, works offline.",
+    "The Flighty of Indian Railways, built for iPhone. Your trips on a satellite globe, a real PNR check, your coach on the platform, and a Passport of every kilometre. 4,022 trains, 9,109 station codes, works offline.",
   applicationName: "Railly",
   openGraph: {
     siteName: "Railly",
