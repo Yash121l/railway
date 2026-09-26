@@ -1,7 +1,7 @@
 import React from "react";
 import { AbsoluteFill, OffthreadVideo, staticFile, useCurrentFrame } from "remotion";
 import timeline from "../timeline.json";
-import { Fade, Tag, Words } from "../lib/ui";
+import { Fade, FlapKicker, Tag, Words } from "../lib/ui";
 import { C, EASE_IN_OUT, FPS, SANS, ramp, scene, useLayout } from "../theme";
 
 type Clip = { src: string; start: number; rate: number; tapAt?: number; tapX?: number; tapY?: number };
@@ -12,6 +12,8 @@ type Line = { text: string; accent?: Record<string, string>; sub?: string; at: n
 
 export type AppClipSpec = {
   id: string;
+  /** chapter title on flap tiles; `continues` keeps it still when the previous scene had the same one */
+  chapter: { text: string; continues?: boolean };
   lines: Line[];
   tone?: "dark" | "violet";
   /** gentle camera moves on the phone: [frame, scale, originY 0..1] */
@@ -128,6 +130,8 @@ export const makeAppClip = (spec: AppClipSpec): React.FC => {
                 width: portrait ? undefined : width * 0.46,
               }}
             >
+              {i === 0 && <FlapKicker text={spec.chapter.text} at={2} u={u} flip={!spec.chapter.continues} />}
+              {i > 0 && <div style={{ height: 68 * u }} />}
               <Words text={line.text} at={line.at} exitAt={next ? next.at - 16 : duration - 14} size={headSize} accent={line.accent} />
               {line.sub && (
                 <Fade at={line.at + 26} exitAt={next ? next.at - 18 : duration - 16} style={{ marginTop: 28 * u }}>

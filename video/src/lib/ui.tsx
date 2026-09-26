@@ -237,3 +237,22 @@ export const easeOutBack = (t: number) => {
 export const pop = (frame: number, at: number, dur = 18) => easeOutBack(ramp(frame, at, at + dur, [0, 1], (x) => x));
 
 export { EASE_OUT };
+
+/** Chapter title on small split-flap tiles, echoing the opening departure board. */
+export const FlapKicker: React.FC<{ text: string; at: number; u: number; flip?: boolean }> = ({ text, at, u, flip = true }) => {
+  const w = 30 * u;
+  const h = 42 * u;
+  return (
+    <div style={{ display: "flex", gap: 4 * u, marginBottom: 26 * u }}>
+      {[...text].map((ch, i) => {
+        const startAt = flip ? at + i * 1.2 : -100;
+        const settleAt = flip ? startAt + 6 + random(`k${text}${i}`) * 10 : -100;
+        return ch === " " ? (
+          <div key={i} style={{ width: w * 0.5 }} />
+        ) : (
+          <FlapCell key={i} target={ch} startAt={startAt} settleAt={settleAt} seed={i * 31 + text.length} w={w} h={h} />
+        );
+      })}
+    </div>
+  );
+};

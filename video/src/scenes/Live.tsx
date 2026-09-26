@@ -1,6 +1,6 @@
 import React from "react";
 import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
-import { Fade, Tag, Words, easeOutBack } from "../lib/ui";
+import { Fade, FlapKicker, Tag, Words, easeOutBack } from "../lib/ui";
 import { C, EASE_IN_OUT, SANS, ramp, useLayout } from "../theme";
 
 const LATE = "#ff453a";
@@ -163,6 +163,7 @@ export const Live: React.FC = () => {
       </div>
 
       <div style={{ position: "absolute", left: portrait ? 70 * u : width * 0.065, right: portrait ? 70 * u : undefined, top: portrait ? height * 0.07 : height * 0.26, width: portrait ? undefined : width * 0.44 }}>
+        <FlapKicker text="OVERNIGHT" at={2} u={u} />
         <Words text="Your trip, on the lock screen." at={8} size={(portrait ? 96 : 104) * u} accent={{ "lock": "#b9a8ff", "screen.": "#b9a8ff" }} />
         <Fade at={30} style={{ marginTop: 30 * u }}>
           <div style={{ fontFamily: SANS, fontSize: 32 * u, color: "rgba(255,255,255,0.62)", fontWeight: 500, lineHeight: 1.35 }}>

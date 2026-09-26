@@ -14,22 +14,18 @@ import { C, scene } from "./theme";
 
 const blue = "#8fc0ff";
 
-const Home = makeAppClip({
-  id: "home",
-  lines: [{ text: "One globe. Every train you ride.", accent: { One: blue, "globe.": blue }, sub: "Your trips on real track, moving trains estimated from the timetable.", at: 8 }],
-  push: [[60, 1.14, 0.2]],
-});
-
 const Fly = makeAppClip({
   id: "fly",
-  lines: [{ text: "Tap a train. Follow it.", accent: { Follow: blue, "it.": blue }, at: 6 }],
+  chapter: { text: "ON BOARD" },
+  lines: [{ text: "Tap your train. Follow it.", accent: { Follow: blue, "it.": blue }, sub: "The globe flies to its real track. Position estimated from the timetable.", at: 10 }],
   push: [[100, 1.3, 0.18]],
 });
 
 const Detail = makeAppClip({
   id: "detail",
+  chapter: { text: "AT THE STATION" },
   lines: [
-    { text: "Platform. Delay. And why.", accent: { "why.": "#ff6b5e" }, at: 6 },
+    { text: "Platform. Delay. And why.", accent: { "why.": "#ff6b5e" }, at: 10 },
     { text: "Know where your coach stops.", accent: { coach: blue }, sub: "Composition is indicative. Rakes can run reversed.", at: 150 },
   ],
   push: [[40, 1.12, 0.3], [150, 1.12, 0.62], [250, 1, 0.5]],
@@ -37,20 +33,23 @@ const Detail = makeAppClip({
 
 const Pnr = makeAppClip({
   id: "pnr",
-  lines: [{ text: "Your PNR, decoded.", accent: { "decoded.": blue }, sub: "Every passenger's status, berth, and coach position.", at: 6 }],
+  chapter: { text: "BEFORE YOU GO" },
+  lines: [{ text: "Your PNR, decoded.", accent: { "decoded.": blue }, sub: "Every passenger's status, berth, and coach position.", at: 10 }],
   push: [[50, 1.18, 0.15], [150, 1.14, 0.7]],
 });
 
 const Add = makeAppClip({
   id: "add",
-  lines: [{ text: "Add a trip in seconds.", accent: { "seconds.": blue }, sub: "Search 4,022 trains by number, name, station, or PNR.", at: 6 }],
+  chapter: { text: "BEFORE YOU GO", continues: true },
+  lines: [{ text: "Add your trip in seconds.", accent: { "seconds.": blue }, sub: "Search 4,022 trains by number, name, station, or PNR.", at: 6 }],
   push: [[20, 1.16, 0.12], [210, 1.2, 0.2]],
 });
 
 const Passport = makeAppClip({
   id: "passport",
+  chapter: { text: "YOU'VE ARRIVED" },
   tone: "violet",
-  lines: [{ text: "Every kilometre, in your Passport.", accent: { "Passport.": "#b9a8ff" }, at: 6 }],
+  lines: [{ text: "Every kilometre, in your Passport.", accent: { "Passport.": "#b9a8ff" }, sub: "Distance on real track, rail time, and the hours lost to delays.", at: 10 }],
   push: [[30, 1.15, 0.3]],
 });
 
@@ -59,11 +58,10 @@ const SCENES: [string, React.FC][] = [
   ["headlights", Headlights],
   ["logo", Logo],
   ["network", Network],
-  ["home", Home],
-  ["fly", Fly],
-  ["detail", Detail],
   ["pnr", Pnr],
   ["add", Add],
+  ["detail", Detail],
+  ["fly", Fly],
   ["live", Live],
   ["passport", Passport],
   ["slam", Slam],

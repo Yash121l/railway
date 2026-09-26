@@ -299,10 +299,14 @@ def groove(b0, b1, arp=False, hats=True, clacks=True):
         pad_chord(at(bar * 4), PROG[bar % 4], at(4), 0.14, cutoff=2000)
 
 
-groove(SCENE["network"], SCENE["home"], arp=False)
-groove(SCENE["home"], SCENE["slam"] - 2, arp=True)
-for b in (SCENE["home"], SCENE["fly"], SCENE["detail"], SCENE["pnr"], SCENE["add"], SCENE["live"], SCENE["passport"]):
+groove(SCENE["network"], SCENE["pnr"], arp=False)
+groove(SCENE["pnr"], SCENE["slam"] - 2, arp=True)
+for b in (SCENE["pnr"], SCENE["add"], SCENE["detail"], SCENE["fly"], SCENE["live"], SCENE["passport"]):
     add(fx, at(b) - 0.25, whoosh(0.5, 0.35), rev=0.2)
+
+# each chapter title flips in on split-flap tiles, like the opening board
+for b in (SCENE["pnr"], SCENE["detail"], SCENE["fly"], SCENE["live"], SCENE["passport"]):
+    add(fx, at(b) + 0.04, flap_clatter(0.4, 0.28), pan=-0.3, rev=0.15)
 
 CLIPS = TL["clips"]
 
