@@ -1,0 +1,25 @@
+{
+  "data": {
+    "ctProResponse": null,
+    "pnrResponse": {
+      "pnr": null,
+      "trainNo": null,
+      "trainName": null,
+      "doj": null,
+      "quota": null,
+      "from": null,
+      "to": null,
+      "reservationUpto": null,
+      "boardingPoint": null,
+      "class": null,
+      "chartPrepared": false,
+      "passengerCount": 0,
+      "passengerStatus": null,
+      "error": "Flushed PNR /PNR not yet generated",
+      "errorCode": 201,
+      "bookingFare": null,
+      "ticketFare": null,
+      "coachPosition": null
+    }
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "data": {
+    "ctProResponse": null,
+    "pnrResponse": {
+      "pnr": "1234567890",
+      "trainNo": "12951",
+      "trainName": "NDLS TEJAS RAJ",
+      "doj": "13-10-2026",
+      "quota": "GN",
+      "from": "MMCT",
+      "to": "NDLS",
+      "reservationUpto": "NDLS",
+      "boardingPoint": "BVI",
+      "class": "3A",
+      "chartPrepared": true,
+      "passengerCount": 2,
+      "passengerStatus": [
+        {
+          "bookingStatus": "WL 12",
+          "currentStatus": "CNF",
+          "currentCoachId": "B3",
+          "currentBerthNo": 45,
+          "bookingCoachId": "",
+          "bookingBerthNo": 0,
+          "prediction": "Confirmed"
+        },
+        {
+          "bookingStatus": "WL 13",
+          "currentStatus": "RAC 2",
+          "currentCoachId": "-",
+          "coach": "B4",
+          "currentBerthNo": 0,
+          "berth": "7",
+          "bookingCoachId": null,
+          "bookingBerthNo": null,
+          "prediction": "67% Chance"
+        }
+      ],
+      "error": null,
+      "errorCode": 0,
+      "bookingFare": "4805",
+      "ticketFare": 4805,
+      "coachPosition": "L SLR B1 B2 B3 B4 PC A1 H1 SLR"
+    }
+  }
+}

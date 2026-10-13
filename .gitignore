@@ -54,3 +54,6 @@ xcuserdata/
 
 # atomic-write temp files from the rail-shape pipeline
 *.json.tmp
+
+# runtime delay-history log written by src/lib/rail/history.ts
+/.data/
