@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import posthog from "posthog-js";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import {
   ChevronDown,
@@ -72,6 +73,19 @@ export function RailLensShell({ route, error, requested }: RailLensShellProps) {
   });
   const mapHandle = useRef<RouteMapHandle | null>(null);
   const stopRefs = useRef<(HTMLLIElement | null)[]>([]);
+
+  // One event per route load (the page is server-rendered per ?train=).
+  useEffect(() => {
+    if (requested === null) return;
+    posthog.capture("raillens_route_viewed", {
+      train_number: requested,
+      found: route !== null,
+      category: route?.category,
+      stop_count: route?.stops.length,
+      distance_km: route?.distanceKm,
+      km_is_exact: route?.kmIsExact,
+    });
+  }, [requested, route]);
 
   const { isDesktop, viewportHeight } = useViewport();
   // The map has to frame the route around whatever panel is covering it: the
@@ -299,7 +313,8 @@ function TrainSearch() {
     if (value.trim().length < 2) setHits([]);
   };
 
-  const go = (number: string) => {
+  const go = (number: string, via: "submit" | "pick") => {
+    posthog.capture("raillens_train_opened", { train_number: number, via });
     setOpen(false);
     setQuery("");
     router.push(`/raillens?train=${number}`);
@@ -308,8 +323,8 @@ function TrainSearch() {
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const q = query.trim();
-    if (/^\d{4,6}$/.test(q)) go(q);
-    else if (hits.length > 0) go(hits[0].number);
+    if (/^\d{4,6}$/.test(q)) go(q, "submit");
+    else if (hits.length > 0) go(hits[0].number, "submit");
   };
 
   return (
@@ -364,7 +379,7 @@ function TrainSearch() {
           {hits.map((hit) => (
             <li key={hit.number} role="option" aria-selected={false}>
               <button
-                onClick={() => go(hit.number)}
+                onClick={() => go(hit.number, "pick")}
                 className="flex w-full items-center gap-3 rounded-xl px-2.5 py-2 text-left transition-colors hover:bg-fill"
               >
                 <TrainFront size={15} className="shrink-0 text-steel" />

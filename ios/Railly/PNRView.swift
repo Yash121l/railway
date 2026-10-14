@@ -323,6 +323,19 @@ struct PNRResultView: View {
         // a cancelled fetch (tab switch mid-flight) must not persist a bogus
         // "offline" verdict for the next appearance
         guard !Task.isCancelled else { return }
+        // Outcome and feed only; the PNR itself never leaves the device.
+        switch result {
+        case .found(let info):
+            Analytics.shared.log(.pnrCheckCompleted, [
+                "outcome": "found",
+                "source": "\(info.source)",
+                "train": info.train.number,
+            ])
+        case .notFound:
+            Analytics.shared.log(.pnrCheckCompleted, ["outcome": "not_found"])
+        case .offline:
+            Analytics.shared.log(.pnrCheckCompleted, ["outcome": "offline"])
+        }
         if case .found(let info) = result { remember(info) }
         outcome = result
     }

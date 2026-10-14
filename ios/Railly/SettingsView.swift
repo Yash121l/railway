@@ -122,6 +122,11 @@ struct SettingsView: View {
                     } label: {
                         settingsRow("dot.radiowaves.up.forward", .arcBlue, "Live Data")
                     }
+                    NavigationLink {
+                        PrivacySettingsView()
+                    } label: {
+                        settingsRow("hand.raised.fill", .subGray, "Privacy")
+                    }
                 }
 
                 Section("Help Center") {
@@ -246,6 +251,31 @@ struct AlertsSettingsView: View {
         .onChange(of: binding.wrappedValue) { _, on in
             if on { PNRWatch.requestAuthorizationIfNeeded() }
         }
+    }
+}
+
+// MARK: - Privacy
+
+struct PrivacySettingsView: View {
+    @State private var enabled = Analytics.isEnabled
+
+    var body: some View {
+        List {
+            Section {
+                Toggle(isOn: $enabled) {
+                    Text("Share Usage Analytics")
+                        .font(.system(size: 16, weight: .semibold))
+                }
+                .tint(Color.onTime)
+                .onChange(of: enabled) { _, on in
+                    Analytics.shared.setEnabled(on)
+                }
+            } footer: {
+                Text("Anonymous counts of which features get used, plus crash reports and screen recordings with every text field masked. Never your PNR, passenger status, or saved trips. Sent to PostHog; see railly.app/privacy.")
+            }
+        }
+        .navigationTitle("Privacy")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 

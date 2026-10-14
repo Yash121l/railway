@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { PageHero, PageShell } from "@/components/marketing/PageShell";
 
 const PRIVACY_DESCRIPTION =
-  "How Railly handles your data: trips stay on your device, PNR queries are never stored by us, and there are no analytics today.";
+  "How Railly handles your data: trips stay on your device, PNR queries are never stored by us, and analytics are anonymous product counts you can switch off in the app.";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
@@ -37,7 +37,7 @@ export default function PrivacyPage() {
       />
 
       <article className="mx-auto max-w-2xl px-4 pb-24">
-        <p className="pt-6 text-[13px] text-steel">Last updated: July 2026</p>
+        <p className="pt-6 text-[13px] text-steel">Last updated: October 2026</p>
 
         <h2 className="pt-10 text-[22px] font-bold text-black">
           What we collect
@@ -66,9 +66,20 @@ export default function PrivacyPage() {
 
         <h2 className="pt-10 text-[22px] font-bold text-black">Analytics</h2>
         <p className="mt-3 text-[15px] leading-relaxed text-carbon">
-          None today. No analytics SDKs, no ad trackers, no fingerprinting. If
-          that ever changes, we&apos;ll say so here first — plainly, with an
-          updated date at the top of this page.
+          Railly uses PostHog for product analytics, on this website and in
+          the iOS app. It counts page views, which features get used (a PNR
+          check, a train opened on RailLens, a trip added in the app), errors
+          and crashes, and how fast pages load. It never receives your PNR
+          number, passenger statuses, or your saved trips, and there is no
+          account, so nothing is tied to your name or email. Website session
+          recordings mask everything you type and leave the PNR result out
+          entirely; app recordings mask every text field. In the app you can
+          turn analytics off at any time in{" "}
+          <span className="font-semibold text-black">
+            Settings&nbsp;&rarr;&nbsp;Privacy
+          </span>
+          . Still no ad trackers, no fingerprinting, and nothing is sold or
+          shared.
         </p>
 
         <h2 className="pt-10 text-[22px] font-bold text-black">

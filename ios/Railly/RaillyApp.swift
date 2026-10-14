@@ -9,6 +9,7 @@ struct RaillyApp: App {
     init() {
         // Must register before the first scene is built.
         PNRWatch.registerBackgroundTask()
+        Analytics.shared.start()
     }
 
     var body: some Scene {

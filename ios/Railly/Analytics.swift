@@ -1,10 +1,13 @@
 import Foundation
+import PostHog
 
-/// MAJ product-analytics event schema — ON-DEVICE ONLY. Events append to a
-/// bounded ring buffer at Documents/analytics.json and never touch the network:
-/// the privacy page promises we disclose and ask before any analytics ship, so
-/// this only records locally until that day. The schema is ready when it is.
+/// Product-analytics event schema. Events append to a bounded on-device ring
+/// buffer at Documents/analytics.json and, in release builds with analytics
+/// switched on (Settings → Privacy, on by default and disclosed on the
+/// privacy page), are also sent to PostHog. Props are train numbers, sources
+/// and card kinds only: never a PNR, passenger status, or the user's trips.
 enum AnalyticsEvent: String, Codable {
+    case pnrCheckCompleted = "pnr_check_completed"
     case tripAdded = "trip_added"
     case pnrWatched = "pnr_watched"
     case liveWindowOpen = "live_window_open"
@@ -35,6 +38,48 @@ final class Analytics {
             .appendingPathComponent("analytics.json")
     }()
 
+    /// Public PostHog project key (phc_ client key, safe to ship in the binary).
+    private static let postHogKey = "phc_oLm8fb7L4CXDqGdJcc7a6boCtR8rVjf6dNx7G995eGdy"
+    /// Mirrors the Settings → Privacy toggle. Missing means on.
+    static let enabledDefaultsKey = "railly.analyticsEnabled"
+
+    static var isEnabled: Bool {
+        UserDefaults.standard.object(forKey: enabledDefaultsKey) as? Bool ?? true
+    }
+
+    /// Whether PostHog was set up this launch (release builds, real launches).
+    private(set) var remoteStarted = false
+
+    /// Starts PostHog. Skipped in debug builds and demo/snapshot launches so
+    /// development and marketing runs never reach the shared project.
+    func start() {
+        #if !DEBUG
+        guard !isSnapshotLaunch(), !remoteStarted else { return }
+        let config = PostHogConfig(projectToken: Self.postHogKey, host: "https://us.i.posthog.com")
+        config.captureApplicationLifecycleEvents = true
+        config.captureScreenViews = true
+        config.errorTrackingConfig.autoCapture = true
+        #if os(iOS)
+        config.sessionReplay = true
+        config.sessionReplayConfig.maskAllTextInputs = true
+        config.sessionReplayConfig.maskAllImages = false
+        #endif
+        // A choice persisted by the SDK wins over this on later launches;
+        // setEnabled keeps the two in step.
+        config.optOut = !Self.isEnabled
+        PostHogSDK.shared.setup(config)
+        PostHogSDK.shared.register(["app": "railway"])
+        remoteStarted = true
+        #endif
+    }
+
+    /// Settings → Privacy toggle.
+    func setEnabled(_ on: Bool) {
+        UserDefaults.standard.set(on, forKey: Self.enabledDefaultsKey)
+        guard remoteStarted else { return }
+        if on { PostHogSDK.shared.optIn() } else { PostHogSDK.shared.optOut() }
+    }
+
     private init() {
         if let data = try? Data(contentsOf: fileURL),
            let decoded = try? JSONDecoder().decode([Entry].self, from: data) {
@@ -51,6 +96,9 @@ final class Analytics {
             entries.removeFirst(entries.count - capacity)
         }
         persist()
+        if remoteStarted {
+            PostHogSDK.shared.capture(event.rawValue, properties: props)
+        }
     }
 
     /// Everything recorded so far, newest first — for the future in-app
@@ -63,6 +111,13 @@ final class Analytics {
     func reset() {
         entries = []
         try? FileManager.default.removeItem(at: fileURL)
+        // New anonymous id from here on. reset() also clears the SDK's stored
+        // opt-out, so re-apply the user's choice.
+        if remoteStarted {
+            PostHogSDK.shared.reset()
+            PostHogSDK.shared.register(["app": "railway"])
+            if !Self.isEnabled { PostHogSDK.shared.optOut() }
+        }
     }
 
     private func persist() {

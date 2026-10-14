@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Loader2, Search, TriangleAlert } from "lucide-react";
+import posthog from "posthog-js";
 
 /** Mirrors RealPassenger in src/lib/rail/confirmtkt.ts. */
 interface Passenger {
@@ -73,6 +74,8 @@ export function PnrLookup() {
       const res = await fetch(`/api/rail/pnr/${digits}`);
       const body = await res.json();
       if (!res.ok) {
+        // The PNR itself is never sent, only the outcome.
+        posthog.capture("pnr_check_completed", { outcome: "rejected", http_status: res.status });
         // The route already returns the service's own message; show it rather
         // than a generic failure, and never fall back to invented data.
         setState({
@@ -81,8 +84,18 @@ export function PnrLookup() {
         });
         return;
       }
+      const ticket = (body as Result).ticket;
+      posthog.capture("pnr_check_completed", {
+        outcome: "found",
+        source: (body as Result).source,
+        journey_class: ticket.journeyClass,
+        quota: ticket.quota,
+        chart_prepared: ticket.chartPrepared,
+        passenger_count: ticket.passengers.length,
+      });
       setState({ kind: "done", result: body as Result });
     } catch {
+      posthog.capture("pnr_check_completed", { outcome: "network_error" });
       setState({
         kind: "error",
         message: "Couldn't reach Railly. Check your connection and try again.",
@@ -143,7 +156,12 @@ export function PnrLookup() {
         </div>
       )}
 
-      {state.kind === "done" && <TicketCard result={state.result} />}
+      {/* ph-no-capture keeps passenger status and berths out of session replay. */}
+      {state.kind === "done" && (
+        <div className="ph-no-capture">
+          <TicketCard result={state.result} />
+        </div>
+      )}
     </div>
   );
 }

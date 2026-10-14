@@ -54,3 +54,6 @@ xcuserdata/
 
 # atomic-write temp files from the rail-shape pipeline
 *.json.tmp
+
+# Public PostHog client key, committed on purpose so deploys need no secret
+!.env.production
